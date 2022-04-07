@@ -1,0 +1,30 @@
+{
+    "power": "off",
+    "colour": "#0f0",
+    "filter": "94",
+    "beatdebounce": "30",
+    "gainlow": "80",
+    "gainincrement": "100",
+    "gaindecrement": "10",
+    "scrollspeed": "70",
+    "message": "The world is my oyster!",
+    "messagescroll": true,
+    "beatdecay": 100,
+    "minbeatband": 0,
+    "maxbeatband": 1,
+    "cyclecolours":
+            [
+                {
+                    "colour": "#f00",
+                    "duration": 1,
+                    "durationtype": "beat",
+                    "beatdecay": 100
+                },
+                {
+                    "colour": "#ff0",
+                    "duration": 4,
+                    "durationtype": "time",
+                    "beatdecay": 10
+                }
+            ]
+}
