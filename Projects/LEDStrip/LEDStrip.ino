@@ -11,7 +11,8 @@
 #endif
 #include <EEPROM.h>
 #include "FS.h"
-#include <ESPAsyncWebServer.h>
+#include <ESPAsyncWebSrv.h>
+#include <Adafruit_I2CDevice.h>
 #include "Update.h"
 #include "ESPmDNS.h"
 #include "ArduinoOTA.h"

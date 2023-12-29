@@ -408,3 +408,6 @@ FodyWeavers.xsd
 !**/__vm/Configuration.*
 
 # -------------------------------------------------------------------------------------------------
+Projects/LEDStrip/LEDStrip.ino
+Projects/LEDStrip/LEDStrip.sln
+Projects/LEDStrip/LEDStrip.vcxproj

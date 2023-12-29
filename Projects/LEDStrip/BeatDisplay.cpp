@@ -1,10 +1,12 @@
+#include <vector>
 #include "BeatDisplay.h"
 
+using std::vector;
 
 class BeatVisualisationRoll : public BeatDisplay::BeatVisualisation
 {
 public:
-	virtual void onBeat(std::vector<unsigned long>& beats);
+	virtual void onBeat(vector<unsigned long>& beats);
 
 private:
 	unsigned int				m_beatNo = -1;
@@ -14,7 +16,7 @@ private:
 class BeatVisualisationStrobe : public BeatDisplay::BeatVisualisation
 {
 public:
-	virtual void onBeat(std::vector<unsigned long>& beats);
+	virtual void onBeat(vector<unsigned long>& beats);
 };
 
 
@@ -141,7 +143,7 @@ BeatDisplay::BeatVisualisation* BeatDisplay::newVisualisation()
 }
 
 
-void BeatVisualisationRoll::onBeat(std::vector<unsigned long>& beats)
+void BeatVisualisationRoll::onBeat(vector<unsigned long>& beats)
 {
 	if (++m_beatNo >= beats.size())
 		m_beatNo = 0;
@@ -150,7 +152,7 @@ void BeatVisualisationRoll::onBeat(std::vector<unsigned long>& beats)
 }
 
 
-void BeatVisualisationStrobe::onBeat(std::vector<unsigned long>& beats)
+void BeatVisualisationStrobe::onBeat(vector<unsigned long>& beats)
 {
 	unsigned long now = millis();
 	int midPoint = (beats.size() + 1) / 2;

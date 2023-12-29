@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="LEDStrip.ino" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="__vm\.LEDStrip.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -59,5 +56,6 @@
     <ClCompile Include="PanelDisplay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LEDStrip.ino" />
   </ItemGroup>
 </Project>

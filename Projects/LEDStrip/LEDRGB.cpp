@@ -44,7 +44,7 @@ void LEDRGB::notify(const JsonDocument& settings)
 	unsigned long hexValue = strtol(&colour.c_str()[1], NULL, 16);
 	m_beatdecay = atoi(beatdecay.c_str());
 
-	JsonDocument copy_settings = settings;
+	DynamicJsonDocument copy_settings = settings;
 	JsonArray cycle_colours = copy_settings["cyclecolours"];
 
 	m_cycleColours.clear();
