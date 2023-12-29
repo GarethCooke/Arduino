@@ -67,8 +67,8 @@ void setup(void)
 	uint8_t cmndbtn_pin	= D5;
 #endif
 
-	pBeatDisplay.reset(new BeatDisplay());
 	pHub.reset(new LEDStripController());
+	pBeatDisplay.reset(new BeatDisplay(*pHub));
 	pHTTPServer.reset(new LEDStripHTTPServ(*pHub));
 	pBeatbox.reset(new Beatbox(reset_pin, strobe_pin, beatin_pin));
 	pCmd_btn.reset(new DigitalPinValue(cmndbtn_pin));

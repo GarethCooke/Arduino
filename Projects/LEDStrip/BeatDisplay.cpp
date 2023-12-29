@@ -1,4 +1,5 @@
 #include <vector>
+#include "Fonts/MyFreeSans5pt7b.h"
 #include "BeatDisplay.h"
 
 using std::vector;
@@ -20,7 +21,7 @@ public:
 };
 
 
-BeatDisplay::BeatDisplay() : m_pBeatVisualisation(newVisualisation())
+BeatDisplay::BeatDisplay(LEDStripController& controller) : m_controller(controller), m_pBeatVisualisation(newVisualisation())
 {
 	m_display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3C (for the 64x48)
 }
@@ -57,6 +58,8 @@ void BeatDisplay::notify(const Beatbox::Event& evt)
 	// |	#	|	#	|	#	|	#	| 	#	 |	#	 |	#	 |
 	// |------------------------- margin ------------------------|
 	// |---------------------------------------------------------|
+	// but bear in mind that we rotate the display below before
+	// using it so that x and y are rotated
 
 	unsigned long	now			= millis();
 	unsigned int	bands		= evt.getCount();
@@ -69,15 +72,7 @@ void BeatDisplay::notify(const Beatbox::Event& evt)
 
 		m_display.setTextColor(WHITE);
 
-		unsigned int maxBandSize = m_display.width() - 3 * m_margin - m_topBeatSize;
-		unsigned int currentBand = 0;
-
-		std::for_each(evt.begin(), evt.end(), [this, currentBand, bandWidth, maxBandSize](const std::pair<const String*, int>& band) mutable
-		{
-			unsigned int bandSize = maxBandSize * (band.second / 255.0);
-			m_display.fillRect(m_display.width() - m_margin - bandSize, getBandPos(currentBand++, bandWidth), bandSize, bandWidth, WHITE);
-		});
-
+		(this->*RefreshMain)(evt, bandWidth);
 		m_lastRefresh = now;
 	}
 
@@ -88,11 +83,11 @@ void BeatDisplay::notify(const Beatbox::Event& evt)
 		m_pBeatVisualisation->onBeat(m_beats);
 
 	int n = 0;
-	for(auto& val : m_beats)
+	for (auto& val : m_beats)
 	{
-		long beatPeriod		= now - min(now, val);
-		long beatDecay		= 100 * beatPeriod / m_pBeatVisualisation->pulseLength();
-		long decayAdjust	= (m_topBeatSize * beatDecay / 100);
+		long beatPeriod = now - min(now, val);
+		long beatDecay = 100 * beatPeriod / m_pBeatVisualisation->pulseLength();
+		long decayAdjust = (m_topBeatSize * beatDecay / 100);
 		if (beatPeriod <= m_pBeatVisualisation->pulseLength())
 			m_display.fillRect(m_margin + decayAdjust / 2, getBandPos(n, bandWidth), m_topBeatSize - decayAdjust, bandWidth, WHITE);
 		n++;
@@ -100,6 +95,7 @@ void BeatDisplay::notify(const Beatbox::Event& evt)
 
 	m_display.display();
 }
+
 
 unsigned int BeatDisplay::getBandWidth(unsigned int bands) const
 {
@@ -116,30 +112,72 @@ int BeatDisplay::getBandPos(unsigned int band, unsigned int bandWidth) const
 void BeatDisplay::cycleDisplay()
 {
 	Serial.println((int)m_displayType);
-	m_displayType++;
+	RefreshMain = (DisplayType::display_info == ++m_displayType) ? &BeatDisplay::displayInfo : &BeatDisplay::displayEqualiser;
+
 	BeatDisplay::BeatVisualisation* pTemp = newVisualisation();
 	std::swap(m_pBeatVisualisation, pTemp);
 	delete pTemp;
 }
 
 
-BeatDisplay::DisplayType operator++(BeatDisplay::DisplayType& val, int)
+BeatDisplay::DisplayType& operator++(BeatDisplay::DisplayType& val)
 {
-	BeatDisplay::DisplayType result = val;
 	val = static_cast<BeatDisplay::DisplayType>(static_cast<int>(val) + 1);
 
 	if(val == BeatDisplay::DisplayType::display_null)
-		val = BeatDisplay::DisplayType::display_beatroll;
-	return result;
+		val = static_cast<BeatDisplay::DisplayType>(0);
+	return val;
 }
 
 
 BeatDisplay::BeatVisualisation* BeatDisplay::newVisualisation()
 {
-	if(DisplayType::display_beatstrobe == m_displayType)
+	if(DisplayType::display_beatroll != m_displayType)
 		return new BeatVisualisationStrobe();
 	else
 		return new BeatVisualisationRoll();
+}
+
+
+void BeatDisplay::displayEqualiser(const Beatbox::Event& evt, unsigned int bandWidth)
+{
+	unsigned int maxBandSize = m_display.width() - 3 * m_margin - m_topBeatSize;
+	unsigned int currentBand = 0;
+
+	std::for_each(evt.begin(), evt.end(), [this, currentBand, bandWidth, maxBandSize](const std::pair<const String*, int>& band) mutable
+		{
+			unsigned int bandSize = maxBandSize * (band.second / 255.0);
+			m_display.fillRect(m_display.width() - m_margin - bandSize, getBandPos(currentBand++, bandWidth), bandSize, bandWidth, WHITE);
+		});
+}
+
+void BeatDisplay::displayInfo(const Beatbox::Event& evt, unsigned int bandWidth)
+{
+	String hostname	= m_controller.getHostName();
+	String mac		= m_controller.getMACAddress();
+	String ip		= m_controller.getIPAddress();
+
+	int16_t x1, y1;
+	uint16_t w, h;
+	uint8_t origRotation = m_display.getRotation();
+	m_display.setRotation(0);
+
+	m_display.setFont(&MyFreeSans5pt7b);
+	m_display.getTextBounds(ip, m_margin, 0, &x1, &y1, &w, &h);
+	
+	m_display.setCursor(m_margin, 2 * m_margin + m_topBeatSize + h);
+	m_display.print("Host: ");
+	m_display.print(hostname);
+
+	m_display.setCursor(m_margin, 3 * m_margin + m_topBeatSize + 2 * h);
+	m_display.print("MAC: ");
+	m_display.print(mac);
+
+	m_display.setCursor(m_margin, 4 * m_margin + m_topBeatSize + 3 * h);
+	m_display.print("IP: ");
+	m_display.print(ip);
+
+	m_display.setRotation(origRotation);
 }
 
 

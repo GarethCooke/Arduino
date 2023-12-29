@@ -95,6 +95,18 @@ void LEDStripController::factory_reset()
 }
 
 
+String LEDStripController::getMACAddress() const
+{
+	return WiFi.macAddress();
+}
+
+
+String LEDStripController::getIPAddress() const
+{
+	return WiFi.localIP().toString();
+}
+
+
 void LEDStripController::reset()
 {
 	Serial.println("Reboot");
