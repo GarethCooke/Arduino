@@ -1,6 +1,13 @@
 //#include <arduinoFFT.h>
-#include "Beatbox.h"
+#include <functional>
 #include <algorithm>
+#include <stdexcept>
+#include "Beatbox.h"
+
+using std::bind;
+using std::logic_error;
+
+std::auto_ptr<Beatbox> pBeatbox;
 
 //arduinoFFT FFT = arduinoFFT(); /* Create FFT object */
 
@@ -33,6 +40,20 @@ Beatbox::EventInitialiser& Beatbox::EventInitialiser::operator=(int value)
 }
 
 
+void Beatbox::create(uint8_t reset_pin, uint8_t strobe_pin, uint8_t beatin_pin)
+{
+	pBeatbox.reset(new Beatbox(reset_pin, strobe_pin, beatin_pin));
+}
+
+
+Beatbox& Beatbox::get()
+{
+	if (!pBeatbox.get())
+		throw logic_error("Attempt to get() Beatbox before call to create(...).");
+	return *pBeatbox;
+}
+
+
 Beatbox::Beatbox(uint8_t reset_pin, uint8_t strobe_pin, uint8_t beatin_pin)
 	:   m_reset_pin(reset_pin),
 		m_strobe_pin(strobe_pin),
@@ -52,6 +73,21 @@ Beatbox::Beatbox(uint8_t reset_pin, uint8_t strobe_pin, uint8_t beatin_pin)
 	digitalWrite(m_reset_pin, LOW);
 	digitalWrite(m_strobe_pin, HIGH);
 	delay(1);
+}
+
+void Beatbox::start()
+{
+	static auto created = false;
+	if (created)
+		return;
+
+	created = true;
+	static StaticTask_t xTaskBuffer;
+	static const auto STACK_SIZE = 2000;
+	static TaskHandle_t xHandle = NULL;
+	//static StackType_t xStack[STACK_SIZE];
+
+	xTaskCreate(handle, "Beatbox handler", STACK_SIZE, NULL, 5, &xHandle);
 }
 
 
@@ -87,9 +123,13 @@ void Beatbox::notify(const JsonDocument& settings)
 }
 
 
-void Beatbox::handle()
+void Beatbox::handle(void* pvParameters)
 {
-	handleHardware();
+	if (!pBeatbox.get())
+		throw logic_error("Attempt to use Beatbox handle(...) before call to create(...).");
+
+	while(true)
+		pBeatbox->handleHardware();
 }
 
 
@@ -144,7 +184,6 @@ void Beatbox::handleHardware()
 	}
 
 	const Event& event_to_publish = events;
-
 	for_each(m_listeners.begin(), m_listeners.end(), [event_to_publish](std::set<EventListener*>::const_reference nextListener) { nextListener->notify(event_to_publish); });
 }
 

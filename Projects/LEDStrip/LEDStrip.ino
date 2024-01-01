@@ -40,7 +40,6 @@
 
 std::auto_ptr<LEDStripController>	pHub;
 std::auto_ptr<LEDStripHTTPServ>		pHTTPServer;
-std::auto_ptr<Beatbox>				pBeatbox;
 std::auto_ptr<BeatDisplay>			pBeatDisplay;
 std::auto_ptr<DigitalPinValue>		pCmd_btn;
 std::auto_ptr<LEDRGB>				pStrip1;
@@ -72,28 +71,36 @@ void setup(void)
 #endif
 
 	pHub.reset(new LEDStripController());
-	pBeatDisplay.reset(new BeatDisplay(*pHub));
 	pHTTPServer.reset(new LEDStripHTTPServ(*pHub));
-	pBeatbox.reset(new Beatbox(reset_pin, strobe_pin, beatin_pin));
+	pBeatDisplay.reset(new BeatDisplay(*pHub));
 	pCmd_btn.reset(new DigitalPinValue(cmndbtn_pin));
 	pStrip1.reset(new LEDRGB(r_pin, g_pin, b_pin));
 	pStrip2.reset(new LEDRGBAddressable(13));
 	pPanel1.reset(new PanelDisplay(23, 18, 5, 4, 1));
 
-	pBeatbox->addListener(pBeatDisplay.get());
-	pBeatbox->addListener(pStrip1.get());
-	pBeatbox->addListener(pStrip2.get());
-	pBeatbox->addListener(pPanel1.get());
-	pBeatbox->addListener(pHTTPServer.get());
+	Beatbox::create(reset_pin, strobe_pin, beatin_pin);
+	Beatbox& beatbox = Beatbox::get();
 
-	pHub->addListener(pBeatbox.get());
+	beatbox.addListener(pBeatDisplay.get());
+	beatbox.addListener(pStrip1.get());
+	beatbox.addListener(pStrip2.get());
+	beatbox.addListener(pPanel1.get());
+	beatbox.addListener(pHTTPServer.get());
+
+	pHub->addListener(&beatbox);
 	pHub->addListener(pStrip1.get());
 	pHub->addListener(pStrip2.get());
 	pHub->addListener(pPanel1.get());
 
+	Serial.println("resetFromSettings...");
 	pHub->resetFromSettings();
+	Serial.println("resetFromSettings complete");
 
+	Serial.println("IguanaOTA::Initialise...");
 	IguanaOTA::Initialise(pHub->getHostName());
+	Serial.println("IguanaOTA::Initialise complete");
+
+	beatbox.start();
 
 	Serial.println("Ready");
 }
@@ -128,7 +135,6 @@ void loop(void)
 	}
 
 	IguanaOTA::handle();
-	pBeatbox->handle();
 	pStrip1->handle();
 	pStrip2->handle();
 }

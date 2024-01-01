@@ -8,9 +8,11 @@
 class Beatbox : public LEDStripController::SettingsListener
 {
 public:
-	Beatbox(uint8_t reset_pin, uint8_t strobe_pin, uint8_t beatin_pin);
+	static void create(uint8_t reset_pin, uint8_t strobe_pin, uint8_t beatin_pin);
+	static Beatbox& get();
+
 	void notify(const JsonDocument& settings);
-	void handle();
+	void start();
 
 	class EventInitialiser;
 	class Event
@@ -92,8 +94,10 @@ private:
 	int				m_beatTimer = m_beatDebounce / 2;	// counter for the beat debounce
 	bool			m_beatFlag = false;
 
-	void	handleHardware();
-	int		strobeHardware();
-	void	handleSoftware();
+	Beatbox(uint8_t reset_pin, uint8_t strobe_pin, uint8_t beatin_pin);
+	static void	handle(void* pvParameters);
+	void		handleHardware();
+	int			strobeHardware();
+	void		handleSoftware();
 };
 

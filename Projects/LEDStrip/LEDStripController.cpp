@@ -144,7 +144,7 @@ void LEDStripController::resetFromSettings()
 {
 	File f = SPIFFS.open(settingsFilename(), "r");
 
-	Serial.printf("Settings ile size %d\n", f.size());
+	Serial.printf("Settings file size %d\n", f.size());
 
 	DynamicJsonDocument doc(f.size() * 3);
 	// Deserialize the JSON document
