@@ -11,7 +11,6 @@ public:
 	virtual void notify(const Beatbox::Event& evt);
 
 	void handle();
-	void reset(unsigned int r, unsigned int g, unsigned int b, bool power, bool beatbox);
 
 private:
 	class RGB
@@ -92,6 +91,7 @@ private:
 	CycleColors		m_cycleColours;
 	CurrentCycle	m_currentCycle;
 
+	void reset(unsigned int r, unsigned int g, unsigned int b, bool power, bool beatbox);
 	const CurrentCycle makeColourCycle(CycleColors::const_iterator it) const;
 	const RGB& getBeatColour() const;
 	unsigned int getDecay() const;

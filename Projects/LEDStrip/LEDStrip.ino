@@ -1,3 +1,5 @@
+#include <Adafruit_NeoPixel.h>
+#include <WS2812FX.h>
 #include <Arduino.h>
 #include <memory>
 #include <ArduinoJson.h>
@@ -29,6 +31,7 @@
 #include "LEDStripHTTPServ.h"
 #include "BeatDisplay.h"
 #include "LEDRGB.h"
+#include "LEDRGBAddressable.h"
 #include "PanelDisplay.h"
 
 
@@ -41,6 +44,7 @@ std::auto_ptr<Beatbox>				pBeatbox;
 std::auto_ptr<BeatDisplay>			pBeatDisplay;
 std::auto_ptr<DigitalPinValue>		pCmd_btn;
 std::auto_ptr<LEDRGB>				pStrip1;
+std::auto_ptr<LEDRGBAddressable>	pStrip2;
 std::auto_ptr<PanelDisplay>			pPanel1;
 
 
@@ -50,21 +54,21 @@ void setup(void)
 	Serial.println("Starting...");
 
 #ifdef ESP32
-	uint8_t r_pin		= 26;
-	uint8_t g_pin		= 25;
-	uint8_t b_pin		= 27;
-	uint8_t reset_pin	= 14;
-	uint8_t strobe_pin	= 12;
-	uint8_t beatin_pin	= 32;
-	uint8_t cmndbtn_pin	= 33;
+	uint8_t r_pin = 26;
+	uint8_t g_pin = 25;
+	uint8_t b_pin = 27;
+	uint8_t reset_pin = 14;
+	uint8_t strobe_pin = 12;
+	uint8_t beatin_pin = 32;
+	uint8_t cmndbtn_pin = 33;
 #elif defined(ESP8266)
-	uint8_t r_pin		= D3;
-	uint8_t g_pin		= D7;
-	uint8_t b_pin		= D8;
-	uint8_t reset_pin	= D6;
-	uint8_t strobe_pin	= D4;
-	uint8_t beatin_pin	= A0;
-	uint8_t cmndbtn_pin	= D5;
+	uint8_t r_pin = D3;
+	uint8_t g_pin = D7;
+	uint8_t b_pin = D8;
+	uint8_t reset_pin = D6;
+	uint8_t strobe_pin = D4;
+	uint8_t beatin_pin = A0;
+	uint8_t cmndbtn_pin = D5;
 #endif
 
 	pHub.reset(new LEDStripController());
@@ -73,15 +77,18 @@ void setup(void)
 	pBeatbox.reset(new Beatbox(reset_pin, strobe_pin, beatin_pin));
 	pCmd_btn.reset(new DigitalPinValue(cmndbtn_pin));
 	pStrip1.reset(new LEDRGB(r_pin, g_pin, b_pin));
+	pStrip2.reset(new LEDRGBAddressable(13));
 	pPanel1.reset(new PanelDisplay(23, 18, 5, 4, 1));
 
 	pBeatbox->addListener(pBeatDisplay.get());
 	pBeatbox->addListener(pStrip1.get());
+	pBeatbox->addListener(pStrip2.get());
 	pBeatbox->addListener(pPanel1.get());
 	pBeatbox->addListener(pHTTPServer.get());
 
 	pHub->addListener(pBeatbox.get());
 	pHub->addListener(pStrip1.get());
+	pHub->addListener(pStrip2.get());
 	pHub->addListener(pPanel1.get());
 
 	pHub->resetFromSettings();
@@ -123,4 +130,5 @@ void loop(void)
 	IguanaOTA::handle();
 	pBeatbox->handle();
 	pStrip1->handle();
+	pStrip2->handle();
 }

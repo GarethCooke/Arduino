@@ -169,6 +169,16 @@ void LEDStripController::setupWiFi()
 #endif
 	WiFi.mode(WIFI_AP);
 	WiFi.softAP(m_device_hostname);
+
+	Serial.println("Wait 100 ms for AP_START...");
+	delay(100);
+
+	Serial.println("Setting the AP");
+	Serial.println("Set softAPConfig");
+	IPAddress Ip(192, 168, 1, 1);
+	IPAddress NMask(255, 255, 255, 0);
+	WiFi.softAPConfig(Ip, Ip, NMask);
+
 	Serial.print("Server IP address: ");
 	Serial.println(WiFi.softAPIP());
 }
