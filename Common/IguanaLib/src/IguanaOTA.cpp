@@ -31,7 +31,7 @@ IguanaOTA::IguanaOTA(const char* szHostname)
 	ArduinoOTA.setHostname(szHostname);
 
 	// No authentication by default
-	ArduinoOTA.setPassword("samson16");
+	ArduinoOTA.setPassword("password");
 
 	ArduinoOTA.onStart([]()
 	{
