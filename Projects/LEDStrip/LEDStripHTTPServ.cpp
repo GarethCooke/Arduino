@@ -1,7 +1,5 @@
 #include <Arduino.h>
-#ifdef ESP32
 #include <SPIFFS.h>
-#endif
 #include <algorithm>
 #include <ArduinoOTA.h>
 #include <ArduinoJson.h>
@@ -144,11 +142,7 @@ std::auto_ptr<String> LEDStripHTTPServ::getNetworks()
 			JsonObject network = nets.createNestedObject();
 			network["name"]		= WiFi.SSID(nNetwork);
 			network["strength"]	= 2 * (WiFi.RSSI(nNetwork) + 100);
-#ifdef ESP32
 			network["secured"] = WiFi.encryptionType(nNetwork) != WIFI_AUTH_OPEN;
-#elif defined(ESP8266)
-			network["secured"] = WiFi.encryptionType(nNetwork) != ENC_TYPE_NONE;
-#endif
 		}
 
 		serializeJson(jsonDoc, *pString);

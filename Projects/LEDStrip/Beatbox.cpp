@@ -83,7 +83,7 @@ void Beatbox::start()
 
 	created = true;
 	static StaticTask_t xTaskBuffer;
-	static const auto STACK_SIZE = 2000;
+	static const auto STACK_SIZE = 4000;
 	static TaskHandle_t xHandle = NULL;
 	//static StackType_t xStack[STACK_SIZE];
 
@@ -146,6 +146,7 @@ void Beatbox::handleHardware()
 	for (int nSpectrum = 1; nSpectrum < 8; nSpectrum++)
 	{
 		int evt = strobeHardware();
+		Serial.printf("Beat %d\n", evt);
 		events = evt;
 
 		if ((nSpectrum <= m_maxbeatband) && (nSpectrum <= m_minbeatband))

@@ -1,10 +1,6 @@
 #include <Arduino.h>
-#ifdef ESP32
 #include <WiFi.h>
 #include <SPIFFS.h>
-#elif defined(ESP8266)
-#include <ESP8266WiFi.h>
-#endif
 #include <sstream>
 #include <iomanip>
 #include <time.h>
@@ -162,11 +158,7 @@ void LEDStripController::resetFromSettings()
 
 void LEDStripController::setupWiFi()
 {
-#ifdef ESP32
 	WiFi.disconnect(true, true);
-#elif defined(ESP8266)
-	WiFi.disconnect(true);
-#endif
 	WiFi.mode(WIFI_AP);
 	WiFi.softAP(m_device_hostname);
 
@@ -189,11 +181,7 @@ bool LEDStripController::startupWiFi(const char* ssid, const char* pwd)
 	Serial.println("Starting WiFi");
 	WiFi.mode(WIFI_STA);
 
-#ifdef ESP32
 	WiFi.setHostname(m_device_hostname);
-#elif defined(ESP8266)
-	WiFi.hostname(m_device_hostname);
-#endif
 	WiFi.begin(ssid, pwd);
 
 	bool success = (WiFi.waitForConnectResult() == WL_CONNECTED);

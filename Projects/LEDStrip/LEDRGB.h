@@ -74,15 +74,9 @@ private:
 	typedef std::vector<CycleColor> CycleColors;
 	typedef std::pair<CycleColors::const_iterator, unsigned long> CurrentCycle;
 
-#ifdef ESP32
-	const int ledChannelR = 0;
-	const int ledChannelG = 1;
-	const int ledChannelB = 2;
-#elif defined(ESP8266)
-	uint8_t			m_r_pin;
-	uint8_t			m_g_pin;
-	uint8_t			m_b_pin;
-#endif
+	const int		ledChannelR	= 0;
+	const int		ledChannelG	= 1;
+	const int		ledChannelB	= 2;
 	RGB				m_rgb;
 	bool			m_power		= false;
 	bool			m_beatbox	= false;

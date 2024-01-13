@@ -4,6 +4,10 @@
 
 using std::vector;
 
+#define SCREEN_WIDTH	128		// OLED display width, in pixels
+#define SCREEN_HEIGHT	32		// OLED display height, in pixels
+#define OLED_RESET		-1		// Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS	0x3C	// See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 class BeatVisualisationRoll : public BeatDisplay::BeatVisualisation
 {
 public:
@@ -21,9 +25,10 @@ public:
 };
 
 
-BeatDisplay::BeatDisplay(LEDStripController& controller) : m_controller(controller), m_pBeatVisualisation(newVisualisation())
+BeatDisplay::BeatDisplay(LEDStripController& controller) : m_controller(controller), m_pBeatVisualisation(newVisualisation()), m_display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET)
 {
-	m_display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3C (for the 64x48)
+	if (!m_display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
+		Serial.println(F("SSD1306 allocation failed"));
 }
 
 BeatDisplay::~BeatDisplay()

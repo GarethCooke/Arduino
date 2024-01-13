@@ -3,14 +3,9 @@
 #include <Arduino.h>
 #include <memory>
 #include <ArduinoJson.h>
-#ifdef ESP32
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <SPIFFS.h>
-#elif defined(ESP8266)
-//#include <ESP8266WiFi.h>
-//#include <ESPAsyncTCP.h>
-#endif
 #include <EEPROM.h>
 #include "FS.h"
 #include <ESPAsyncWebSrv.h>
@@ -52,45 +47,38 @@ void setup(void)
 	Serial.begin(9600);
 	Serial.println("Starting...");
 
-#ifdef ESP32
-	uint8_t r_pin = 26;
-	uint8_t g_pin = 25;
-	uint8_t b_pin = 27;
-	uint8_t reset_pin = 14;
-	uint8_t strobe_pin = 12;
-	uint8_t beatin_pin = 32;
-	uint8_t cmndbtn_pin = 33;
-#elif defined(ESP8266)
-	uint8_t r_pin = D3;
-	uint8_t g_pin = D7;
-	uint8_t b_pin = D8;
-	uint8_t reset_pin = D6;
-	uint8_t strobe_pin = D4;
-	uint8_t beatin_pin = A0;
-	uint8_t cmndbtn_pin = D5;
-#endif
+	Wire.begin(18, 46); // use I2C pins SDA = 18, SCL = 46
+
+	const static uint8_t r_pin = 26;
+	const static uint8_t g_pin = 25;
+	const static uint8_t b_pin = 27;
+	const static uint8_t beat_reset_pin = 5;
+	const static uint8_t beat_strobe_pin = 2;
+	const static uint8_t beat_in_pin = 42;
+	const static uint8_t cmndbtn_pin = 4;
+	const static uint8_t led_addr_data_pin = 1;
 
 	pHub.reset(new LEDStripController());
 	pHTTPServer.reset(new LEDStripHTTPServ(*pHub));
 	pBeatDisplay.reset(new BeatDisplay(*pHub));
 	pCmd_btn.reset(new DigitalPinValue(cmndbtn_pin));
-	pStrip1.reset(new LEDRGB(r_pin, g_pin, b_pin));
-	pStrip2.reset(new LEDRGBAddressable(13));
-	pPanel1.reset(new PanelDisplay(23, 18, 5, 4, 1));
+	//pStrip1.reset(new LEDRGB(r_pin, g_pin, b_pin));
+	pStrip2.reset(new LEDRGBAddressable(led_addr_data_pin));
+	//pPanel1.reset(new PanelDisplay(23, 18, 5, 4, 1));
 
-	Beatbox::create(reset_pin, strobe_pin, beatin_pin);
+	Beatbox::create(beat_reset_pin, beat_strobe_pin, beat_in_pin);
 	Beatbox& beatbox = Beatbox::get();
 
 	beatbox.addListener(pBeatDisplay.get());
-	beatbox.addListener(pStrip1.get());
+	//beatbox.addListener(pStrip1.get());
 	beatbox.addListener(pStrip2.get());
-	beatbox.addListener(pPanel1.get());
+	//beatbox.addListener(pPanel1.get());
 	beatbox.addListener(pHTTPServer.get());
 
 	pHub->addListener(&beatbox);
-	pHub->addListener(pStrip1.get());
+	//pHub->addListener(pStrip1.get());
 	pHub->addListener(pStrip2.get());
-	pHub->addListener(pPanel1.get());
+	//pHub->addListener(pPanel1.get());
 
 	Serial.println("resetFromSettings...");
 	pHub->resetFromSettings();
@@ -135,6 +123,6 @@ void loop(void)
 	}
 
 	IguanaOTA::handle();
-	pStrip1->handle();
+	//pStrip1->handle();
 	pStrip2->handle();
 }

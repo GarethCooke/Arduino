@@ -2,18 +2,11 @@
 
 
 LEDRGB::LEDRGB(uint8_t r_pin, uint8_t g_pin, uint8_t b_pin)
-#ifdef ESP32
-#elif defined(ESP8266)
-	:	m_r_pin(r_pin),
-		m_g_pin(g_pin),
-		m_b_pin(b_pin)
-#endif
 {
 	pinMode(r_pin, OUTPUT);
 	pinMode(g_pin, OUTPUT);
 	pinMode(b_pin, OUTPUT);
 
-#ifdef ESP32
 	const int freq = 5000;
 	const int resolution = 10;
 
@@ -24,7 +17,6 @@ LEDRGB::LEDRGB(uint8_t r_pin, uint8_t g_pin, uint8_t b_pin)
 	ledcAttachPin(r_pin, ledChannelR);
 	ledcAttachPin(g_pin, ledChannelG);
 	ledcAttachPin(b_pin, ledChannelB);
-#endif
 }
 
 
@@ -44,12 +36,11 @@ void LEDRGB::notify(const JsonDocument& settings)
 	unsigned long hexValue = strtol(&colour.c_str()[1], NULL, 16);
 	m_beatdecay = atoi(beatdecay.c_str());
 
-	DynamicJsonDocument copy_settings = settings;
-	JsonArray cycle_colours = copy_settings["cyclecolours"];
+	JsonVariantConst cycle_colours = settings["cyclecolours"];
 
 	m_cycleColours.clear();
 
-	for (JsonVariant v : cycle_colours)
+	for (JsonVariantConst v : cycle_colours.as<JsonArrayConst>())
 	{
 		int duration = v["duration"].as<int>();
 		if (duration > 0)
@@ -88,23 +79,14 @@ void LEDRGB::handle()
 	{
 		unsigned long now = millis();
 		// use PWM to set the rgb strip values
-#ifdef ESP32
 		const RGB&		rgb		= getBeatColour();
 		unsigned int	decay	= getDecay();
 
 		const unsigned int light_multiplier = (now - m_lastPulse) > decay ? 0 : 1;
 		
-//		Serial.printf("RBG: %d, %d, %d.  Multiplier %d.  Decay %d\n", rgb.r(), rgb.g(), rgb.b(), light_multiplier, decay);
-
 		ledcWrite(ledChannelR, rgb.r() * light_multiplier);
 		ledcWrite(ledChannelG, rgb.g() * light_multiplier);
 		ledcWrite(ledChannelB, rgb.b() * light_multiplier);
-#elif defined(ESP8266)
-		analogWrite(m_r_pin, rgb.r() - min((rgb.r() * (now - m_lastPulse)) / decay, static_cast<unsigned long>(rgb.r())));
-		analogWrite(m_g_pin, rgb.g() - min((rgb.g() * (now - m_lastPulse)) / decay, static_cast<unsigned long>(rgb.g())));
-		analogWrite(m_b_pin, rgb.b() - min((rgb.b() * (now - m_lastPulse)) / decay, static_cast<unsigned long>(rgb.b())));
-#endif
-		// Serial.printf("r decay, now, lastPulse, calc: %lu, %lu, %lu, %lu, %lu\n", m_r, decay, now, m_lastPulse, (m_r * now - m_lastPulse) / decay);
 	}
 }
 
@@ -125,29 +107,17 @@ void LEDRGB::reset(unsigned int r, unsigned int g, unsigned int b, bool power, b
 		if (!m_beatbox)
 		{
 			// use PWM to set the rgb strip values
-#ifdef ESP32
 			ledcWrite(ledChannelR, m_rgb.r());
 			ledcWrite(ledChannelG, m_rgb.g());
 			ledcWrite(ledChannelB, m_rgb.b());
-#elif defined(ESP8266)
-			analogWrite(m_r_pin, m_r);
-			analogWrite(m_g_pin, m_g);
-			analogWrite(m_b_pin, m_b);
-#endif
 		}
 	}
 	else
 	{
 		// turn off the LEDs
-#ifdef ESP32
 		ledcWrite(ledChannelR, 0);
 		ledcWrite(ledChannelG, 0);
 		ledcWrite(ledChannelB, 0);
-#elif defined(ESP8266)
-		digitalWrite(m_r_pin, 0);
-		digitalWrite(m_g_pin, 0);
-		digitalWrite(m_b_pin, 0);
-#endif
 	}
 }
 
