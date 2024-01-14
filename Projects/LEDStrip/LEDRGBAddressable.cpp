@@ -35,11 +35,7 @@ void LEDRGBAddressable::notify(const JsonDocument& settings)
 void LEDRGBAddressable::notify(const Beatbox::Event& evt)
 {
     if (evt.beatDetected())
-    {
         m_pWS2812fx->trigger();
-        Serial.print("Notify on core ");
-        Serial.println(xPortGetCoreID());
-    }
 }
 
 

@@ -146,7 +146,6 @@ void Beatbox::handleHardware()
 	for (int nSpectrum = 1; nSpectrum < 8; nSpectrum++)
 	{
 		int evt = strobeHardware();
-		Serial.printf("Beat %d\n", evt);
 		events = evt;
 
 		if ((nSpectrum <= m_maxbeatband) && (nSpectrum <= m_minbeatband))
@@ -203,7 +202,7 @@ int Beatbox::strobeHardware()
 
 	digitalWrite(m_strobe_pin, HIGH);
 	delayMicroseconds(100); // Delay necessary due to timing diagram  
-	yield();
+	//yield();
 
 	return evt;
 }

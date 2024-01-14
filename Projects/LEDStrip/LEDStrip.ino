@@ -21,7 +21,7 @@
 #include <MD_MAXPanel.h>
 
 #include "IguanaOTA.h"
-#include <TwoStateValue.h>
+#include <ButtonStatus.h>
 #include "LEDStripController.h"
 #include "LEDStripHTTPServ.h"
 #include "BeatDisplay.h"
@@ -36,7 +36,7 @@
 std::auto_ptr<LEDStripController>	pHub;
 std::auto_ptr<LEDStripHTTPServ>		pHTTPServer;
 std::auto_ptr<BeatDisplay>			pBeatDisplay;
-std::auto_ptr<DigitalPinValue>		pCmd_btn;
+std::auto_ptr<ButtonStatus>			pCmd_btn;
 std::auto_ptr<LEDRGB>				pStrip1;
 std::auto_ptr<LEDRGBAddressable>	pStrip2;
 std::auto_ptr<PanelDisplay>			pPanel1;
@@ -47,21 +47,21 @@ void setup(void)
 	Serial.begin(9600);
 	Serial.println("Starting...");
 
-	Wire.begin(18, 46); // use I2C pins SDA = 18, SCL = 46
+	Wire.begin(18, 9); // use I2C pins SDA = 18, SCL = 9
 
 	const static uint8_t r_pin = 26;
 	const static uint8_t g_pin = 25;
 	const static uint8_t b_pin = 27;
 	const static uint8_t beat_reset_pin = 5;
 	const static uint8_t beat_strobe_pin = 2;
-	const static uint8_t beat_in_pin = 42;
+	const static uint8_t beat_in_pin = 1;
 	const static uint8_t cmndbtn_pin = 4;
-	const static uint8_t led_addr_data_pin = 1;
+	const static uint8_t led_addr_data_pin = 42;
 
 	pHub.reset(new LEDStripController());
 	pHTTPServer.reset(new LEDStripHTTPServ(*pHub));
 	pBeatDisplay.reset(new BeatDisplay(*pHub));
-	pCmd_btn.reset(new DigitalPinValue(cmndbtn_pin));
+	pCmd_btn.reset(new ButtonStatus(shared_ptr_lite< TwoStateValue>(new DigitalPinValue(cmndbtn_pin))));
 	//pStrip1.reset(new LEDRGB(r_pin, g_pin, b_pin));
 	pStrip2.reset(new LEDRGBAddressable(led_addr_data_pin));
 	//pPanel1.reset(new PanelDisplay(23, 18, 5, 4, 1));
@@ -106,7 +106,7 @@ void loop(void)
 			pHub->factory_reset(); // we've flashed enough, now reset
 
 	}
-	else if (pCmd_btn->isSet())
+	else if (pCmd_btn->isOn())
 	{
 		if (btnDownStart == -1)
 			btnDownStart = millis();
