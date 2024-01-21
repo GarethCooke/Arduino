@@ -149,9 +149,9 @@ void BeatDisplay::displayEqualiser(const SoundEvent& evt, unsigned int bandWidth
 	unsigned int maxBandSize = m_display.width() - 3 * m_margin - m_topBeatSize;
 	unsigned int currentBand = 0;
 
-	std::for_each(evt.begin(), evt.end(), [this, currentBand, bandWidth, maxBandSize](const std::pair<const String*, int>& band) mutable
+	std::for_each(evt.begin(), evt.end(), [this, currentBand, bandWidth, maxBandSize](const SoundEvent::BandIterator::Band& band) mutable
 		{
-			unsigned int bandSize = maxBandSize * (band.second / 255.0);
+			unsigned int bandSize = maxBandSize * (band.value() / 255.0);
 			m_display.fillRect(m_display.width() - m_margin - bandSize, getBandPos(currentBand++, bandWidth), bandSize, bandWidth, WHITE);
 		});
 }

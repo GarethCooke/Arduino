@@ -13,9 +13,22 @@ public:
 	class BandIterator
 	{
 	public:
+		class Band
+		{
+		public:
+			Band(const String& frequency, const unsigned int value) : m_frequency(frequency), m_value(value) {}
+
+			const String&		frequency() const	{ return m_frequency; }
+			const unsigned int	value()		const	{ return m_value; }
+
+		private:
+			const String&		m_frequency;
+			const unsigned int	m_value;
+		};
+
 		BandIterator(const SoundEvent& evt, unsigned int current = 0) : m_evt(evt), m_current(current) {}
 		const BandIterator& operator++()					{ m_current++; return *this; }
-		std::pair<const String*, int> operator*()			{ return std::make_pair(&m_evt.m_fequencies[m_current], m_evt.m_results[m_current]); }
+		Band operator*()									{ return Band(m_evt.m_fequencies[m_current], m_evt.m_results[m_current]); }
 		bool operator==(const BandIterator& right) const	{ return m_current == right.m_current && &m_evt == &right.m_evt; }
 		bool operator!=(const BandIterator& right) const	{ return !(*this == right); }
 	private:
