@@ -6,9 +6,10 @@
 #include <ctime>
 #include <WiFiConfig.h>
 #include <ArduinoJson.h>
+#include "NetworkHost.h"
 
 
-class LEDStripController
+class LEDStripController : public NetworkHost
 {
 public:
 	LEDStripController();
@@ -24,9 +25,9 @@ public:
 
 	void factory_reset();
 
-	const char* getHostName()	const { return m_device_hostname; }
-	String getMACAddress()	const;
-	String getIPAddress()	const;
+	virtual const char* getHostName()	const { return m_device_hostname; }
+	virtual String getMACAddress()		const;
+	virtual String getIPAddress()		const;
 
 	void resetWiFiInfo(const String& strSSID, const String& strPassword, bool resetNow = true);
 	void reset();

@@ -2,12 +2,13 @@
 
 #include <functional>
 #include <Adafruit_SSD1306.h>
-#include "Beatbox.h"
+#include "SoundEvent.h"
+#include "NetworkHost.h"
 
 class BeatDisplay : public SoundEvent::Listener
 {
 public:
-	BeatDisplay(LEDStripController& controller);
+	BeatDisplay(NetworkHost& host);
 	virtual ~BeatDisplay();
 	
 	virtual void notify(const SoundEvent& evt);
@@ -40,7 +41,7 @@ private:
 	unsigned long				m_lastRefresh			= 0;
 	unsigned int				m_topBeatSize			= 5;
 	DisplayType					m_displayType			= DisplayType::display_beatstrobe;
-	LEDStripController&			m_controller;
+	NetworkHost&				m_host;
 	BeatVisualisation*			m_pBeatVisualisation;
 	std::vector<unsigned long>	m_beats;
 	Adafruit_SSD1306			m_display;

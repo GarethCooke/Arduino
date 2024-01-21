@@ -14,7 +14,7 @@ public:
 	virtual void onBeat(vector<unsigned long>& beats);
 
 private:
-	unsigned int				m_beatNo = -1;
+	unsigned int m_beatNo = -1;
 };
 
 
@@ -25,7 +25,7 @@ public:
 };
 
 
-BeatDisplay::BeatDisplay(LEDStripController& controller) : m_controller(controller), m_pBeatVisualisation(newVisualisation()), m_display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET)
+BeatDisplay::BeatDisplay(NetworkHost& host) : m_host(host), m_pBeatVisualisation(newVisualisation()), m_display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET)
 {
 	if (!m_display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
 		Serial.println(F("SSD1306 allocation failed"));
@@ -158,9 +158,9 @@ void BeatDisplay::displayEqualiser(const SoundEvent& evt, unsigned int bandWidth
 
 void BeatDisplay::displayInfo(const SoundEvent& evt, unsigned int bandWidth)
 {
-	String hostname	= m_controller.getHostName();
-	String mac		= m_controller.getMACAddress();
-	String ip		= m_controller.getIPAddress();
+	String hostname	= m_host.getHostName();
+	String mac		= m_host.getMACAddress();
+	String ip		= m_host.getIPAddress();
 
 	int16_t x1, y1;
 	uint16_t w, h;

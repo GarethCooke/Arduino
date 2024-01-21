@@ -6,9 +6,9 @@ class SoundEvent
 	friend class Initialiser;
 
 public:
-	unsigned int	getCount()						const { return 7; }
-	const String& getFrequency(unsigned int nIndex)	const { return m_fequencies[assureIndex(nIndex)]; }
-	int				getValue(unsigned int nIndex)	const { return m_results[assureIndex(nIndex)]; }
+	unsigned int	getCount()							const { return 7; }
+	const String&	getFrequency(unsigned int nIndex)	const { return m_fequencies[assureIndex(nIndex)]; }
+	int				getValue(unsigned int nIndex)		const { return m_results[assureIndex(nIndex)]; }
 
 	class BandIterator
 	{
