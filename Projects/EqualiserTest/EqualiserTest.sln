@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34511.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EqualiserTest", "EqualiserTest.vcxproj", "{74FD3D54-0144-41B3-9991-54C38B174998}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Debug|ARM64 = Debug|ARM64
+		Release|ARM = Release|ARM
+		Release|ARM64 = Release|ARM64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{74FD3D54-0144-41B3-9991-54C38B174998}.Debug|ARM.ActiveCfg = Debug|ARM
+		{74FD3D54-0144-41B3-9991-54C38B174998}.Debug|ARM.Build.0 = Debug|ARM
+		{74FD3D54-0144-41B3-9991-54C38B174998}.Debug|ARM.Deploy.0 = Debug|ARM
+		{74FD3D54-0144-41B3-9991-54C38B174998}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{74FD3D54-0144-41B3-9991-54C38B174998}.Debug|ARM64.Build.0 = Debug|ARM64
+		{74FD3D54-0144-41B3-9991-54C38B174998}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{74FD3D54-0144-41B3-9991-54C38B174998}.Release|ARM.ActiveCfg = Release|ARM
+		{74FD3D54-0144-41B3-9991-54C38B174998}.Release|ARM.Build.0 = Release|ARM
+		{74FD3D54-0144-41B3-9991-54C38B174998}.Release|ARM.Deploy.0 = Release|ARM
+		{74FD3D54-0144-41B3-9991-54C38B174998}.Release|ARM64.ActiveCfg = Release|ARM64
+		{74FD3D54-0144-41B3-9991-54C38B174998}.Release|ARM64.Build.0 = Release|ARM64
+		{74FD3D54-0144-41B3-9991-54C38B174998}.Release|ARM64.Deploy.0 = Release|ARM64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6599682E-79EC-485E-B718-EECFDF0B6E8A}
+	EndGlobalSection
+EndGlobal
