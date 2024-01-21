@@ -1,5 +1,6 @@
 #pragma once
 #include <Arduino.h>
+#include <algorithm>
 
 class SoundEvent
 {
@@ -63,7 +64,7 @@ public:
 private:
 	SoundEvent();
 
-	unsigned int	assureIndex(unsigned int nIndex) const	{ return min(nIndex, getCount() - 1); }
+	unsigned int	assureIndex(unsigned int nIndex) const	{ return std::min(nIndex, getCount() - 1); }
 	void			signalBeatDetected()					{ m_beatDetected = true; }
 
 	static const String	m_fequencies[7];
