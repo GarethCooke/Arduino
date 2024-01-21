@@ -32,7 +32,7 @@ void LEDRGBAddressable::notify(const JsonDocument& settings)
 }
 
 
-void LEDRGBAddressable::notify(const Beatbox::Event& evt)
+void LEDRGBAddressable::notify(const SoundEvent& evt)
 {
     if (evt.beatDetected())
         m_pWS2812fx->trigger();

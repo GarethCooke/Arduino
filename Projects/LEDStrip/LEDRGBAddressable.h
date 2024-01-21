@@ -4,14 +4,14 @@
 
 class WS2812FX;
 
-class LEDRGBAddressable : public  LEDStripController::SettingsListener, public Beatbox::EventListener
+class LEDRGBAddressable : public  LEDStripController::SettingsListener, public SoundEvent::Listener
 {
 public:
 	LEDRGBAddressable(uint8_t d_pin);
 	virtual ~LEDRGBAddressable();
 
 	virtual void notify(const JsonDocument& settings);
-	virtual void notify(const Beatbox::Event& evt);
+	virtual void notify(const SoundEvent& evt);
 
 	void handle();
 

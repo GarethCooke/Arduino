@@ -3,12 +3,12 @@
 #include <vector>
 #include "Beatbox.h"
 
-class LEDRGB : public  LEDStripController::SettingsListener, public Beatbox::EventListener
+class LEDRGB : public  LEDStripController::SettingsListener, public SoundEvent::Listener
 {
 public:
 	LEDRGB(uint8_t r_pin, uint8_t g_pin, uint8_t b_pin);
 	virtual void notify(const JsonDocument& settings);
-	virtual void notify(const Beatbox::Event& evt);
+	virtual void notify(const SoundEvent& evt);
 
 	void handle();
 

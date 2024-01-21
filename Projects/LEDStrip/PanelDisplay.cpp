@@ -20,7 +20,7 @@ void PanelDisplay::notify(const JsonDocument& settings)
 }
 
 
-void PanelDisplay::notify(const Beatbox::Event& evt)
+void PanelDisplay::notify(const SoundEvent& evt)
 {
 	unsigned long now = millis();
 	uint16_t USER_MESG = m_panel.getFontHeight() + 1;

@@ -37,7 +37,7 @@ BeatDisplay::~BeatDisplay()
 }
 
 
-void BeatDisplay::notify(const Beatbox::Event& evt)
+void BeatDisplay::notify(const SoundEvent& evt)
 {
 	// display layout as follows...
 	// |---------------------------------------------------------|
@@ -144,7 +144,7 @@ BeatDisplay::BeatVisualisation* BeatDisplay::newVisualisation()
 }
 
 
-void BeatDisplay::displayEqualiser(const Beatbox::Event& evt, unsigned int bandWidth)
+void BeatDisplay::displayEqualiser(const SoundEvent& evt, unsigned int bandWidth)
 {
 	unsigned int maxBandSize = m_display.width() - 3 * m_margin - m_topBeatSize;
 	unsigned int currentBand = 0;
@@ -156,7 +156,7 @@ void BeatDisplay::displayEqualiser(const Beatbox::Event& evt, unsigned int bandW
 		});
 }
 
-void BeatDisplay::displayInfo(const Beatbox::Event& evt, unsigned int bandWidth)
+void BeatDisplay::displayInfo(const SoundEvent& evt, unsigned int bandWidth)
 {
 	String hostname	= m_controller.getHostName();
 	String mac		= m_controller.getMACAddress();
@@ -170,15 +170,15 @@ void BeatDisplay::displayInfo(const Beatbox::Event& evt, unsigned int bandWidth)
 	m_display.setFont(&MyFreeSans5pt7b);
 	m_display.getTextBounds(ip, m_margin, 0, &x1, &y1, &w, &h);
 	
-	m_display.setCursor(m_margin, 2 * m_margin + m_topBeatSize + h);
+	m_display.setCursor(m_margin, 2 * m_margin + m_topBeatSize + 1 + h);
 	m_display.print("Host: ");
 	m_display.print(hostname);
 
-	m_display.setCursor(m_margin, 3 * m_margin + m_topBeatSize + 2 * h);
+	m_display.setCursor(m_margin, 3 * m_margin + m_topBeatSize + 1 + 2 * h);
 	m_display.print("MAC: ");
 	m_display.print(mac);
 
-	m_display.setCursor(m_margin, 4 * m_margin + m_topBeatSize + 3 * h);
+	m_display.setCursor(m_margin, 4 * m_margin + m_topBeatSize + 1 + 3 * h);
 	m_display.print("IP: ");
 	m_display.print(ip);
 

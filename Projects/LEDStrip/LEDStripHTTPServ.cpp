@@ -158,7 +158,7 @@ std::auto_ptr<String> LEDStripHTTPServ::getNetworks()
 }
 
 
-void LEDStripHTTPServ::notify(const Beatbox::Event& evt)
+void LEDStripHTTPServ::notify(const SoundEvent& evt)
 {
 	static unsigned long prevMillis = millis();
 	unsigned long nowMillis = millis();

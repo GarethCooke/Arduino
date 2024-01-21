@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include "Beatbox.h"
+#include "SoundEvent.h"
 
 using std::bind;
 using std::logic_error;
@@ -17,27 +18,6 @@ std::auto_ptr<Beatbox> pBeatbox;
 
 //double vReal[samples];
 //double vImag[samples];
-
-//const unsigned int Beatbox::Event::m_fequencies[] = { 63,160,400,1000,2500,6250,16000 };
-
-const String Beatbox::Event::m_fequencies[] = { "63Hz", "160Hz", "400Hz", "1000Hz", "2500Hz", "6250Hz", "16000Hz" };
-
-Beatbox::Event::Event() : m_beatDetected(false)
-{
-	memset(&m_results, 0, sizeof(m_results));
-}
-
-Beatbox::EventInitialiser& Beatbox::EventInitialiser::operator=(int value)
-{
-	if (m_current < sizeof(m_event.m_results))
-	{
-		m_event.m_results[m_current++] = value;
-	}
-	else
-		Serial.println("Beatbox::Event initialisation - attempt to initialise more values than expected.");
-
-	return *this;
-}
 
 
 void Beatbox::create(uint8_t reset_pin, uint8_t strobe_pin, uint8_t beatin_pin)
@@ -62,15 +42,15 @@ Beatbox::Beatbox(uint8_t reset_pin, uint8_t strobe_pin, uint8_t beatin_pin)
 	pinMode(m_reset_pin,    OUTPUT);
 	pinMode(m_strobe_pin,   OUTPUT);
 
-  // Create an initial state for our pins
+	// Create an initial state for our pins
 	digitalWrite(m_reset_pin, LOW);
 	digitalWrite(m_strobe_pin, LOW);
 	delay(1);
 
 	// Reset the MSGEQ7 as per the datasheet timing diagram
 	digitalWrite(m_reset_pin, HIGH);
-	delay(1);
-	digitalWrite(m_reset_pin, LOW);
+	//delay(1);
+	//digitalWrite(m_reset_pin, LOW);
 	digitalWrite(m_strobe_pin, HIGH);
 	delay(1);
 }
@@ -118,7 +98,6 @@ void Beatbox::notify(const JsonDocument& settings)
 	int nMinbeatband	= atoi(minbeatband.c_str());
 	int nMaxbeatband	= atoi(maxbeatband.c_str());
 
-	// note that PWMRANGE is 0-1023 so we multiply the rgb values by 4
 	resetParams(nFilter, nBeatdebounce, nGainlow, nGainincrement, nGaindecrement, nMinbeatband, nMaxbeatband);
 }
 
@@ -139,8 +118,9 @@ void Beatbox::handleHardware()
 	digitalWrite(m_reset_pin, HIGH);
 	delayMicroseconds(100);
 	digitalWrite(m_reset_pin, LOW);
+	delayMicroseconds(80);
 
-	EventInitialiser events;
+	SoundEvent::Initialiser events;
 
 	// Get all 7 spectrum values from the MSGEQ7
 	for (int nSpectrum = 1; nSpectrum < 8; nSpectrum++)
@@ -183,25 +163,25 @@ void Beatbox::handleHardware()
 		}
 	}
 
-	const Event& event_to_publish = events;
-	for_each(m_listeners.begin(), m_listeners.end(), [event_to_publish](std::set<EventListener*>::const_reference nextListener) { nextListener->notify(event_to_publish); });
+	const SoundEvent& event_to_publish = events;
+	for_each(m_listeners.begin(), m_listeners.end(), [event_to_publish](std::set<SoundEvent::Listener*>::const_reference nextListener) { nextListener->notify(event_to_publish); });
 }
 
 int Beatbox::strobeHardware()
 {
 	digitalWrite(m_strobe_pin, LOW);
-	delayMicroseconds(100); // Allow output to settle
+	delayMicroseconds(20); // Allow output to settle
 
 	int evt = analogRead(m_beatin_pin);
 
-	// Constrain any value above 1023 or below filterValue
-	evt = constrain(evt, m_filterValue, 1023);
+	// Constrain any value above 4095 or below filterValue
+	evt = constrain(evt, m_filterValue, 4095);
 
 	// Remap the value to a number between 0 and 255
-	evt = map(evt, m_filterValue, 1023, 0, 255);
+	evt = map(evt, m_filterValue, 4095, 0, 255);
 
 	digitalWrite(m_strobe_pin, HIGH);
-	delayMicroseconds(100); // Delay necessary due to timing diagram  
+	delayMicroseconds(20); // Delay necessary due to timing diagram  
 	//yield();
 
 	return evt;
@@ -224,7 +204,7 @@ void Beatbox::handleSoftware()
 	//FFT.ComplexToMagnitude(vReal, vImag, samples); /* Compute magnitudes */
 	//Serial.println("Computed magnitudes:");
 
-	//EventInitialiser events;
+	//SoundEvent::Initialiser events;
 	//for (uint16_t nextFreq = 0, nextSample = 0; nextFreq < 7; nextFreq++)
 	//{
 	//    int evt = 0;
@@ -242,13 +222,13 @@ void Beatbox::handleSoftware()
 }
 
 
-void Beatbox::addListener(EventListener* pListener)
+void Beatbox::addListener(SoundEvent::Listener* pListener)
 {
 	m_listeners.insert(pListener);
 }
 
 
-void Beatbox::removeListener(EventListener* pListener)
+void Beatbox::removeListener(SoundEvent::Listener* pListener)
 {
 	m_listeners.erase(pListener);
 }

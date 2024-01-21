@@ -4,13 +4,13 @@
 #include <Adafruit_SSD1306.h>
 #include "Beatbox.h"
 
-class BeatDisplay : public Beatbox::EventListener
+class BeatDisplay : public SoundEvent::Listener
 {
 public:
 	BeatDisplay(LEDStripController& controller);
 	virtual ~BeatDisplay();
 	
-	virtual void notify(const Beatbox::Event& evt);
+	virtual void notify(const SoundEvent& evt);
 
 	void cycleDisplay();
 
@@ -48,8 +48,8 @@ private:
 	unsigned int getBandWidth(unsigned int bands) const;
 	int getBandPos(unsigned int band, unsigned int bandWidth) const;
 	BeatVisualisation* newVisualisation();
-	void displayEqualiser(const Beatbox::Event& evt, unsigned int bandWidth);
-	void displayInfo(const Beatbox::Event& evt, unsigned int bandWidth);
+	void displayEqualiser(const SoundEvent& evt, unsigned int bandWidth);
+	void displayInfo(const SoundEvent& evt, unsigned int bandWidth);
 
-	void (BeatDisplay::*RefreshMain)(const Beatbox::Event& evt, unsigned int bandWidth) = &BeatDisplay::displayEqualiser;
+	void (BeatDisplay::*RefreshMain)(const SoundEvent& evt, unsigned int bandWidth) = &BeatDisplay::displayEqualiser;
 };

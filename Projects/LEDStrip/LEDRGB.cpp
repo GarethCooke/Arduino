@@ -62,7 +62,7 @@ void LEDRGB::notify(const JsonDocument& settings)
 }
 
 
-void LEDRGB::notify(const Beatbox::Event& evt)
+void LEDRGB::notify(const SoundEvent& evt)
 {
 	setCurrentColourCycle(evt.beatDetected());
 	if (evt.beatDetected())

@@ -5,14 +5,15 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebSrv.h>
 #include "Beatbox.h"
+#include "SoundEvent.h"
 
 
-class LEDStripHTTPServ : public Beatbox::EventListener
+class LEDStripHTTPServ : public SoundEvent::Listener
 {
 public:
 	LEDStripHTTPServ(LEDStripController& ledstrip);
 
-	virtual void notify(const Beatbox::Event& evt);
+	virtual void notify(const SoundEvent& evt);
 
 private:
 	class NetworkInfo
@@ -23,7 +24,6 @@ private:
 
 		const String&	getSSID()		const { return m_SSID;			}
 		int64_t			getRSSI()		const { return m_RSSI;			}
-		bool			isEncrypted()	const { return m_isEncrypted;	}
 
 	private:
 		const String	m_SSID;

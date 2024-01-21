@@ -39,6 +39,9 @@
     <ClInclude Include="LEDRGBAddressable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SoundEvent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LEDStripHTTPServ.cpp">
@@ -61,6 +64,9 @@
     </ClCompile>
     <ClCompile Include="LEDStrip.ino" />
     <ClCompile Include="LEDRGBAddressable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundEvent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

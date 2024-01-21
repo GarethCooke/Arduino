@@ -82,6 +82,7 @@
       <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
       <PreprocessorDefinitions>_VMICRO_INTELLISENSE;__ESP32_esp32__;__ESP32_ESP32__;_VMDEBUG=1;HAVE_CONFIG_H;MBEDTLS_CONFIG_FILE=mbedtls/esp_config.h;UNITY_INCLUDE_CONFIG_H;WITH_POSIX;_GNU_SOURCE;IDF_VER=v4.4.5;ESP_PLATFORM;_POSIX_READER_WRITER_LOCKS;F_CPU=240000000L;ARDUINO=108010;ARDUINO_ESP32_DEV;ARDUINO_ARCH_ESP32;ARDUINO_BOARD=ESP32_DEV;ARDUINO_VARIANT=esp32;ARDUINO_PARTITION_default;ESP32;CORE_DEBUG_LEVEL=0;ARDUINO_RUNNING_CORE=1;ARDUINO_EVENT_RUNNING_CORE=1;ARDUINO_USB_CDC_ON_BOOT=0;__cplusplus=201103L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -118,6 +119,7 @@
       <FileType>CppCode</FileType>
       <DeploymentContent>true</DeploymentContent>
     </ClCompile>
+    <ClCompile Include="SoundEvent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Beatbox.h" />
@@ -127,6 +129,7 @@
     <ClInclude Include="LEDStripController.h" />
     <ClInclude Include="LEDStripHTTPServ.h" />
     <ClInclude Include="PanelDisplay.h" />
+    <ClInclude Include="SoundEvent.h" />
     <ClInclude Include="__vm\.LEDStrip.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
