@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
 #include <WS2812FX.h>
 #include <Arduino.h>

@@ -172,11 +172,11 @@ void LEDStripHTTPServ::notify(const SoundEvent& evt)
 		JsonObject msg			= root.createNestedObject("msg");
 		JsonArray frequencies	= msg.createNestedArray("frequencies");
 
-		std::for_each(evt.begin(), evt.end(), [frequencies](const SoundEvent::BandIterator::Band& band)
+		evt.iterate_bands([frequencies](const String& frequency, unsigned int value)
 		{
 			JsonObject jsonBand = frequencies.createNestedObject();
-			jsonBand["band"]	= band.frequency();
-			jsonBand["value"]	= band.value();
+			jsonBand["band"]	= frequency;
+			jsonBand["value"]	= value;
 		});
 
 		msg["beatDetected"] = evt.beatDetected();

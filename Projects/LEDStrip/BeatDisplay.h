@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 #include <Adafruit_SSD1306.h>
 #include "SoundEvent.h"
 #include "NetworkHost.h"
@@ -18,7 +17,7 @@ public:
 	class BeatVisualisation
 	{
 	public:
-		virtual void	onBeat(std::vector<unsigned long>& beats) = 0;
+		virtual void	onBeat(unsigned long(&beats)[SoundEvent::getBands()]) = 0;
 		unsigned int	pulseLength() const { return m_beatPulseLen; }
 
 	protected:
@@ -43,7 +42,7 @@ private:
 	DisplayType					m_displayType			= DisplayType::display_beatstrobe;
 	NetworkHost&				m_host;
 	BeatVisualisation*			m_pBeatVisualisation;
-	std::vector<unsigned long>	m_beats;
+	unsigned long				m_beats[SoundEvent::getBands()] = { 0 };
 	Adafruit_SSD1306			m_display;
 
 	unsigned int getBandWidth(unsigned int bands) const;

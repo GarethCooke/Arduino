@@ -1,8 +1,6 @@
-#include <vector>
 #include "Fonts/MyFreeSans5pt7b.h"
 #include "BeatDisplay.h"
-
-using std::vector;
+#include <stdlib.h>
 
 #define SCREEN_WIDTH	128		// OLED display width, in pixels
 #define SCREEN_HEIGHT	32		// OLED display height, in pixels
@@ -11,7 +9,7 @@ using std::vector;
 class BeatVisualisationRoll : public BeatDisplay::BeatVisualisation
 {
 public:
-	virtual void onBeat(vector<unsigned long>& beats);
+	virtual void onBeat(unsigned long(&beats)[SoundEvent::getBands()]);
 
 private:
 	unsigned int m_beatNo = -1;
@@ -21,7 +19,7 @@ private:
 class BeatVisualisationStrobe : public BeatDisplay::BeatVisualisation
 {
 public:
-	virtual void onBeat(vector<unsigned long>& beats);
+	virtual void onBeat(unsigned long(&beats)[SoundEvent::getBands()]);
 };
 
 
@@ -67,8 +65,7 @@ void BeatDisplay::notify(const SoundEvent& evt)
 	// using it so that x and y are rotated
 
 	unsigned long	now			= millis();
-	unsigned int	bands		= evt.getCount();
-	unsigned int	bandWidth	= getBandWidth(bands);
+	unsigned int	bandWidth	= getBandWidth(SoundEvent::getBands());
 
 	if (now - m_lastRefresh > m_displayRefreshPeriod)
 	{
@@ -80,9 +77,6 @@ void BeatDisplay::notify(const SoundEvent& evt)
 		(this->*RefreshMain)(evt, bandWidth);
 		m_lastRefresh = now;
 	}
-
-	if (m_beats.size() < bands)
-		m_beats.resize(bands, 0);
 
 	if (evt.beatDetected())
 		m_pBeatVisualisation->onBeat(m_beats);
@@ -116,11 +110,10 @@ int BeatDisplay::getBandPos(unsigned int band, unsigned int bandWidth) const
 
 void BeatDisplay::cycleDisplay()
 {
-	Serial.println((int)m_displayType);
 	RefreshMain = (DisplayType::display_info == ++m_displayType) ? &BeatDisplay::displayInfo : &BeatDisplay::displayEqualiser;
 
-	BeatDisplay::BeatVisualisation* pTemp = newVisualisation();
-	std::swap(m_pBeatVisualisation, pTemp);
+	BeatDisplay::BeatVisualisation* pTemp = m_pBeatVisualisation;
+	m_pBeatVisualisation = newVisualisation();
 	delete pTemp;
 }
 
@@ -149,9 +142,9 @@ void BeatDisplay::displayEqualiser(const SoundEvent& evt, unsigned int bandWidth
 	unsigned int maxBandSize = m_display.width() - 3 * m_margin - m_topBeatSize;
 	unsigned int currentBand = 0;
 
-	std::for_each(evt.begin(), evt.end(), [this, currentBand, bandWidth, maxBandSize](const SoundEvent::BandIterator::Band& band) mutable
+	evt.iterate_bands([this, currentBand, bandWidth, maxBandSize](const String& frequency, unsigned int value) mutable -> void
 		{
-			unsigned int bandSize = maxBandSize * (band.value() / 255.0);
+			unsigned int bandSize = maxBandSize * (value / 255.0);
 			m_display.fillRect(m_display.width() - m_margin - bandSize, getBandPos(currentBand++, bandWidth), bandSize, bandWidth, WHITE);
 		});
 }
@@ -186,20 +179,20 @@ void BeatDisplay::displayInfo(const SoundEvent& evt, unsigned int bandWidth)
 }
 
 
-void BeatVisualisationRoll::onBeat(vector<unsigned long>& beats)
+void BeatVisualisationRoll::onBeat(unsigned long (&beats) [SoundEvent::getBands()])
 {
-	if (++m_beatNo >= beats.size())
+	if (++m_beatNo >= SoundEvent::getBands())
 		m_beatNo = 0;
 
 	beats[m_beatNo] = millis();
 }
 
 
-void BeatVisualisationStrobe::onBeat(vector<unsigned long>& beats)
+void BeatVisualisationStrobe::onBeat(unsigned long(&beats)[SoundEvent::getBands()])
 {
 	unsigned long now = millis();
-	int midPoint = (beats.size() + 1) / 2;
-	double decayPerBeat = 3.0 / static_cast<double>(beats.size() + 1);
+	int midPoint = (SoundEvent::getBands() + 1) / 2;
+	double decayPerBeat = 3.0 / static_cast<double>(SoundEvent::getBands() + 1);
 	int n = 0;
 	for (auto& val : beats)
 	{
