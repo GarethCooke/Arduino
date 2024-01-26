@@ -1,6 +1,7 @@
 //#include <arduinoFFT.h>
 #include <functional>
 #include <algorithm>
+#include <memory>
 #include <stdexcept>
 #include "Beatbox.h"
 #include "SoundEvent.h"
@@ -49,8 +50,8 @@ Beatbox::Beatbox(uint8_t reset_pin, uint8_t strobe_pin, uint8_t beatin_pin)
 
 	// Reset the MSGEQ7 as per the datasheet timing diagram
 	digitalWrite(m_reset_pin, HIGH);
-	//delay(1);
-	//digitalWrite(m_reset_pin, LOW);
+	delay(1);
+	digitalWrite(m_reset_pin, LOW);
 	digitalWrite(m_strobe_pin, HIGH);
 	delay(1);
 }
@@ -114,12 +115,6 @@ void Beatbox::handle(void* pvParameters)
 
 void Beatbox::handleHardware()
 {
-	// Set reset pin low to enable strobe
-	digitalWrite(m_reset_pin, HIGH);
-	delayMicroseconds(100);
-	digitalWrite(m_reset_pin, LOW);
-	delayMicroseconds(80);
-
 	SoundEvent::Initialiser events;
 
 	// Get all 7 spectrum values from the MSGEQ7
@@ -170,18 +165,17 @@ void Beatbox::handleHardware()
 int Beatbox::strobeHardware()
 {
 	digitalWrite(m_strobe_pin, LOW);
-	delayMicroseconds(20); // Allow output to settle
-
+	delayMicroseconds(100); // Allow output to settle
 	int evt = analogRead(m_beatin_pin);
+	digitalWrite(m_strobe_pin, HIGH);
+	delayMicroseconds(1); // Delay necessary due to timing diagram  
 
 	// Constrain any value above 4095 or below filterValue
-	evt = constrain(evt, m_filterValue, 4095);
+	evt = evt < m_filterValue ? 0 : evt;
 
 	// Remap the value to a number between 0 and 255
-	evt = map(evt, m_filterValue, 4095, 0, 255);
+	evt = map(evt, 0, 4095, 0, 255);
 
-	digitalWrite(m_strobe_pin, HIGH);
-	delayMicroseconds(20); // Delay necessary due to timing diagram  
 	//yield();
 
 	return evt;

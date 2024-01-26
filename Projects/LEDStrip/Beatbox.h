@@ -2,11 +2,11 @@
 
 #include <Arduino.h>
 #include <set>
-#include "LEDStripController.h"
+#include "SettingsListener.h"
 #include "SoundEvent.h"
 
 
-class Beatbox : public LEDStripController::SettingsListener
+class Beatbox : public SettingsListener
 {
 public:
 	static void create(uint8_t reset_pin, uint8_t strobe_pin, uint8_t beatin_pin);

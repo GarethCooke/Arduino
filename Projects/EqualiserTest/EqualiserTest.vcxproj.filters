@@ -22,6 +22,9 @@
     <ClCompile Include="..\LEDStrip\BeatDisplay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\LEDStrip\Beatbox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.EqualiserTest.vsarduino.h">
@@ -34,6 +37,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\LEDStrip\NetworkHost.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LEDStrip\Beatbox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LEDStrip\SettingsListener.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

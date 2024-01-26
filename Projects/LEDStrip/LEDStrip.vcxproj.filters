@@ -54,6 +54,9 @@
     <ClInclude Include="NetworkHost.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SettingsListener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LEDStripHTTPServ.cpp">

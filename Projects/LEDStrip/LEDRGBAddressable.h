@@ -4,7 +4,7 @@
 
 class WS2812FX;
 
-class LEDRGBAddressable : public  LEDStripController::SettingsListener, public SoundEvent::Listener
+class LEDRGBAddressable : public  SettingsListener, public SoundEvent::Listener
 {
 public:
 	LEDRGBAddressable(uint8_t d_pin);

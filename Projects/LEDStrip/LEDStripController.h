@@ -5,8 +5,8 @@
 #include <map>
 #include <ctime>
 #include <WiFiConfig.h>
-#include <ArduinoJson.h>
 #include "NetworkHost.h"
+#include "SettingsListener.h"
 
 
 class LEDStripController : public NetworkHost
@@ -15,11 +15,6 @@ public:
 	LEDStripController();
 	~LEDStripController();
 
-	class SettingsListener
-	{
-	public:
-		virtual void notify(const JsonDocument& settings) = 0;
-	};
 	void addListener(SettingsListener* pListener);
 	void removeListener(SettingsListener* pListener);
 

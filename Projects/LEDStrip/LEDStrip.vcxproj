@@ -148,6 +148,7 @@
     <ClInclude Include="LEDStripHTTPServ.h" />
     <ClInclude Include="NetworkHost.h" />
     <ClInclude Include="PanelDisplay.h" />
+    <ClInclude Include="SettingsListener.h" />
     <ClInclude Include="SoundEvent.h" />
     <ClInclude Include="__vm\.LEDStrip.vsarduino.h" />
   </ItemGroup>

@@ -3,7 +3,7 @@
 #include <vector>
 #include "Beatbox.h"
 
-class LEDRGB : public  LEDStripController::SettingsListener, public SoundEvent::Listener
+class LEDRGB : public  SettingsListener, public SoundEvent::Listener
 {
 public:
 	LEDRGB(uint8_t r_pin, uint8_t g_pin, uint8_t b_pin);

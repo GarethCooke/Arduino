@@ -7,6 +7,8 @@
 #include "Beatbox.h"
 #include "SoundEvent.h"
 
+class LEDStripController;
+
 
 class LEDStripHTTPServ : public SoundEvent::Listener
 {
