@@ -1,34 +1,87 @@
+#include <algorithm>
 #include "SoundEvent.h"
 
-//const unsigned int SoundEvent::m_fequencies[] = { 63,160,400,1000,2500,6250,16000 };
+using std::find_if;
+using std::begin, std::end;
 
-const String SoundEvent::m_fequencies[] = { "63Hz", "160Hz", "400Hz", "1000Hz", "2500Hz", "6250Hz", "16000Hz" };
 
-SoundEvent::SoundEvent() : m_beatDetected(false)
+bool SoundEvent::beatDetected() const
 {
-	memset(&m_results, 0, sizeof(m_results));
+    return find_if(begin(m_bands), end(m_bands), [](const Band& band) { return band.beatDetected(); }) != end(m_bands);
 }
 
 
-SoundEvent::Initialiser::Initialiser() : m_current(0), m_pEvent(new SoundEvent())
+void SoundEvent::recordResult(unsigned int idx_band, int value)
 {
-}
+    Band&           band        = m_bands[idx_band];
+    Band::History&  bandHistory = band.m_history;
 
+    band.m_history.m_level[m_indexes.m_new] = value;
+    bandHistory.m_totalLevel -= bandHistory.m_level[m_indexes.m_old]; // Clear out the old value
+    bandHistory.m_totalLevel += bandHistory.m_level[m_indexes.m_new]; // Add in the new value
 
-SoundEvent::Initialiser::~Initialiser()
-{
-	delete m_pEvent;
-}
+    if (m_indexes.m_new + 1 > 7)
+    {
+        // Update the m_samples and average of m_samples from the last second
+        bandHistory.m_samples[m_indexes.m_start] = bandHistory.m_totalLevel >> 3; // Divide by 8
+        bandHistory.m_totalSamples -= bandHistory.m_samples[m_indexes.m_end]; // Clear out the old value
+        bandHistory.m_totalSamples += bandHistory.m_samples[m_indexes.m_start]; // Add in the new value      
+        bandHistory.m_avgSample = bandHistory.m_totalSamples >> 6; // Divide by 64
 
+        // Check for beats
+        band.m_beat = bandHistory.m_samples[m_indexes.m_start] > (bandHistory.m_avgSample * bandHistory.m_C);
 
-SoundEvent::Initialiser& SoundEvent::Initialiser::operator=(int value)
-{
-	if (m_current < sizeof(m_pEvent->m_results))
-	{
-		m_pEvent->m_results[m_current++] = value;
-	}
-	else
-		Serial.println("SoundEvent initialisation - attempt to initialise more values than expected.");
+        if (band.m_beat && band.m_output < bandHistory.m_samples[m_indexes.m_start]) {
+            if (band.m_beatTime < 5) {
+                band.m_output = 0.5 * band.m_output + 0.5 * bandHistory.m_samples[m_indexes.m_start];
+            }
+            else {
+                band.m_output = bandHistory.m_samples[m_indexes.m_start];
+            }
+            band.m_threshold = bandHistory.m_avgSample;
+            band.m_fader = 1;
+            if (band.m_beatTime != 0) {
+                band.m_faderAdj = band.m_faderAdj * 0.75 + (1 - 0.75) * (1 / band.m_beatTime);
+                if (band.m_beatTime < 10) {
+                    band.m_faderAdj = 0.25;
+                    if (band.m_beatTime < 5) {
+                        band.m_faderAdj = 0;
+                    }
+                }
+                if (band.m_faderAdj < 0.01) {
+                    band.m_faderAdj = 0.01;
+                }
+            }
+            band.m_beatTime = 0;
+        }
+        else {
+            band.m_output = band.m_fader * (0.8 * band.m_output + (1 - 0.8) * bandHistory.m_samples[m_indexes.m_start]);
+            band.m_fader -= band.m_faderAdj;
+            band.m_beatTime++;
+            if (band.m_fader < 0) {
+                band.m_fader = 0;
+            }
+        }
 
-	return *this;
+        // Calculate a new value for C using the variance of the measurements
+            bandHistory.m_var = 0;
+            for (int sample = 0; sample < 64; sample++) {
+                int temp = (bandHistory.m_samples[sample] - bandHistory.m_avgSample);
+                bandHistory.m_var += (temp * temp) / 64;
+            }
+            bandHistory.m_C = (-0.00025714 * bandHistory.m_var) + 1.5142857; // Modified from the paper
+    }
+
+    if (idx_band < SoundEvent::getBands() - 1)
+    {
+        if (++m_indexes.m_new > 7)
+        {
+            m_indexes.m_new = 0; // reset the index of the new value
+            // Update the starting and ending indices for the bandHistory.m_samples from the last second
+            m_indexes.m_start = (m_indexes.m_start + 1) & 63;
+            m_indexes.m_end = (m_indexes.m_start + 1) & 63;
+        }
+        m_indexes.m_old = (m_indexes.m_new + 1) & 7;
+    }
+
 }

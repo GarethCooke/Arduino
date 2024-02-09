@@ -115,60 +115,22 @@ void Beatbox::handle(void* pvParameters)
 
 void Beatbox::handleHardware()
 {
-	SoundEvent::Initialiser events;
+	//SoundEvent::Initialiser events;
 
 	// Get all 7 spectrum values from the MSGEQ7
-	for (int nSpectrum = 1; nSpectrum < 8; nSpectrum++)
-	{
-		int evt = strobeHardware();
-		events = evt;
+	for (int band = 0; band < SoundEvent::getBands(); band++)
+		m_event.recordResult(band, strobeHardware());
 
-		if ((nSpectrum <= m_maxbeatband) && (nSpectrum <= m_minbeatband))
-		{
-			static unsigned long lastBeat = millis();
-			
-			m_beatAGC = constrain(m_beatAGC, 0, 255); // ensures the AGC is between the filter setting and the maximum
-			if (evt >= m_AGCLowLimit)
-			{
-				if (evt > m_beatAGC)
-				{
-					if (!m_beatFlag)
-					{
-						events.signalBeatDetected();
-						lastBeat = millis();
-					}
-					m_beatFlag = true;
-					m_beatAGC = m_beatAGC + m_AGCInc; // increase the AGC if it's been set. Changing the values of the AGCInc & AGCDec (attack and decay) has a quite marked effect on the performance of the beat detector
-				}
-				else
-				{
-					//decrease the ACG if it hasn't
-					m_beatAGC = m_beatAGC - m_AGCDec;
-				}
-			}
-
-			if (!m_beatTimer-- || (millis() - lastBeat) > 50)
-			{
-//                static unsigned long last = millis();
-//                Serial.printf("time taken for %d cycles: %lu\n", m_beatDebounce, millis() - last);
-//                last = millis();
-				m_beatFlag = false; // reset the beat flag
-				m_beatTimer = m_beatDebounce;
-			}
-		}
-	}
-
-	const SoundEvent& event_to_publish = events;
-	for_each(m_listeners.begin(), m_listeners.end(), [event_to_publish](std::set<SoundEvent::Listener*>::const_reference nextListener) { nextListener->notify(event_to_publish); });
+	for_each(m_listeners.begin(), m_listeners.end(), [&](std::set<SoundEvent::Listener*>::const_reference nextListener) { nextListener->notify(m_event); });
 }
 
 int Beatbox::strobeHardware()
 {
 	digitalWrite(m_strobe_pin, LOW);
-	delayMicroseconds(100); // Allow output to settle
+	delayMicroseconds(m_to); // Allow output to settle
 	int evt = analogRead(m_beatin_pin);
 	digitalWrite(m_strobe_pin, HIGH);
-	delayMicroseconds(1); // Delay necessary due to timing diagram  
+	delayMicroseconds(m_ts); // Delay necessary due to timing diagram  
 
 	// Constrain any value above 4095 or below filterValue
 	evt = evt < m_filterValue ? 0 : evt;
@@ -231,10 +193,6 @@ void Beatbox::removeListener(SoundEvent::Listener* pListener)
 void Beatbox::resetParams(int filterValue, int beatDebounce, int agcLowLimit, int agcInc, int agcDec, int nMinbeatband, int nMaxbeatband)
 {
 	m_filterValue   = filterValue;
-	m_beatDebounce  = beatDebounce;
-	m_AGCLowLimit   = agcLowLimit;
-	m_AGCInc        = agcInc;
-	m_AGCDec        = agcDec;
 	m_minbeatband	= nMinbeatband;
 	m_maxbeatband	= nMaxbeatband;
 }
