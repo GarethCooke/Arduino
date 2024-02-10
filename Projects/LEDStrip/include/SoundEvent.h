@@ -36,14 +36,12 @@ public:
 	private:
 		struct History
 		{
-			unsigned int m_level[8] = {0}; // Values from the BANDS frequency bands
-			unsigned int m_totalLevel = 0; // Summed values from the BANDS frequency bands
-
 			// To store the average 'energy' over the last ~1 second
-			unsigned int m_samples[128] = {0}; // Low-pass filtered samples
-			unsigned int m_totalSamples = 0;   // Sums of 128 samples
-			unsigned int m_avgSample = 0;	   // Averages of the last 128 samples
-			float m_C = 1.3;				   // Multiplier for the 'beat threshold'
+			unsigned int m_samples[64] = {0}; // Low-pass filtered samples
+			unsigned int m_totalSamples = 0;  // Sums of 64 samples
+			unsigned int m_avgSample = 0;	  // Averages of the last 64 samples
+			float m_C = 1.3;				  // Multiplier for the 'beat threshold'
+			int m_nextAllowedBeat = -1;		  // next allowed beat
 		};
 
 		const String m_frequency;
@@ -62,16 +60,12 @@ public:
 	};
 
 private:
-	struct Indexes
-	{
-		unsigned char m_old = 1;   // Oldest measurement in the array
-		unsigned char m_new = 0;   // New messurement
-		unsigned char m_end = 1;   // Oldest sample in the array
-		unsigned char m_start = 0; // New sample
-	};
+	unsigned char m_next = 0;		 // next sample
+	unsigned char m_threshold = 150; // next sample
+	// unsigned char m_dominantBand[2] = {0}; // the dominant band
+	// unsigned int m_dominantAve[2] = {0};   // the dominant band's average sample
 
 	Band m_bands[BANDS] = {"63Hz", "160Hz", "400Hz", "1000Hz", "2500Hz", "6250Hz", "16000Hz"};
-	Indexes m_indexes;
 
 	unsigned int assureIndex(unsigned int nIndex) const { return nIndex < getBands() ? nIndex : getBands() - 1; }
 };

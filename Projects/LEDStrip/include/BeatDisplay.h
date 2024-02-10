@@ -21,7 +21,7 @@ public:
 		unsigned int pulseLength() const { return m_beatPulseLen; }
 
 	protected:
-		static const unsigned int m_beatPulseLen = 200;
+		static const unsigned int m_beatPulseLen = 100;
 	};
 
 private:
