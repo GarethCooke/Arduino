@@ -1,17 +1,16 @@
 #pragma once
 #include <Arduino.h>
+#include <MSGEQ7Out.h>
 
 class SoundEvent
 {
 	friend class Initialiser;
 	friend class Output;
 
-	static constexpr unsigned int BANDS = 7;
-
 public:
-	static constexpr unsigned int getBands()
+	static constexpr const unsigned int getBands()
 	{
-		return BANDS;
+		return MSGEQ7Out::getBands();
 	}
 
 	class Band
@@ -38,47 +37,8 @@ public:
 		History m_history;
 	};
 
-	class BandOutput
-	{
-		friend class SoundEvent;
-
-	public:
-		BandOutput(const char *frequency) : m_frequency(frequency) {}
-		bool beatDetected() const { return m_beat; }
-
-	private:
-		const char *m_frequency;
-		unsigned int m_value = 0; // Value the program will output for a channel
-		bool m_beat = 0;
-	};
-
-	class Output
-	{
-		friend class SoundEvent;
-
-	public:
-		template <typename FN>
-		void iterate_bands(FN func) const
-		{
-			for (unsigned int band = 0; band < getBands(); band++)
-				func(m_bandoutput[band].m_frequency, m_bandoutput[band].m_value);
-		}
-
-		const char *getFrequency(unsigned int nIndex) const { return m_bandoutput[assureIndex(nIndex)].m_frequency; }
-		int getValue(unsigned int nIndex) const { return m_bandoutput[assureIndex(nIndex)].m_value; }
-
-		bool beatDetected() const { return m_beat; }
-
-	private:
-		BandOutput m_bandoutput[BANDS] = {"63Hz", "160Hz", "400Hz", "1000Hz", "2500Hz", "6250Hz", "16000Hz"};
-		bool m_beat = 0; // added for efficiency - repeated data, could be derrived from the iterating the output items
-	};
-
-	class Listener
-	{
-	public:
-		virtual void notify(const SoundEvent::Output &evt) = 0;
-	};
+	typedef MSGEQ7Out Output;
+	typedef MSGEQ7Out::Listener Listener;
 
 	void recordResult(unsigned int idx_band, int value);
 	const Output &output() const { return m_output; }
@@ -98,9 +58,7 @@ private:
 	// unsigned char m_dominantBand[2] = {0}; // the dominant band
 	// unsigned int m_dominantAve[2] = {0};   // the dominant band's average sample
 
-	Band m_bands[BANDS];
+	Band m_bands[MSGEQ7Out::BANDS];
 	Output m_output;
 	// Indexes m_indexes;
-
-	static unsigned int assureIndex(unsigned int nIndex) { return nIndex < getBands() ? nIndex : getBands() - 1; }
 };

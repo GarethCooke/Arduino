@@ -11,7 +11,7 @@ void SoundEvent::recordResult(unsigned int idx_band, int value)
 {
     Band &band = m_bands[idx_band];
     Band::History &bandHistory = band.m_history;
-    BandOutput &bandOutput = m_output.m_bandoutput[idx_band];
+    Output::BandOutput &bandOutput = m_output.getBand(idx_band);
 
     // Update the m_samples and average of m_samples from the last second
     bandHistory.m_totalSamples -= bandHistory.m_samples[m_next]; // Clear out the old value
@@ -27,8 +27,8 @@ void SoundEvent::recordResult(unsigned int idx_band, int value)
 
     if ((bandHistory.m_nextAllowedBeat == -1) && (value > m_beatthreshold))
     {
-        bandOutput.m_beat = value > (bandHistory.m_avgSample * bandHistory.m_C);
-        if (bandOutput.m_beat)
+        bandOutput.beatDetected(value > (bandHistory.m_avgSample * bandHistory.m_C));
+        if (bandOutput.beatDetected())
             bandHistory.m_nextAllowedBeat = (m_next + 8) & 63; // don't allow another beat on this band for another 8 cycles
 
         // Calculate a new value for C using the variance of the measurements
@@ -38,27 +38,27 @@ void SoundEvent::recordResult(unsigned int idx_band, int value)
             int temp = (bandHistory.m_samples[sample] - bandHistory.m_avgSample);
             var += (temp * temp) >> 6; // Divide by 64
         }
-        bandHistory.m_C = (-0.00025714 * var) + 1.5142857; // Modified from the paper        bandOutput.m_beat = value > (bandHistory.m_avgSample * bandHistory.m_C);
+        bandHistory.m_C = (-0.00025714 * var) + 1.5142857; // Modified from the paper
     }
     else
-        bandOutput.m_beat = false;
+        bandOutput.beatDetected(false);
 
-    m_output.m_beat = idx_band ? m_output.m_beat | bandOutput.m_beat : bandOutput.m_beat; // reset the output beat if this is the start of the next set of bands otherwise update it with the band beat
+    m_output.beatDetected(idx_band ? m_output.beatDetected() | bandOutput.beatDetected() : bandOutput.beatDetected()); // reset the output beat if this is the start of the next set of bands otherwise update it with the band beat
 
-    // if (bandOutput.m_beat)
+    // if (bandOutput.beatDetected())
     // {
     //     Serial.printf("beat, idx: %d,\tvalue: %d,\tave sample: %d,\tC: %f,\tave * C: %f, millis: %lu\n", idx_band, value, bandHistory.m_avgSample, bandHistory.m_C, bandHistory.m_avgSample * bandHistory.m_C, millis());
     // }
 
-    if (bandOutput.m_value < value)
+    if (bandOutput.getValue() < value)
     {
         if (band.m_beatTime < 5)
         {
-            bandOutput.m_value = 0.5 * bandOutput.m_value + 0.5 * value;
+            bandOutput.setValue(0.5 * bandOutput.getValue() + 0.5 * value);
         }
         else
         {
-            bandOutput.m_value = value;
+            bandOutput.setValue(value);
         }
         band.m_fader = 1;
         if (band.m_beatTime != 0)
@@ -81,8 +81,8 @@ void SoundEvent::recordResult(unsigned int idx_band, int value)
     }
     else
     {
-        bandOutput.m_value = band.m_fader * (0.8 * bandOutput.m_value + (1 - 0.8) * value);
-        bandOutput.m_value = band.m_fader * (0.8 * bandOutput.m_value + (1 - 0.8) * value);
+        bandOutput.setValue(band.m_fader * (0.8 * bandOutput.getValue() + (1 - 0.8) * value));
+        bandOutput.setValue(band.m_fader * (0.8 * bandOutput.getValue() + (1 - 0.8) * value));
         band.m_fader -= band.m_faderAdj;
         band.m_beatTime++;
         if (band.m_fader < 0)
@@ -124,21 +124,21 @@ void SoundEvent::recordResult(unsigned int idx_band, int value)
         bandHistory.m_avgSample = bandHistory.m_totalSamples >> 6;                // Divide by 64
 
         // Check for beats
-        bandOutput.m_beat = (bandHistory.m_samples[m_indexes.m_start] > 100) && bandHistory.m_samples[m_indexes.m_start] > (bandHistory.m_avgSample * bandHistory.m_C);
-        // if (bandOutput.m_beat)
+        bandOutput.beatDetected() = (bandHistory.m_samples[m_indexes.m_start] > 100) && bandHistory.m_samples[m_indexes.m_start] > (bandHistory.m_avgSample * bandHistory.m_C);
+        // if (bandOutput.beatDetected())
         // {
         //     Serial.printf("beat %d, %d, %d, %d, %f, %f\n", idx_band, value, bandHistory.m_samples[m_indexes.m_start], bandHistory.m_avgSample, bandHistory.m_C, bandHistory.m_avgSample * bandHistory.m_C);
         // }
 
-        if (bandOutput.m_value < bandHistory.m_samples[m_indexes.m_start])
+        if (bandOutput.getValue() < bandHistory.m_samples[m_indexes.m_start])
         {
             if (band.m_beatTime < 5)
             {
-                bandOutput.m_value = 0.5 * bandOutput.m_value + 0.5 * bandHistory.m_samples[m_indexes.m_start];
+                bandOutput.setValue(0.5 * bandOutput.getValue() + 0.5 * bandHistory.m_samples[m_indexes.m_start]);
             }
             else
             {
-                bandOutput.m_value = bandHistory.m_samples[m_indexes.m_start];
+                bandOutput.setValue(bandHistory.m_samples[m_indexes.m_start]);
             }
             band.m_fader = 1;
             if (band.m_beatTime != 0)
@@ -161,7 +161,7 @@ void SoundEvent::recordResult(unsigned int idx_band, int value)
         }
         else
         {
-            bandOutput.m_value = band.m_fader * (0.8 * bandOutput.m_value + (1 - 0.8) * bandHistory.m_samples[m_indexes.m_start]);
+            bandOutput.setValue(band.m_fader * (0.8 * bandOutput.getValue() + (1 - 0.8) * bandHistory.m_samples[m_indexes.m_start]));
             band.m_fader -= band.m_faderAdj;
             band.m_beatTime++;
             if (band.m_fader < 0)
@@ -180,7 +180,7 @@ void SoundEvent::recordResult(unsigned int idx_band, int value)
         bandHistory.m_C = (-0.00025714 * var) + 1.5142857; // Modified from the paper
     }
     else
-        bandOutput.m_beat = 0;
+        bandOutput.beatDetected(0);
 
     if (idx_band == SoundEvent::getBands() - 1)
     {
