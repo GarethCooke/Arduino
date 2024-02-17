@@ -7,10 +7,10 @@
 class BeatDisplay : public SoundEvent::Listener
 {
 public:
-	BeatDisplay(NetworkHost &host);
+	BeatDisplay(NetworkHost &host, TwoWire &wire);
 	virtual ~BeatDisplay();
 
-	virtual void notify(const SoundEvent &evt);
+	virtual void notify(const SoundEvent::Output &evt);
 
 	void cycleDisplay();
 
@@ -48,8 +48,8 @@ private:
 	unsigned int getBandWidth(unsigned int bands) const;
 	int getBandPos(unsigned int band, unsigned int bandWidth) const;
 	BeatVisualisation *newVisualisation();
-	void displayEqualiser(const SoundEvent &evt, unsigned int bandWidth);
-	void displayInfo(const SoundEvent &evt, unsigned int bandWidth);
+	void displayEqualiser(const SoundEvent::Output &evt, unsigned int bandWidth);
+	void displayInfo(const SoundEvent::Output &evt, unsigned int bandWidth);
 
-	void (BeatDisplay::*RefreshMain)(const SoundEvent &evt, unsigned int bandWidth) = &BeatDisplay::displayEqualiser;
+	void (BeatDisplay::*RefreshMain)(const SoundEvent::Output &evt, unsigned int bandWidth) = &BeatDisplay::displayEqualiser;
 };

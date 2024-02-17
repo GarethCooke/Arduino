@@ -15,10 +15,10 @@ LEDRGBAddressable::LEDRGBAddressable(uint8_t d_pin)
 
     m_pWS2812fx->init();
     m_pWS2812fx->setBrightness(255);
-    // m_pWS2812fx->setMode(FX_MODE_RAINBOW_CYCLE);
+    m_pWS2812fx->setMode(FX_MODE_RAINBOW_CYCLE);
     // m_pWS2812fx->setMode(FX_MODE_THEATER_CHASE);
-    //  m_pWS2812fx->setMode(FX_MODE_THEATER_CHASE_RAINBOW);
-    m_pWS2812fx->setMode(FX_MODE_STROBE_RAINBOW);
+    // m_pWS2812fx->setMode(FX_MODE_THEATER_CHASE_RAINBOW);
+    // m_pWS2812fx->setMode(FX_MODE_STROBE_RAINBOW);
 }
 
 LEDRGBAddressable::~LEDRGBAddressable()
@@ -30,12 +30,12 @@ void LEDRGBAddressable::notify(const JsonDocument &settings)
 {
 }
 
-void LEDRGBAddressable::notify(const SoundEvent &evt)
+void LEDRGBAddressable::notify(const SoundEvent::Output &evt)
 {
     if (evt.beatDetected())
     {
         m_pWS2812fx->trigger();
-        m_pWS2812fx->stop();
+        // m_pWS2812fx->stop();
     }
 }
 

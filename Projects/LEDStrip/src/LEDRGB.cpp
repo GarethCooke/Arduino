@@ -1,6 +1,5 @@
 #include "LEDRGB.h"
 
-
 LEDRGB::LEDRGB(uint8_t r_pin, uint8_t g_pin, uint8_t b_pin)
 {
 	pinMode(r_pin, OUTPUT);
@@ -8,7 +7,7 @@ LEDRGB::LEDRGB(uint8_t r_pin, uint8_t g_pin, uint8_t b_pin)
 	pinMode(b_pin, OUTPUT);
 
 	const int freq = 5000;
-	const int resolution = 10;
+	const int resolution = 8;
 
 	ledcSetup(ledChannelR, freq, resolution);
 	ledcSetup(ledChannelG, freq, resolution);
@@ -19,14 +18,13 @@ LEDRGB::LEDRGB(uint8_t r_pin, uint8_t g_pin, uint8_t b_pin)
 	ledcAttachPin(b_pin, ledChannelB);
 }
 
-
-void LEDRGB::notify(const JsonDocument& settings)
+void LEDRGB::notify(const JsonDocument &settings)
 {
 	// Copy values from the Jsonsettingsument
-	bool power			= settings["power"];
-	String colour		= settings["colour"];
+	bool power = settings["power"];
+	String colour = settings["colour"];
 	String lightsetting = settings["lightsetting"];
-	String beatdecay	= settings["beatdecay"];
+	String beatdecay = settings["beatdecay"];
 
 	Serial.printf("Power %d\n", power);
 	Serial.printf("Colour %s\n", colour.c_str());
@@ -46,23 +44,22 @@ void LEDRGB::notify(const JsonDocument& settings)
 		if (duration > 0)
 		{
 			m_cycleColours.push_back(CycleColor(strtol(&v["colour"].as<String>().c_str()[1], NULL, 16),
-														v["duration"].as<unsigned int>(),
-														v["durationtype"].as<String>().c_str(),
-														v["beatdecay"].as<unsigned int>()));
+												v["duration"].as<unsigned int>(),
+												v["durationtype"].as<String>().c_str(),
+												v["beatdecay"].as<unsigned int>()));
 		}
 	}
-	
+
 	m_currentCycle = makeColourCycle(m_cycleColours.begin());
 
-	reset(	RGB::hexToR(hexValue),
-			RGB::hexToG(hexValue),
-			RGB::hexToB(hexValue),
-			power && (colour.length() > 0),
-			(lightsetting == "beat") ? true : false);
+	reset(RGB::hexToR(hexValue),
+		  RGB::hexToG(hexValue),
+		  RGB::hexToB(hexValue),
+		  power && (colour.length() > 0),
+		  (lightsetting == "beat") ? true : false);
 }
 
-
-void LEDRGB::notify(const SoundEvent& evt)
+void LEDRGB::notify(const SoundEvent::Output &evt)
 {
 	setCurrentColourCycle(evt.beatDetected());
 	if (evt.beatDetected())
@@ -72,24 +69,22 @@ void LEDRGB::notify(const SoundEvent& evt)
 	}
 }
 
-
 void LEDRGB::handle()
 {
 	if (m_power && m_beatbox)
 	{
 		unsigned long now = millis();
 		// use PWM to set the rgb strip values
-		const RGB&		rgb		= getBeatColour();
-		unsigned int	decay	= getDecay();
+		const RGB &rgb = getBeatColour();
+		unsigned int decay = getDecay();
 
 		const unsigned int light_multiplier = (now - m_lastPulse) > decay ? 0 : 1;
-		
+
 		ledcWrite(ledChannelR, rgb.r() * light_multiplier);
 		ledcWrite(ledChannelG, rgb.g() * light_multiplier);
 		ledcWrite(ledChannelB, rgb.b() * light_multiplier);
 	}
 }
-
 
 void LEDRGB::reset(unsigned int r, unsigned int g, unsigned int b, bool power, bool beatbox)
 {
@@ -121,14 +116,12 @@ void LEDRGB::reset(unsigned int r, unsigned int g, unsigned int b, bool power, b
 	}
 }
 
-
-const LEDRGB::RGB& LEDRGB::getBeatColour() const
+const LEDRGB::RGB &LEDRGB::getBeatColour() const
 {
 	if (m_currentCycle.first != m_cycleColours.end())
 		return m_currentCycle.first->rgb();
 	return m_rgb;
 }
-
 
 unsigned int LEDRGB::getDecay() const
 {
@@ -136,7 +129,6 @@ unsigned int LEDRGB::getDecay() const
 		return m_currentCycle.first->decay();
 	return m_beatdecay;
 }
-
 
 const LEDRGB::CurrentCycle LEDRGB::makeColourCycle(CycleColors::const_iterator it) const
 {
@@ -147,7 +139,6 @@ const LEDRGB::CurrentCycle LEDRGB::makeColourCycle(CycleColors::const_iterator i
 
 	return std::make_pair(it, duration);
 }
-
 
 void LEDRGB::setCurrentColourCycle(bool beatDetected)
 {

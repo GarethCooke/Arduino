@@ -4,38 +4,26 @@
 class SoundEvent
 {
 	friend class Initialiser;
+	friend class Output;
+
 	static constexpr unsigned int BANDS = 7;
 
 public:
-	static constexpr unsigned int getBands() { return BANDS; }
-	const String &getFrequency(unsigned int nIndex) const { return m_bands[assureIndex(nIndex)].m_frequency; }
-	int getValue(unsigned int nIndex) const { return m_bands[assureIndex(nIndex)].m_output; }
-
-	bool beatDetected() const;
-	void recordResult(unsigned int idx_band, int value);
-
-	template <typename FN>
-	void iterate_bands(FN func) const
+	static constexpr unsigned int getBands()
 	{
-		for (unsigned int band = 0; band < getBands(); band++)
-			func(m_bands[band].m_frequency, m_bands[band].m_output);
+		return BANDS;
 	}
 
 	class Band
 	{
 		friend SoundEvent;
 
-	public:
-		Band(const char *frequency)
-			: m_frequency(frequency)
-		{
-		}
-
-		bool beatDetected() const { return m_beat; }
-
 	private:
 		struct History
 		{
+			unsigned int m_level[8] = {0}; // Values from the BANDS frequency bands
+			unsigned int m_totalLevel = 0; // Summed values from the BANDS frequency bands
+
 			// To store the average 'energy' over the last ~1 second
 			unsigned int m_samples[64] = {0}; // Low-pass filtered samples
 			unsigned int m_totalSamples = 0;  // Sums of 64 samples
@@ -44,28 +32,75 @@ public:
 			int m_nextAllowedBeat = -1;		  // next allowed beat
 		};
 
-		const String m_frequency;
-		bool m_beat = 0;
-		unsigned int m_output = 0; // Value the program will output for a channel
-		float m_fader = 1;		   // Fade out if there hasn't been a beat in a while
-		float m_faderAdj = 0.1;	   // The rate at which the fader approaches zero
-		int m_beatTime = 0;		   // A count of the time between beats. Used to determine faderAdj
+		float m_fader = 1;		// Fade out if there hasn't been a beat in a while
+		float m_faderAdj = 0.1; // The rate at which the fader approaches zero
+		int m_beatTime = 0;		// A count of the time between beats. Used to determine faderAdj
 		History m_history;
+	};
+
+	class BandOutput
+	{
+		friend class SoundEvent;
+
+	public:
+		BandOutput(const char *frequency) : m_frequency(frequency) {}
+		bool beatDetected() const { return m_beat; }
+
+	private:
+		const char *m_frequency;
+		unsigned int m_value = 0; // Value the program will output for a channel
+		bool m_beat = 0;
+	};
+
+	class Output
+	{
+		friend class SoundEvent;
+
+	public:
+		template <typename FN>
+		void iterate_bands(FN func) const
+		{
+			for (unsigned int band = 0; band < getBands(); band++)
+				func(m_bandoutput[band].m_frequency, m_bandoutput[band].m_value);
+		}
+
+		const char *getFrequency(unsigned int nIndex) const { return m_bandoutput[assureIndex(nIndex)].m_frequency; }
+		int getValue(unsigned int nIndex) const { return m_bandoutput[assureIndex(nIndex)].m_value; }
+
+		bool beatDetected() const { return m_beat; }
+
+	private:
+		BandOutput m_bandoutput[BANDS] = {"63Hz", "160Hz", "400Hz", "1000Hz", "2500Hz", "6250Hz", "16000Hz"};
+		bool m_beat = 0; // added for efficiency - repeated data, could be derrived from the iterating the output items
 	};
 
 	class Listener
 	{
 	public:
-		virtual void notify(const SoundEvent &evt) = 0;
+		virtual void notify(const SoundEvent::Output &evt) = 0;
 	};
 
+	void recordResult(unsigned int idx_band, int value);
+	const Output &output() const { return m_output; }
+
 private:
-	unsigned char m_next = 0;		 // next sample
-	unsigned char m_threshold = 150; // next sample
+	// struct Indexes
+	// {
+	// 	unsigned char m_old = 1;   // Oldest measurement in the array
+	// 	unsigned char m_new = 0;   // New messurement
+	// 	unsigned char m_end = 1;   // Oldest sample in the array
+	// 	unsigned char m_start = 0; // New sample
+	// };
+
+	unsigned char m_next = 0;			 // next sample
+	unsigned char m_leveltreshold = 40;	 // minumum sound level, to remove noise at low levels
+	unsigned char m_beatthreshold = 150; // minimum beat threashold, to remove effect of noise at low levels
 	// unsigned char m_dominantBand[2] = {0}; // the dominant band
 	// unsigned int m_dominantAve[2] = {0};   // the dominant band's average sample
 
-	Band m_bands[BANDS] = {"63Hz", "160Hz", "400Hz", "1000Hz", "2500Hz", "6250Hz", "16000Hz"};
+	Band m_bands[BANDS];
+	Output m_output;
+	// Indexes m_indexes;
 
-	unsigned int assureIndex(unsigned int nIndex) const { return nIndex < getBands() ? nIndex : getBands() - 1; }
+	static unsigned int assureIndex(unsigned int nIndex) { return nIndex < getBands() ? nIndex : getBands() - 1; }
 };

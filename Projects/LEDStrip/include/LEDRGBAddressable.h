@@ -4,18 +4,17 @@
 
 class WS2812FX;
 
-class LEDRGBAddressable : public  SettingsListener, public SoundEvent::Listener
+class LEDRGBAddressable : public SettingsListener, public SoundEvent::Listener
 {
 public:
 	LEDRGBAddressable(uint8_t d_pin);
 	virtual ~LEDRGBAddressable();
 
-	virtual void notify(const JsonDocument& settings);
-	virtual void notify(const SoundEvent& evt);
+	virtual void notify(const JsonDocument &settings);
+	virtual void notify(const SoundEvent::Output &evt);
 
 	void handle();
 
 private:
-	WS2812FX* m_pWS2812fx = NULL;
+	WS2812FX *m_pWS2812fx = NULL;
 };
-

@@ -21,7 +21,7 @@ public:
 	virtual void onBeat(unsigned long (&beats)[SoundEvent::getBands()]);
 };
 
-BeatDisplay::BeatDisplay(NetworkHost &host)
+BeatDisplay::BeatDisplay(NetworkHost &host, TwoWire &wire)
 	: m_host(host), m_pBeatVisualisation(newVisualisation()), m_display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET)
 {
 	if (!m_display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
@@ -33,7 +33,7 @@ BeatDisplay::~BeatDisplay()
 	delete m_pBeatVisualisation;
 }
 
-void BeatDisplay::notify(const SoundEvent &evt)
+void BeatDisplay::notify(const SoundEvent::Output &evt)
 {
 	// display layout as follows...
 	// |---------------------------------------------------------|
@@ -129,7 +129,7 @@ BeatDisplay::BeatVisualisation *BeatDisplay::newVisualisation()
 		return new BeatVisualisationRoll();
 }
 
-void BeatDisplay::displayEqualiser(const SoundEvent &evt, unsigned int bandWidth)
+void BeatDisplay::displayEqualiser(const SoundEvent::Output &evt, unsigned int bandWidth)
 {
 	unsigned int maxBandSize = m_display.width() - 3 * m_margin - m_topBeatSize;
 	unsigned int currentBand = 0;
@@ -140,7 +140,7 @@ void BeatDisplay::displayEqualiser(const SoundEvent &evt, unsigned int bandWidth
        					m_display.fillRect(m_display.width() - m_margin - bandSize, getBandPos(currentBand++, bandWidth), bandSize, bandWidth, WHITE); });
 }
 
-void BeatDisplay::displayInfo(const SoundEvent &evt, unsigned int bandWidth)
+void BeatDisplay::displayInfo(const SoundEvent::Output &evt, unsigned int bandWidth)
 {
 	String hostname = m_host.getHostName();
 	String mac = m_host.getMACAddress();

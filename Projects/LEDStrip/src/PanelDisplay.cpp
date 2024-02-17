@@ -1,7 +1,6 @@
 #include "PanelDisplay.h"
 #include "Font5x3.h"
 
-
 PanelDisplay::PanelDisplay(const uint8_t pin_data, const uint8_t pin_clk, const uint8_t pin_cs, const uint8_t devices_x, const uint8_t devices_y)
 	: m_panel(MD_MAX72XX::FC16_HW, pin_data, pin_clk, pin_cs, devices_x, devices_y)
 {
@@ -11,21 +10,19 @@ PanelDisplay::PanelDisplay(const uint8_t pin_data, const uint8_t pin_clk, const 
 	m_currentX = m_panel.getXMax();
 }
 
-
-void PanelDisplay::notify(const JsonDocument& settings)
+void PanelDisplay::notify(const JsonDocument &settings)
 {
-	m_message		= settings["message"].as<String>();
-	m_pulse			= settings["messagescroll"] != true;
-	m_scrollspeed	= settings["scrollspeed"].as<unsigned int>();
+	m_message = settings["message"].as<String>();
+	m_pulse = settings["messagescroll"] != true;
+	m_scrollspeed = settings["scrollspeed"].as<unsigned int>();
 }
 
-
-void PanelDisplay::notify(const SoundEvent& evt)
+void PanelDisplay::notify(const SoundEvent::Output &evt)
 {
 	unsigned long now = millis();
 	uint16_t USER_MESG = m_panel.getFontHeight() + 1;
 
-	bool pulseClear	= (now - m_lastPulse > 200);
+	bool pulseClear = (now - m_lastPulse > 200);
 	bool newBeat = evt.beatDetected();
 
 	if (newBeat)
@@ -60,7 +57,7 @@ void PanelDisplay::notify(const SoundEvent& evt)
 		{
 			m_panel.clear(0, 0, m_panel.getXMax(), m_panel.getYMax());
 			uint16_t end = m_panel.drawText(m_currentX, USER_MESG, m_message.c_str());
-			if(m_currentX + end == 0)
+			if (m_currentX + end == 0)
 				m_currentX = m_panel.getXMax();
 		}
 

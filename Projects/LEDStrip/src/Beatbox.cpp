@@ -1,15 +1,13 @@
 // #include <arduinoFFT.h>
-#include <functional>
 #include <algorithm>
 #include <memory>
 #include <stdexcept>
 #include "Beatbox.h"
 #include "SoundEvent.h"
 
-using std::bind;
 using std::logic_error;
 
-std::auto_ptr<Beatbox> pBeatbox;
+std::unique_ptr<Beatbox> pBeatbox;
 
 // arduinoFFT FFT = arduinoFFT(); /* Create FFT object */
 
@@ -61,9 +59,8 @@ void Beatbox::start()
 
 	created = true;
 	static StaticTask_t xTaskBuffer;
-	static const auto STACK_SIZE = 4000;
+	static constexpr auto STACK_SIZE = 4000;
 	static TaskHandle_t xHandle = NULL;
-	// static StackType_t xStack[STACK_SIZE];
 
 	xTaskCreate(handle, "Beatbox handler", STACK_SIZE, NULL, 5, &xHandle);
 }
@@ -116,7 +113,7 @@ void Beatbox::handleHardware()
 		m_event.recordResult(band, strobeHardware());
 
 	for_each(m_listeners.begin(), m_listeners.end(), [&](std::set<SoundEvent::Listener *>::const_reference nextListener)
-			 { nextListener->notify(m_event); });
+			 { nextListener->notify(m_event.output()); });
 }
 
 int Beatbox::strobeHardware()
