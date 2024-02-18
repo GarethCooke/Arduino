@@ -1,19 +1,26 @@
 #pragma once
 
-#include <MSGEQ7Out.h>
+#include <memory>
+#include <BeatWireComms.h>
 
-class TwoWire;
+#if defined(_UNIQUE_PTR_H)
+#define std_ptr_type unique_ptr
+#else
+#define std_ptr_type auto_ptr
+#endif
+
+using std::std_ptr_type;
 
 class BeatBroadcast : public MSGEQ7Out::Listener
 {
 public:
-    BeatBroadcast(TwoWire &wire);
+    BeatBroadcast(std_ptr_type<BeatSendImpl> pSender);
     virtual ~BeatBroadcast();
-    virtual void notify(const MSGEQ7Out &evt);
-
-    static constexpr const int address() { return m_address; }
+    virtual void notify(const MSGEQ7Out& evt);
 
 private:
-    static constexpr const int m_address = 0x30;
-    TwoWire &m_wire;
+    BeatBroadcast(const BeatBroadcast&) = delete;
+    BeatBroadcast& operator=(const BeatBroadcast&) = delete;
+
+    std_ptr_type<BeatSendImpl> m_pSender;
 };

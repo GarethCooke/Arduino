@@ -3,8 +3,9 @@
 #include <Adafruit_I2CDevice.h>
 #include <Adafruit_SPIDevice.h>
 #include <MSGEQ7Out.h>
-#include <BeatReceiver.h>
+#include <BeatReceive.h>
 #include <BeatDisplay.h>
+#include <BeatWireReceiver.h>
 
 
 class SoundInterest : public MSGEQ7Out::Listener
@@ -34,18 +35,22 @@ public:
   {
   };
 };
+
 SoundInterest soundInterest;
 NoOpSoundInterest noOpSoundInterest;
 NetworkHost noNetwork;
+BeatReceive beatReceiver;
+
 // BeatDisplay display(noNetwork, Wire);
 
 void setup()
 {
   Serial.begin(9600);
-  BeatReceiver::create(Wire, A4, A5);
-  // BeatReceiver::get().addListener(&soundInterest);
-  BeatReceiver::get().addListener(&noOpSoundInterest);
-  // BeatReceiver::get().addListener(&display);
+  BeatWireReceiver::create(Wire, A4, A5);
+  BeatWireReceiver::get().registerReceiver(beatReceiver);
+  beatReceiver.addListener(&soundInterest);
+  // beatReceiver.addListener(&noOpSoundInterest);
+  // beatReceiver.addListener(&display);
   Serial.println("Ready");
 }
 

@@ -49,7 +49,7 @@ public:
 
     static constexpr const size_t bytes() { return sizeof(MSGEQ7Out); }
     const uint8_t* toBytes() const { return reinterpret_cast<const uint8_t*>(this); }
-    void fromyBytes(const uint8_t* src) { memcpy(this, src, bytes()); }
+    void fromyBytes(const uint8_t* src);
 
 private:
     static const char* m_frequencies[BANDS];

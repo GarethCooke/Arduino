@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
 #include <WS2812FX.h>
-#include <Arduino.h>
 #include <memory>
 #include <ArduinoJson.h>
 #include <WiFi.h>
@@ -20,6 +19,8 @@
 #include <Adafruit_SSD1306.h>
 #include <MD_MAX72xx.h>
 #include <MD_MAXPanel.h>
+#include <BeatBroadcast.h>
+#include <BeatWireSender.h>
 #include "IguanaOTA.h"
 #include <ButtonStatus.h>
 #include "LEDStripController.h"
@@ -28,7 +29,6 @@
 #include "LEDRGB.h"
 #include "LEDRGBAddressable.h"
 #include "PanelDisplay.h"
-#include "BeatBroadcast.h"
 
 #define RESET_BTN_PERIOD 3000
 #define PRE_RESET_PERIOD 2000
@@ -69,16 +69,16 @@ void setup(void)
 
 	pHub.reset(new LEDStripController());
 	LEDStripHTTPServ::create(*pHub);
-	LEDStripHTTPServ &httpServer = LEDStripHTTPServ::get();
+	LEDStripHTTPServ& httpServer = LEDStripHTTPServ::get();
 	pBeatDisplay.reset(new BeatDisplay(*pHub, Wire));
 	pCmd_btn.reset(new ButtonStatus(shared_ptr_lite<TwoStateValue>(new DigitalPinValue(cmndbtn_pin))));
 	pStrip1.reset(new LEDRGB(r_pin, g_pin, b_pin));
 	pStrip2.reset(new LEDRGBAddressable(led_addr_data_pin));
 	pPanel1.reset(new PanelDisplay(panel_pin_data, panel_pin_clk, panel_pin_cs, panel_devices_x, panel_devices_y));
-	pBroadcaster.reset(new BeatBroadcast(Wire1));
+	pBroadcaster.reset(new BeatBroadcast(unique_ptr<BeatSendImpl>(new BeatWireSender(Wire1))));
 
 	Beatbox::create(beat_reset_pin, beat_strobe_pin, beat_in_pin);
-	Beatbox &beatbox = Beatbox::get();
+	Beatbox& beatbox = Beatbox::get();
 
 	beatbox.addListener(pBeatDisplay.get());
 	beatbox.addListener(pStrip1.get());

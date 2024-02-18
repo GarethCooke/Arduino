@@ -15,7 +15,8 @@
     "memory": "cpp",
     "exception": "cpp",
     "basic_definitions": "cpp",
-    "algorithm": "cpp"
+    "algorithm": "cpp",
+    "iterator_base": "cpp"
   },
   "C_Cpp.vcFormat.space.pointerReferenceAlignment": "left"
 }
