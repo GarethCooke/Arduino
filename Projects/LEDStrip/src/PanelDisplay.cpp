@@ -10,14 +10,14 @@ PanelDisplay::PanelDisplay(const uint8_t pin_data, const uint8_t pin_clk, const 
 	m_currentX = m_panel.getXMax();
 }
 
-void PanelDisplay::notify(const JsonDocument &settings)
+void PanelDisplay::notify(const JsonDocument& settings)
 {
 	m_message = settings["message"].as<String>();
 	m_pulse = settings["messagescroll"] != true;
 	m_scrollspeed = settings["scrollspeed"].as<unsigned int>();
 }
 
-void PanelDisplay::notify(const SoundEvent::Output &evt)
+void PanelDisplay::notify(const MSGEQ7Out& evt)
 {
 	unsigned long now = millis();
 	uint16_t USER_MESG = m_panel.getFontHeight() + 1;

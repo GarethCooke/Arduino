@@ -9,9 +9,9 @@ using std::find_if;
 
 void SoundEvent::recordResult(unsigned int idx_band, int value)
 {
-    Band &band = m_bands[idx_band];
-    Band::History &bandHistory = band.m_history;
-    Output::BandOutput &bandOutput = m_output.getBand(idx_band);
+    Band& band = m_bands[idx_band];
+    Band::History& bandHistory = band.m_history;
+    MSGEQ7Out::BandOutput& bandOutput = m_output.getBand(idx_band);
 
     // Update the m_samples and average of m_samples from the last second
     bandHistory.m_totalSamples -= bandHistory.m_samples[m_next]; // Clear out the old value
@@ -108,8 +108,8 @@ void SoundEvent::recordResult(unsigned int idx_band, int value)
 #ifdef ONE
 void SoundEvent::recordResult(unsigned int idx_band, int value)
 {
-    Band &band = m_bands[idx_band];
-    Band::History &bandHistory = band.m_history;
+    Band& band = m_bands[idx_band];
+    Band::History& bandHistory = band.m_history;
 
     band.m_history.m_level[m_indexes.m_new] = value;
     bandHistory.m_totalLevel -= bandHistory.m_level[m_indexes.m_old]; // Clear out the old value

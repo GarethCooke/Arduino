@@ -133,9 +133,9 @@ const GFXglyph FreeSans5pt7bGlyphs[] PROGMEM = {
   {   385,   3,   9,   3,    0,   -6 },   // 0x7D '}'
   {   389,   4,   1,   6,    1,   -3 } }; // 0x7E '~'
 
-const GFXfont MyFreeSans5pt7b PROGMEM = {
-  (uint8_t  *)FreeSans5pt7bBitmaps,
-  (GFXglyph *)FreeSans5pt7bGlyphs,
+const GFXfont IguanaFreeSans5pt7b PROGMEM = {
+  (uint8_t*)FreeSans5pt7bBitmaps,
+  (GFXglyph*)FreeSans5pt7bGlyphs,
   0x20, 0x7E, 14 };
 
 // Approx. 1062 bytes

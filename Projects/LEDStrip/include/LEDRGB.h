@@ -3,12 +3,12 @@
 #include <vector>
 #include "Beatbox.h"
 
-class LEDRGB : public SettingsListener, public SoundEvent::Listener
+class LEDRGB : public SettingsListener, public MSGEQ7Out::Listener
 {
 public:
 	LEDRGB(uint8_t r_pin, uint8_t g_pin, uint8_t b_pin);
-	virtual void notify(const JsonDocument &settings);
-	virtual void notify(const SoundEvent::Output &evt);
+	virtual void notify(const JsonDocument& settings);
+	virtual void notify(const MSGEQ7Out& evt);
 
 	void handle();
 
@@ -49,15 +49,15 @@ private:
 			time
 		};
 
-		CycleColor(unsigned long hexValue, unsigned int duration, const char *durationType, unsigned int decay)
+		CycleColor(unsigned long hexValue, unsigned int duration, const char* durationType, unsigned int decay)
 			: m_rgb(hexValue),
-			  m_duration(duration),
-			  m_durationType(durationType && !strcmp(durationType, "time") ? DurationType::time : DurationType::beat),
-			  m_decay(decay)
+			m_duration(duration),
+			m_durationType(durationType && !strcmp(durationType, "time") ? DurationType::time : DurationType::beat),
+			m_decay(decay)
 		{
 		}
 
-		const RGB &rgb() const { return m_rgb; }
+		const RGB& rgb() const { return m_rgb; }
 		unsigned int duration() const { return m_duration; }
 		DurationType durationType() const { return m_durationType; }
 		unsigned int decay() const { return m_decay; }
@@ -85,7 +85,7 @@ private:
 
 	void reset(unsigned int r, unsigned int g, unsigned int b, bool power, bool beatbox);
 	const CurrentCycle makeColourCycle(CycleColors::const_iterator it) const;
-	const RGB &getBeatColour() const;
+	const RGB& getBeatColour() const;
 	unsigned int getDecay() const;
 	void setCurrentColourCycle(bool beatDetected);
 };

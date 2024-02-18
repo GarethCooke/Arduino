@@ -18,7 +18,7 @@ LEDRGB::LEDRGB(uint8_t r_pin, uint8_t g_pin, uint8_t b_pin)
 	ledcAttachPin(b_pin, ledChannelB);
 }
 
-void LEDRGB::notify(const JsonDocument &settings)
+void LEDRGB::notify(const JsonDocument& settings)
 {
 	// Copy values from the Jsonsettingsument
 	bool power = settings["power"];
@@ -44,22 +44,22 @@ void LEDRGB::notify(const JsonDocument &settings)
 		if (duration > 0)
 		{
 			m_cycleColours.push_back(CycleColor(strtol(&v["colour"].as<String>().c_str()[1], NULL, 16),
-												v["duration"].as<unsigned int>(),
-												v["durationtype"].as<String>().c_str(),
-												v["beatdecay"].as<unsigned int>()));
+				v["duration"].as<unsigned int>(),
+				v["durationtype"].as<String>().c_str(),
+				v["beatdecay"].as<unsigned int>()));
 		}
 	}
 
 	m_currentCycle = makeColourCycle(m_cycleColours.begin());
 
 	reset(RGB::hexToR(hexValue),
-		  RGB::hexToG(hexValue),
-		  RGB::hexToB(hexValue),
-		  power && (colour.length() > 0),
-		  (lightsetting == "beat") ? true : false);
+		RGB::hexToG(hexValue),
+		RGB::hexToB(hexValue),
+		power && (colour.length() > 0),
+		(lightsetting == "beat") ? true : false);
 }
 
-void LEDRGB::notify(const SoundEvent::Output &evt)
+void LEDRGB::notify(const MSGEQ7Out& evt)
 {
 	setCurrentColourCycle(evt.beatDetected());
 	if (evt.beatDetected())
@@ -75,7 +75,7 @@ void LEDRGB::handle()
 	{
 		unsigned long now = millis();
 		// use PWM to set the rgb strip values
-		const RGB &rgb = getBeatColour();
+		const RGB& rgb = getBeatColour();
 		unsigned int decay = getDecay();
 
 		const unsigned int light_multiplier = (now - m_lastPulse) > decay ? 0 : 1;
@@ -116,7 +116,7 @@ void LEDRGB::reset(unsigned int r, unsigned int g, unsigned int b, bool power, b
 	}
 }
 
-const LEDRGB::RGB &LEDRGB::getBeatColour() const
+const LEDRGB::RGB& LEDRGB::getBeatColour() const
 {
 	if (m_currentCycle.first != m_cycleColours.end())
 		return m_currentCycle.first->rgb();

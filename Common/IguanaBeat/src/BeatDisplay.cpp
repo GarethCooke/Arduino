@@ -1,5 +1,5 @@
-#include "../Fonts/MyFreeSans5pt7b.h"
-#include "BeatDisplay.h"
+//#include <IguanaFreeSans5pt7b.h>
+#include <BeatDisplay.h>
 #include <stdlib.h>
 
 #define SCREEN_WIDTH 128	// OLED display width, in pixels
@@ -9,7 +9,7 @@
 class BeatVisualisationRoll : public BeatDisplay::BeatVisualisation
 {
 public:
-	virtual void onBeat(unsigned long(&beats)[SoundEvent::getBands()]);
+	virtual void onBeat(unsigned long(&beats)[MSGEQ7Out::getBands()]);
 
 private:
 	unsigned int m_beatNo = -1;
@@ -18,7 +18,7 @@ private:
 class BeatVisualisationStrobe : public BeatDisplay::BeatVisualisation
 {
 public:
-	virtual void onBeat(unsigned long(&beats)[SoundEvent::getBands()]);
+	virtual void onBeat(unsigned long(&beats)[MSGEQ7Out::getBands()]);
 };
 
 BeatDisplay::BeatDisplay(NetworkHost& host, TwoWire& wire)
@@ -33,7 +33,7 @@ BeatDisplay::~BeatDisplay()
 	delete m_pBeatVisualisation;
 }
 
-void BeatDisplay::notify(const SoundEvent::Output& evt)
+void BeatDisplay::notify(const MSGEQ7Out& evt)
 {
 	// display layout as follows...
 	// |---------------------------------------------------------|
@@ -63,7 +63,7 @@ void BeatDisplay::notify(const SoundEvent::Output& evt)
 	// using it so that x and y are rotated
 
 	unsigned long now = millis();
-	unsigned int bandWidth = getBandWidth(SoundEvent::getBands());
+	unsigned int bandWidth = getBandWidth(MSGEQ7Out::getBands());
 
 	if (now - m_lastRefresh > m_displayRefreshPeriod)
 	{
@@ -129,7 +129,7 @@ BeatDisplay::BeatVisualisation* BeatDisplay::newVisualisation()
 		return new BeatVisualisationRoll();
 }
 
-void BeatDisplay::displayEqualiser(const SoundEvent::Output& evt, unsigned int bandWidth)
+void BeatDisplay::displayEqualiser(const MSGEQ7Out& evt, unsigned int bandWidth)
 {
 	unsigned int maxBandSize = m_display.width() - 3 * m_margin - m_topBeatSize;
 	unsigned int currentBand = 0;
@@ -140,7 +140,7 @@ void BeatDisplay::displayEqualiser(const SoundEvent::Output& evt, unsigned int b
 			m_display.fillRect(m_display.width() - m_margin - bandSize, getBandPos(currentBand++, bandWidth), bandSize, bandWidth, WHITE); });
 }
 
-void BeatDisplay::displayInfo(const SoundEvent::Output& evt, unsigned int bandWidth)
+void BeatDisplay::displayInfo(const MSGEQ7Out& evt, unsigned int bandWidth)
 {
 	String hostname = m_host.getHostName();
 	String mac = m_host.getMACAddress();
@@ -151,7 +151,7 @@ void BeatDisplay::displayInfo(const SoundEvent::Output& evt, unsigned int bandWi
 	uint8_t origRotation = m_display.getRotation();
 	m_display.setRotation(0);
 
-	m_display.setFont(&MyFreeSans5pt7b);
+	// m_display.setFont(&MyFreeSans5pt7b);
 	m_display.getTextBounds(ip, m_margin, 0, &x1, &y1, &w, &h);
 
 	m_display.setCursor(m_margin, 2 * m_margin + m_topBeatSize + 1 + h);
@@ -169,18 +169,18 @@ void BeatDisplay::displayInfo(const SoundEvent::Output& evt, unsigned int bandWi
 	m_display.setRotation(origRotation);
 }
 
-void BeatVisualisationRoll::onBeat(unsigned long(&beats)[SoundEvent::getBands()])
+void BeatVisualisationRoll::onBeat(unsigned long(&beats)[MSGEQ7Out::getBands()])
 {
-	if (++m_beatNo >= SoundEvent::getBands())
+	if (++m_beatNo >= MSGEQ7Out::getBands())
 		m_beatNo = 0;
 	beats[m_beatNo] = millis();
 }
 
-void BeatVisualisationStrobe::onBeat(unsigned long(&beats)[SoundEvent::getBands()])
+void BeatVisualisationStrobe::onBeat(unsigned long(&beats)[MSGEQ7Out::getBands()])
 {
 	unsigned long now = millis();
-	int midPoint = (SoundEvent::getBands() + 1) / 2;
-	double decayPerBeat = 3.0 / static_cast<double>(SoundEvent::getBands() + 1);
+	int midPoint = (MSGEQ7Out::getBands() + 1) / 2;
+	double decayPerBeat = 3.0 / static_cast<double>(MSGEQ7Out::getBands() + 1);
 	int n = 0;
 	for (auto& val : beats)
 	{

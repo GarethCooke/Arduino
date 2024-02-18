@@ -5,7 +5,6 @@
 class SoundEvent
 {
 	friend class Initialiser;
-	friend class Output;
 
 public:
 	static constexpr const unsigned int getBands()
@@ -20,11 +19,11 @@ public:
 	private:
 		struct History
 		{
-			unsigned int m_level[8] = {0}; // Values from the BANDS frequency bands
+			unsigned int m_level[8] = { 0 }; // Values from the BANDS frequency bands
 			unsigned int m_totalLevel = 0; // Summed values from the BANDS frequency bands
 
 			// To store the average 'energy' over the last ~1 second
-			unsigned int m_samples[64] = {0}; // Low-pass filtered samples
+			unsigned int m_samples[64] = { 0 }; // Low-pass filtered samples
 			unsigned int m_totalSamples = 0;  // Sums of 64 samples
 			unsigned int m_avgSample = 0;	  // Averages of the last 64 samples
 			float m_C = 1.3;				  // Multiplier for the 'beat threshold'
@@ -37,11 +36,8 @@ public:
 		History m_history;
 	};
 
-	typedef MSGEQ7Out Output;
-	typedef MSGEQ7Out::Listener Listener;
-
 	void recordResult(unsigned int idx_band, int value);
-	const Output &output() const { return m_output; }
+	const MSGEQ7Out& output() const { return m_output; }
 
 private:
 	// struct Indexes
@@ -59,6 +55,6 @@ private:
 	// unsigned int m_dominantAve[2] = {0};   // the dominant band's average sample
 
 	Band m_bands[MSGEQ7Out::BANDS];
-	Output m_output;
+	MSGEQ7Out m_output;
 	// Indexes m_indexes;
 };

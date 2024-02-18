@@ -23,7 +23,7 @@ void Beatbox::create(uint8_t reset_pin, uint8_t strobe_pin, uint8_t beatin_pin)
 	pBeatbox.reset(new Beatbox(reset_pin, strobe_pin, beatin_pin));
 }
 
-Beatbox &Beatbox::get()
+Beatbox& Beatbox::get()
 {
 	if (!pBeatbox.get())
 		throw logic_error("Attempt to get() Beatbox before call to create(...).");
@@ -32,8 +32,8 @@ Beatbox &Beatbox::get()
 
 Beatbox::Beatbox(uint8_t reset_pin, uint8_t strobe_pin, uint8_t beatin_pin)
 	: m_reset_pin(reset_pin),
-	  m_strobe_pin(strobe_pin),
-	  m_beatin_pin(beatin_pin)
+	m_strobe_pin(strobe_pin),
+	m_beatin_pin(beatin_pin)
 {
 	pinMode(m_reset_pin, OUTPUT);
 	pinMode(m_strobe_pin, OUTPUT);
@@ -65,7 +65,7 @@ void Beatbox::start()
 	xTaskCreate(handle, "Beatbox handler", STACK_SIZE, NULL, 5, &xHandle);
 }
 
-void Beatbox::notify(const JsonDocument &settings)
+void Beatbox::notify(const JsonDocument& settings)
 {
 	// Copy values from the JsonDocument
 	String filter = settings["filter"];
@@ -95,7 +95,7 @@ void Beatbox::notify(const JsonDocument &settings)
 	resetParams(nFilter, nBeatdebounce, nGainlow, nGainincrement, nGaindecrement, nMinbeatband, nMaxbeatband);
 }
 
-void Beatbox::handle(void *pvParameters)
+void Beatbox::handle(void* pvParameters)
 {
 	if (!pBeatbox.get())
 		throw logic_error("Attempt to use Beatbox handle(...) before call to create(...).");
@@ -112,8 +112,8 @@ void Beatbox::handleHardware()
 	for (int band = 0; band < SoundEvent::getBands(); band++)
 		m_event.recordResult(band, strobeHardware());
 
-	for_each(m_listeners.begin(), m_listeners.end(), [&](std::set<SoundEvent::Listener *>::const_reference nextListener)
-			 { nextListener->notify(m_event.output()); });
+	for_each(m_listeners.begin(), m_listeners.end(), [&](std::set<MSGEQ7Out::Listener*>::const_reference nextListener)
+		{ nextListener->notify(m_event.output()); });
 }
 
 int Beatbox::strobeHardware()
@@ -169,12 +169,12 @@ void Beatbox::handleSoftware()
 	// Serial.println();
 }
 
-void Beatbox::addListener(SoundEvent::Listener *pListener)
+void Beatbox::addListener(MSGEQ7Out::Listener* pListener)
 {
 	m_listeners.insert(pListener);
 }
 
-void Beatbox::removeListener(SoundEvent::Listener *pListener)
+void Beatbox::removeListener(MSGEQ7Out::Listener* pListener)
 {
 	m_listeners.erase(pListener);
 }

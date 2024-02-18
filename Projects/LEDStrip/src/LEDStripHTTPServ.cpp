@@ -17,7 +17,7 @@ std::unique_ptr<LEDStripHTTPServ> pHTTPServer;
 // Initialize the Ethernet server library
 // with the IP address and port you want to use
 // (port 80 is default for HTTP):
-void LEDStripHTTPServ::create(LEDStripController &controller)
+void LEDStripHTTPServ::create(LEDStripController& controller)
 {
 	if (pHTTPServer.get())
 		throw logic_error("Attempt to create more than oneLEDStripHTTPServ instances.");
@@ -25,15 +25,15 @@ void LEDStripHTTPServ::create(LEDStripController &controller)
 	pHTTPServer.reset(new LEDStripHTTPServ(controller));
 }
 
-LEDStripHTTPServ &LEDStripHTTPServ::get()
+LEDStripHTTPServ& LEDStripHTTPServ::get()
 {
 	if (!pHTTPServer.get())
 		throw logic_error("Attempt to get() LEDStripHTTPServ before call to create(...).");
 	return *pHTTPServer;
 }
 
-LEDStripHTTPServ::LEDStripHTTPServ(LEDStripController &controller)
-	: m_controller(controller), m_performReboot(0), m_pServer(new AsyncWebServer(80)), m_pEvents(new AsyncEventSource("/events")), m_queue(xQueueCreate(2, sizeof(SoundEvent::Output)))
+LEDStripHTTPServ::LEDStripHTTPServ(LEDStripController& controller)
+	: m_controller(controller), m_performReboot(0), m_pServer(new AsyncWebServer(80)), m_pEvents(new AsyncEventSource("/events")), m_queue(xQueueCreate(2, sizeof(MSGEQ7Out)))
 {
 	Serve(*m_pServer, "/styles.css", "text/css");
 	Serve(*m_pServer, "/main.js", "text/javascript");
@@ -48,34 +48,34 @@ LEDStripHTTPServ::LEDStripHTTPServ(LEDStripController &controller)
 
 	// Route to store JSON settings data file
 	m_pServer->on(
-		m_controller.settingsPath(), HTTP_POST, [](AsyncWebServerRequest *request)
+		m_controller.settingsPath(), HTTP_POST, [](AsyncWebServerRequest* request)
 		{ request->send(200, "text/plain"); },
 		NULL,
-		[this](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+		[this](AsyncWebServerRequest* request, uint8_t* data, size_t len, size_t index, size_t total)
 		{ handleSettingsChange(data, len); });
 
-	m_pServer->on("/api/networkdata", HTTP_GET, [this](AsyncWebServerRequest *request)
-				  { request->send(200, "text/json", *getNetworks()); });
+	m_pServer->on("/api/networkdata", HTTP_GET, [this](AsyncWebServerRequest* request)
+		{ request->send(200, "text/json", *getNetworks()); });
 
 	m_pServer->on(
-		"/api/networkset", HTTP_POST, [](AsyncWebServerRequest *request)
+		"/api/networkset", HTTP_POST, [](AsyncWebServerRequest* request)
 		{ request->send(200, "text/plain", "Post route"); },
 		NULL,
-		[this](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+		[this](AsyncWebServerRequest* request, uint8_t* data, size_t len, size_t index, size_t total)
 		{ handleNetworkChange(data, len); });
 
-	m_pEvents->onConnect([](AsyncEventSourceClient *client)
-						 {
-							 Serial.println("onconnect");
-							 if (client->lastId())
-							 {
-								 Serial.printf("Client reconnected! Last message ID that it gat is: %u\n", client->lastId());
-							 }
+	m_pEvents->onConnect([](AsyncEventSourceClient* client)
+		{
+			Serial.println("onconnect");
+			if (client->lastId())
+			{
+				Serial.printf("Client reconnected! Last message ID that it gat is: %u\n", client->lastId());
+			}
 
-							 // send sample event message
-							 // and set reconnect delay to 1 second
-							 // client->send("{\"msg\":{\"frequencies\":[{\"band\":\"63Hz\",\"value\":15},{\"band\":\"160Hz\",\"value\":26},{\"band\":\"400Hz\",\"value\":18},{\"band\":\"1000Hz\",\"value\":97},{\"band\":\"2500Hz\",\"value\":57},{\"band\":\"6250Hz\",\"value\":83},{\"band\":\"16000Hz\",\"value\":10}],\"beatDetected\":false}}", NULL, millis(), 1000);
-						 });
+			// send sample event message
+			// and set reconnect delay to 1 second
+			// client->send("{\"msg\":{\"frequencies\":[{\"band\":\"63Hz\",\"value\":15},{\"band\":\"160Hz\",\"value\":26},{\"band\":\"400Hz\",\"value\":18},{\"band\":\"1000Hz\",\"value\":97},{\"band\":\"2500Hz\",\"value\":57},{\"band\":\"6250Hz\",\"value\":83},{\"band\":\"16000Hz\",\"value\":10}],\"beatDetected\":false}}", NULL, millis(), 1000);
+		});
 
 	//		m_pEvents->setAuthentication("user", "pass");
 	m_pServer->addHandler(m_pEvents);
@@ -94,13 +94,13 @@ LEDStripHTTPServ::~LEDStripHTTPServ()
 	delete m_pEvents;
 }
 
-void LEDStripHTTPServ::Serve(AsyncWebServer &server, const char *filename, const char *data_type, const char *sourcefile)
+void LEDStripHTTPServ::Serve(AsyncWebServer& server, const char* filename, const char* data_type, const char* sourcefile)
 {
-	m_pServer->on(filename, HTTP_GET, [filename, data_type, sourcefile](AsyncWebServerRequest *request)
-				  { request->send(SPIFFS, sourcefile ? sourcefile : filename, data_type); });
+	m_pServer->on(filename, HTTP_GET, [filename, data_type, sourcefile](AsyncWebServerRequest* request)
+		{ request->send(SPIFFS, sourcefile ? sourcefile : filename, data_type); });
 }
 
-void LEDStripHTTPServ::handleSettingsChange(uint8_t *data, size_t len)
+void LEDStripHTTPServ::handleSettingsChange(uint8_t* data, size_t len)
 {
 	File f = SPIFFS.open(m_controller.settingsFilename(), "w");
 	if (f)
@@ -113,7 +113,7 @@ void LEDStripHTTPServ::handleSettingsChange(uint8_t *data, size_t len)
 	m_controller.resetFromSettings();
 }
 
-void LEDStripHTTPServ::handleNetworkChange(uint8_t *data, size_t len)
+void LEDStripHTTPServ::handleNetworkChange(uint8_t* data, size_t len)
 {
 	Serial.println(F("Changing network settings"));
 	DynamicJsonDocument doc(len * 3);
@@ -177,12 +177,12 @@ std::unique_ptr<String> LEDStripHTTPServ::getNetworks()
 	return pString;
 }
 
-void LEDStripHTTPServ::notify(const SoundEvent::Output &evt)
+void LEDStripHTTPServ::notify(const MSGEQ7Out& evt)
 {
 	xQueueSendToBack(m_queue, &evt, 0);
 }
 
-void LEDStripHTTPServ::notifySubsctibers(const SoundEvent::Output &evt)
+void LEDStripHTTPServ::notifySubsctibers(const MSGEQ7Out& evt)
 {
 	static unsigned long prevMillis = millis();
 	unsigned long nowMillis = millis();
@@ -196,11 +196,11 @@ void LEDStripHTTPServ::notifySubsctibers(const SoundEvent::Output &evt)
 		JsonObject msg = root.createNestedObject("msg");
 		JsonArray frequencies = msg.createNestedArray("frequencies");
 
-		evt.iterate_bands([frequencies](const char *frequency, unsigned int value, bool beat)
-						  {
-			JsonObject jsonBand = frequencies.createNestedObject();
-			jsonBand["band"]	= frequency;
-			jsonBand["value"]	= value; });
+		evt.iterate_bands([frequencies](const char* frequency, unsigned int value, bool beat)
+			{
+				JsonObject jsonBand = frequencies.createNestedObject();
+				jsonBand["band"] = frequency;
+				jsonBand["value"] = value; });
 
 		msg["beatDetected"] = evt.beatDetected();
 
@@ -212,7 +212,7 @@ void LEDStripHTTPServ::notifySubsctibers(const SoundEvent::Output &evt)
 
 void LEDStripHTTPServ::handle()
 {
-	SoundEvent::Output evt;
+	MSGEQ7Out evt;
 	while (xQueueReceive(m_queue, &evt, 0) == pdTRUE)
 		notifySubsctibers(evt);
 }

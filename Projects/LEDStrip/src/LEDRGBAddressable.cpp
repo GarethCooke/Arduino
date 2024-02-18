@@ -26,11 +26,11 @@ LEDRGBAddressable::~LEDRGBAddressable()
     delete m_pWS2812fx;
 }
 
-void LEDRGBAddressable::notify(const JsonDocument &settings)
+void LEDRGBAddressable::notify(const JsonDocument& settings)
 {
 }
 
-void LEDRGBAddressable::notify(const SoundEvent::Output &evt)
+void LEDRGBAddressable::notify(const MSGEQ7Out& evt)
 {
     if (evt.beatDetected())
     {

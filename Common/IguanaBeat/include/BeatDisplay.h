@@ -1,23 +1,23 @@
 #pragma once
 
 #include <Adafruit_SSD1306.h>
-#include "SoundEvent.h"
+#include <MSGEQ7Out.h>
 #include "NetworkHost.h"
 
-class BeatDisplay : public SoundEvent::Listener
+class BeatDisplay : public MSGEQ7Out::Listener
 {
 public:
-	BeatDisplay(NetworkHost &host, TwoWire &wire);
+	BeatDisplay(NetworkHost& host, TwoWire& wire);
 	virtual ~BeatDisplay();
 
-	virtual void notify(const SoundEvent::Output &evt);
+	virtual void notify(const MSGEQ7Out& evt);
 
 	void cycleDisplay();
 
 	class BeatVisualisation
 	{
 	public:
-		virtual void onBeat(unsigned long (&beats)[SoundEvent::getBands()]) = 0;
+		virtual void onBeat(unsigned long(&beats)[MSGEQ7Out::getBands()]) = 0;
 		unsigned int pulseLength() const { return m_beatPulseLen; }
 
 	protected:
@@ -32,7 +32,7 @@ private:
 		display_info,
 		display_null
 	};
-	friend DisplayType &operator++(DisplayType &val);
+	friend DisplayType& operator++(DisplayType& val);
 
 	static const unsigned int m_margin = 1;
 	static const unsigned int m_bandMargin = 1;
@@ -40,16 +40,16 @@ private:
 	unsigned long m_lastRefresh = 0;
 	unsigned int m_topBeatSize = 5;
 	DisplayType m_displayType = DisplayType::display_beatstrobe;
-	NetworkHost &m_host;
-	BeatVisualisation *m_pBeatVisualisation;
-	unsigned long m_beats[SoundEvent::getBands()] = {0};
+	NetworkHost& m_host;
+	BeatVisualisation* m_pBeatVisualisation;
+	unsigned long m_beats[MSGEQ7Out::getBands()] = { 0 };
 	Adafruit_SSD1306 m_display;
 
 	unsigned int getBandWidth(unsigned int bands) const;
 	int getBandPos(unsigned int band, unsigned int bandWidth) const;
-	BeatVisualisation *newVisualisation();
-	void displayEqualiser(const SoundEvent::Output &evt, unsigned int bandWidth);
-	void displayInfo(const SoundEvent::Output &evt, unsigned int bandWidth);
+	BeatVisualisation* newVisualisation();
+	void displayEqualiser(const MSGEQ7Out& evt, unsigned int bandWidth);
+	void displayInfo(const MSGEQ7Out& evt, unsigned int bandWidth);
 
-	void (BeatDisplay::*RefreshMain)(const SoundEvent::Output &evt, unsigned int bandWidth) = &BeatDisplay::displayEqualiser;
+	void (BeatDisplay::* RefreshMain)(const MSGEQ7Out& evt, unsigned int bandWidth) = &BeatDisplay::displayEqualiser;
 };
