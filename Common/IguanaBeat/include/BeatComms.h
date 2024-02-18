@@ -1,3 +1,5 @@
+#pragma once
+
 #include <MSGEQ7Out.h>
 
 class BeatSendImpl

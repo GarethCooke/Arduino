@@ -1,4 +1,4 @@
-//#include <IguanaFreeSans5pt7b.h>
+#include <../../IguanaFont/include/IguanaFreeSans5pt7b.h>
 #include <BeatDisplay.h>
 #include <stdlib.h>
 
@@ -151,7 +151,7 @@ void BeatDisplay::displayInfo(const MSGEQ7Out& evt, unsigned int bandWidth)
 	uint8_t origRotation = m_display.getRotation();
 	m_display.setRotation(0);
 
-	// m_display.setFont(&MyFreeSans5pt7b);
+	m_display.setFont(&IguanaFreeSans5pt7b);
 	m_display.getTextBounds(ip, m_margin, 0, &x1, &y1, &w, &h);
 
 	m_display.setCursor(m_margin, 2 * m_margin + m_topBeatSize + 1 + h);
@@ -159,12 +159,13 @@ void BeatDisplay::displayInfo(const MSGEQ7Out& evt, unsigned int bandWidth)
 	m_display.print(hostname);
 
 	m_display.setCursor(m_margin, 3 * m_margin + m_topBeatSize + 1 + 2 * h);
+	m_display.print("IP: ");
+	m_display.print(ip);
+
+	m_display.setCursor(m_margin, 4 * m_margin + m_topBeatSize + 1 + 3 * h);
 	m_display.print("MAC: ");
 	m_display.print(mac);
 
-	m_display.setCursor(m_margin, 4 * m_margin + m_topBeatSize + 1 + 3 * h);
-	m_display.print("IP: ");
-	m_display.print(ip);
 
 	m_display.setRotation(origRotation);
 }

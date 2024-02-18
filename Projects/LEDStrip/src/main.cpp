@@ -20,7 +20,8 @@
 #include <MD_MAX72xx.h>
 #include <MD_MAXPanel.h>
 #include <BeatBroadcast.h>
-#include <BeatWireSender.h>
+// #include <BeatWireSender.h>
+#include <BeatUDPSender.h>
 #include "IguanaOTA.h"
 #include <ButtonStatus.h>
 #include "LEDStripController.h"
@@ -75,7 +76,8 @@ void setup(void)
 	pStrip1.reset(new LEDRGB(r_pin, g_pin, b_pin));
 	pStrip2.reset(new LEDRGBAddressable(led_addr_data_pin));
 	pPanel1.reset(new PanelDisplay(panel_pin_data, panel_pin_clk, panel_pin_cs, panel_devices_x, panel_devices_y));
-	pBroadcaster.reset(new BeatBroadcast(unique_ptr<BeatSendImpl>(new BeatWireSender(Wire1))));
+	// pBroadcaster.reset(new BeatBroadcast(unique_ptr<BeatSendImpl>(new BeatWireSender(Wire1))));
+	pBroadcaster.reset(new BeatBroadcast(unique_ptr<BeatSendImpl>(new BeatUDPSender())));
 
 	Beatbox::create(beat_reset_pin, beat_strobe_pin, beat_in_pin);
 	Beatbox& beatbox = Beatbox::get();
