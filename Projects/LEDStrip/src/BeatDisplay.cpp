@@ -9,7 +9,7 @@
 class BeatVisualisationRoll : public BeatDisplay::BeatVisualisation
 {
 public:
-	virtual void onBeat(unsigned long (&beats)[SoundEvent::getBands()]);
+	virtual void onBeat(unsigned long(&beats)[SoundEvent::getBands()]);
 
 private:
 	unsigned int m_beatNo = -1;
@@ -18,10 +18,10 @@ private:
 class BeatVisualisationStrobe : public BeatDisplay::BeatVisualisation
 {
 public:
-	virtual void onBeat(unsigned long (&beats)[SoundEvent::getBands()]);
+	virtual void onBeat(unsigned long(&beats)[SoundEvent::getBands()]);
 };
 
-BeatDisplay::BeatDisplay(NetworkHost &host, TwoWire &wire)
+BeatDisplay::BeatDisplay(NetworkHost& host, TwoWire& wire)
 	: m_host(host), m_pBeatVisualisation(newVisualisation()), m_display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET)
 {
 	if (!m_display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
@@ -33,7 +33,7 @@ BeatDisplay::~BeatDisplay()
 	delete m_pBeatVisualisation;
 }
 
-void BeatDisplay::notify(const SoundEvent::Output &evt)
+void BeatDisplay::notify(const SoundEvent::Output& evt)
 {
 	// display layout as follows...
 	// |---------------------------------------------------------|
@@ -80,7 +80,7 @@ void BeatDisplay::notify(const SoundEvent::Output &evt)
 		m_pBeatVisualisation->onBeat(m_beats);
 
 	int n = 0;
-	for (auto &val : m_beats)
+	for (auto& val : m_beats)
 	{
 		long beatPeriod = now - min(now, val);
 		long beatDecay = 100 * beatPeriod / m_pBeatVisualisation->pulseLength();
@@ -107,12 +107,12 @@ void BeatDisplay::cycleDisplay()
 {
 	RefreshMain = (DisplayType::display_info == ++m_displayType) ? &BeatDisplay::displayInfo : &BeatDisplay::displayEqualiser;
 
-	BeatDisplay::BeatVisualisation *pTemp = m_pBeatVisualisation;
+	BeatDisplay::BeatVisualisation* pTemp = m_pBeatVisualisation;
 	m_pBeatVisualisation = newVisualisation();
 	delete pTemp;
 }
 
-BeatDisplay::DisplayType &operator++(BeatDisplay::DisplayType &val)
+BeatDisplay::DisplayType& operator++(BeatDisplay::DisplayType& val)
 {
 	val = static_cast<BeatDisplay::DisplayType>(static_cast<int>(val) + 1);
 
@@ -121,7 +121,7 @@ BeatDisplay::DisplayType &operator++(BeatDisplay::DisplayType &val)
 	return val;
 }
 
-BeatDisplay::BeatVisualisation *BeatDisplay::newVisualisation()
+BeatDisplay::BeatVisualisation* BeatDisplay::newVisualisation()
 {
 	if (DisplayType::display_beatroll != m_displayType)
 		return new BeatVisualisationStrobe();
@@ -129,18 +129,18 @@ BeatDisplay::BeatVisualisation *BeatDisplay::newVisualisation()
 		return new BeatVisualisationRoll();
 }
 
-void BeatDisplay::displayEqualiser(const SoundEvent::Output &evt, unsigned int bandWidth)
+void BeatDisplay::displayEqualiser(const SoundEvent::Output& evt, unsigned int bandWidth)
 {
 	unsigned int maxBandSize = m_display.width() - 3 * m_margin - m_topBeatSize;
 	unsigned int currentBand = 0;
 
-	evt.iterate_bands([this, currentBand, bandWidth, maxBandSize](const String &frequency, unsigned int value) mutable -> void
-					  {
-        				unsigned int bandSize = maxBandSize * (value / 255.0);
-       					m_display.fillRect(m_display.width() - m_margin - bandSize, getBandPos(currentBand++, bandWidth), bandSize, bandWidth, WHITE); });
+	evt.iterate_bands([this, currentBand, bandWidth, maxBandSize](const char* frequency, unsigned int value, bool beat) mutable -> void
+		{
+			unsigned int bandSize = maxBandSize * (value / 255.0);
+			m_display.fillRect(m_display.width() - m_margin - bandSize, getBandPos(currentBand++, bandWidth), bandSize, bandWidth, WHITE); });
 }
 
-void BeatDisplay::displayInfo(const SoundEvent::Output &evt, unsigned int bandWidth)
+void BeatDisplay::displayInfo(const SoundEvent::Output& evt, unsigned int bandWidth)
 {
 	String hostname = m_host.getHostName();
 	String mac = m_host.getMACAddress();
@@ -169,20 +169,20 @@ void BeatDisplay::displayInfo(const SoundEvent::Output &evt, unsigned int bandWi
 	m_display.setRotation(origRotation);
 }
 
-void BeatVisualisationRoll::onBeat(unsigned long (&beats)[SoundEvent::getBands()])
+void BeatVisualisationRoll::onBeat(unsigned long(&beats)[SoundEvent::getBands()])
 {
 	if (++m_beatNo >= SoundEvent::getBands())
 		m_beatNo = 0;
 	beats[m_beatNo] = millis();
 }
 
-void BeatVisualisationStrobe::onBeat(unsigned long (&beats)[SoundEvent::getBands()])
+void BeatVisualisationStrobe::onBeat(unsigned long(&beats)[SoundEvent::getBands()])
 {
 	unsigned long now = millis();
 	int midPoint = (SoundEvent::getBands() + 1) / 2;
 	double decayPerBeat = 3.0 / static_cast<double>(SoundEvent::getBands() + 1);
 	int n = 0;
-	for (auto &val : beats)
+	for (auto& val : beats)
 	{
 		beats[n] = now - (m_beatPulseLen * abs(n + 1 - midPoint) * decayPerBeat);
 		n++;

@@ -1,0 +1,21 @@
+{
+  "files.associations": {
+    "array": "cpp",
+    "deque": "cpp",
+    "list": "cpp",
+    "string": "cpp",
+    "unordered_map": "cpp",
+    "vector": "cpp",
+    "string_view": "cpp",
+    "initializer_list": "cpp",
+    "ranges": "cpp",
+    "functional": "cpp",
+    "xmemory": "cpp",
+    "stdexcept": "cpp",
+    "memory": "cpp",
+    "exception": "cpp",
+    "basic_definitions": "cpp",
+    "algorithm": "cpp"
+  },
+  "C_Cpp.vcFormat.space.pointerReferenceAlignment": "left"
+}

@@ -196,7 +196,7 @@ void LEDStripHTTPServ::notifySubsctibers(const SoundEvent::Output &evt)
 		JsonObject msg = root.createNestedObject("msg");
 		JsonArray frequencies = msg.createNestedArray("frequencies");
 
-		evt.iterate_bands([frequencies](const String &frequency, unsigned int value)
+		evt.iterate_bands([frequencies](const char *frequency, unsigned int value, bool beat)
 						  {
 			JsonObject jsonBand = frequencies.createNestedObject();
 			jsonBand["band"]	= frequency;
