@@ -9,7 +9,7 @@ public:
     virtual void send(const MSGEQ7Out& evt);
 
 private:
-#if defined(ESP8266) || defined(ESP32)
+#if defined(ESP32)
     QueueHandle_t m_queue;
     static void senderTask(void* pvParameters);
 #endif

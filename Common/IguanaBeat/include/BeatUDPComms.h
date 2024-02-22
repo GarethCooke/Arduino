@@ -2,12 +2,9 @@
 
 #include <BeatComms.h>
 
-class TwoWire;
-
 class BeatUDPComms
 {
-public:
-    BeatUDPComms();
-
 protected:
+    BeatUDPComms() {}
+    WiFiUDP m_udp;
 };

@@ -18,7 +18,13 @@ public:
     };
 
     void registerReceiver(BeatReceiver& receiver) { m_pReceiver = &receiver; }
+    void receive(int bytes);
 
 protected:
+    static constexpr const int BUF_SIZE = 255;
     BeatReceiver* m_pReceiver = NULL;
+    uint8_t m_buffer[BUF_SIZE];
+
+    virtual void read(int bytes) = 0;
+    virtual void flush() = 0;
 };

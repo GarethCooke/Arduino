@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <algorithm>
 #include <BeatWireReceiver.h>
 #include <Wire.h>
@@ -34,27 +35,17 @@ void BeatWireReceiver::onReceive(int bytes)
 }
 
 
-void BeatWireReceiver::receive(int bytes)
+void BeatWireReceiver::read(int bytes)
 {
-    MSGEQ7Out event;
-    static uint8_t buffer[255];
+    m_wire.readBytes(m_buffer, min(bytes, BUF_SIZE));
+}
 
-    m_wire.readBytes(buffer, min(bytes, static_cast<int>(sizeof(buffer))));
-    if (bytes == event.bytes())
+void BeatWireReceiver::flush()
+{
+    int readNext = m_wire.available();
+    while (readNext)
     {
-        memcpy(&event, buffer, bytes);
-        BeatWireReceiver& receiver = BeatWireReceiver::get();
-        if (receiver.m_pReceiver)
-            receiver.m_pReceiver->received(event);
-    }
-    else
-    {
-        // dont recognise this message - read and discard bytes to allow other message processing
-        int readNext = Wire.available();
-        while (readNext)
-        {
-            m_wire.readBytes(buffer, min(readNext, static_cast<int>(sizeof(buffer))));
-            readNext = m_wire.available();
-        }
+        read(readNext);
+        readNext = m_wire.available();
     }
 }

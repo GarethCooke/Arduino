@@ -56,13 +56,13 @@ BeatReceive beatReceiver;
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   BeatWireReceiver::create(Wire, A4, A5);
   BeatWireReceiver::get().registerReceiver(beatReceiver);
   beatReceiver.addListener(&soundInterest);
   // beatReceiver.addListener(&noOpSoundInterest);
   // beatReceiver.addListener(&display);
-  beatReceiver.addListener(&delaySoundInterest);
+  // beatReceiver.addListener(&delaySoundInterest);
   Serial.println("Ready");
 }
 

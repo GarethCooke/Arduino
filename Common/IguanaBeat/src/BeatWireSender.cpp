@@ -10,13 +10,12 @@ void BeatWireSender::sender(const MSGEQ7Out& evt)
 }
 
 
-#if defined(ESP8266) || defined(ESP32)
+#if defined(ESP32)
 BeatWireSender::BeatWireSender(TwoWire& wire) : BeatWireComms(wire), m_queue(xQueueCreate(2, sizeof(MSGEQ7Out)))
 {
     static constexpr auto STACK_SIZE = 2000;
     static TaskHandle_t xHandle = NULL;
-
-    xTaskCreate(senderTask, "BeaWire sender", STACK_SIZE, this, 1, &xHandle);
+    xTaskCreate(senderTask, "BeatWire sender", STACK_SIZE, this, 1, &xHandle);
 }
 
 
