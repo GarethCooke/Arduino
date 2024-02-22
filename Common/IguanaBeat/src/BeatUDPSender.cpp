@@ -1,3 +1,5 @@
+#if defined(ESP8266) || defined(ESP32)
+
 #include <Arduino.h>
 #include <WiFiUdp.h>
 #include "BeatUDPSender.h"
@@ -11,3 +13,4 @@ void BeatUDPSender::send(const MSGEQ7Out& evt)
     Serial.printf("UDP write: %d\n", Udp.write(reinterpret_cast<const uint8_t*>(&evt), sizeof(evt)));
     Serial.printf("UDP end: %d\n", Udp.endPacket());
 }
+#endif

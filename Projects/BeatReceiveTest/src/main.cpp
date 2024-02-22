@@ -36,8 +36,19 @@ public:
   };
 };
 
+
+class DelaySoundInterest : public MSGEQ7Out::Listener
+{
+public:
+  virtual void notify(const MSGEQ7Out& evt)
+  {
+    delay(1000);
+  };
+};
+
 SoundInterest soundInterest;
 NoOpSoundInterest noOpSoundInterest;
+DelaySoundInterest delaySoundInterest;
 NetworkHost noNetwork;
 BeatReceive beatReceiver;
 
@@ -51,6 +62,7 @@ void setup()
   beatReceiver.addListener(&soundInterest);
   // beatReceiver.addListener(&noOpSoundInterest);
   // beatReceiver.addListener(&display);
+  beatReceiver.addListener(&delaySoundInterest);
   Serial.println("Ready");
 }
 

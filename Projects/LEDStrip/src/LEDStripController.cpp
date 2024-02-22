@@ -21,7 +21,7 @@ uint64_t		rAddressMain = 0;				// pipe to recive data on
 LEDStripController::LEDStripController()
 	: m_wifiConnected(false)
 {
-	if(!SPIFFS.begin())
+	if (!SPIFFS.begin())
 	{
 		Serial.println("An Error has occurred while mounting SPIFFS");
 		return;
@@ -29,8 +29,6 @@ LEDStripController::LEDStripController()
 
 	EEPROM.begin(sizeof(WiFiConfig));
 	EEPROM.get(EEPROM_WiFiConfig, m_wificonfig);
-
-	Serial.begin(9600);
 
 	if (!m_wificonfig.isValid())
 		m_wificonfig.reset();
@@ -149,7 +147,7 @@ void LEDStripController::resetFromSettings()
 	// Close the file
 	f.close();
 
-	if(error)
+	if (error)
 		Serial.println(F("Failed to read settings file"));
 	else
 		for_each(m_listeners.begin(), m_listeners.end(), [doc](std::set<SettingsListener*>::const_reference nextListener) { nextListener->notify(doc); });

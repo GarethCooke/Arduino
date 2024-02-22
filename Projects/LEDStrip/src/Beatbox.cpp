@@ -58,7 +58,6 @@ void Beatbox::start()
 		return;
 
 	created = true;
-	static StaticTask_t xTaskBuffer;
 	static constexpr auto STACK_SIZE = 4000;
 	static TaskHandle_t xHandle = NULL;
 
