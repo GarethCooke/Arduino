@@ -1,7 +1,8 @@
 #pragma once
 
 #include <MD_MAXPanel.h>
-#include "Beatbox.h"
+#include "SettingsListener.h"
+#include "MSGEQ7Out.h"
 
 class PanelDisplay : public SettingsListener, public MSGEQ7Out::Listener
 {

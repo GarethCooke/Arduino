@@ -30,6 +30,7 @@
 #include "LEDRGB.h"
 #include "LEDRGBAddressable.h"
 #include "PanelDisplay.h"
+#include "BeatTFT.h"
 
 #define RESET_BTN_PERIOD 3000
 #define PRE_RESET_PERIOD 2000
@@ -40,6 +41,7 @@ std::unique_ptr<ButtonStatus> pCmd_btn;
 std::unique_ptr<LEDRGB> pStrip1;
 std::unique_ptr<LEDRGBAddressable> pStrip2;
 std::unique_ptr<PanelDisplay> pPanel1;
+std::unique_ptr<BeatTFT> pBeatTFT;
 std::unique_ptr<BeatBroadcast> pBroadcaster;
 
 void setup(void)
@@ -64,6 +66,12 @@ void setup(void)
 	constexpr const static uint8_t panel_pin_cs = 47;
 	constexpr const static uint8_t panel_devices_x = 4;
 	constexpr const static uint8_t panel_devices_y = 1;
+	constexpr const static uint8_t tft_pin_ = 1;
+	constexpr const static uint8_t tft_pin_mosi = 10;
+	constexpr const static uint8_t tft_pin_sclk = 11;
+	constexpr const static uint8_t tft_pin_rst = 12;
+	constexpr const static uint8_t tft_pin_dc = 13;
+	constexpr const static uint8_t tft_pin_cs = 14;
 
 	Wire.begin(display_sda, display_scl);
 	Wire1.begin(broadcast_sda, broadcast_scl);
@@ -76,6 +84,7 @@ void setup(void)
 	pStrip1.reset(new LEDRGB(r_pin, g_pin, b_pin));
 	pStrip2.reset(new LEDRGBAddressable(led_addr_data_pin));
 	pPanel1.reset(new PanelDisplay(panel_pin_data, panel_pin_clk, panel_pin_cs, panel_devices_x, panel_devices_y));
+	pBeatTFT.reset(new BeatTFT(tft_pin_cs, tft_pin_dc, tft_pin_rst, tft_pin_mosi, tft_pin_sclk));
 	// pBroadcaster.reset(new BeatBroadcast(unique_ptr<BeatSendImpl>(new BeatWireSender(Wire1))));
 	pBroadcaster.reset(new BeatBroadcast(unique_ptr<BeatSendImpl>(new BeatUDPSender())));
 
@@ -86,6 +95,7 @@ void setup(void)
 	beatbox.addListener(pStrip1.get());
 	beatbox.addListener(pStrip2.get());
 	beatbox.addListener(pPanel1.get());
+	beatbox.addListener(pBeatTFT.get());
 	beatbox.addListener(pBroadcaster.get());
 	beatbox.addListener(&httpServer);
 
