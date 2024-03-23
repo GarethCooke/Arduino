@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Adafruit_SSD1306.h>
 #include <MSGEQ7Out.h>
+#include <Adafruit_GFX.h>
 #include "NetworkHost.h"
 
 class BeatDisplay : public MSGEQ7Out::Listener
 {
 public:
-	BeatDisplay(NetworkHost& host, TwoWire& wire);
+	BeatDisplay(NetworkHost& host);
 	virtual ~BeatDisplay();
 
 	virtual void notify(const MSGEQ7Out& evt);
@@ -23,6 +23,14 @@ public:
 	protected:
 		static const unsigned int m_beatPulseLen = 100;
 	};
+
+protected:
+	virtual Adafruit_GFX& display() = 0;
+	virtual void resetDisplay() = 0;
+	virtual void show() = 0;
+	virtual int16_t height() const = 0;
+	virtual uint16_t getTextColour() const = 0;
+	virtual uint16_t getBarColour() const = 0;
 
 private:
 	enum class DisplayType
@@ -43,7 +51,6 @@ private:
 	NetworkHost& m_host;
 	BeatVisualisation* m_pBeatVisualisation;
 	unsigned long m_beats[MSGEQ7Out::getBands()] = { 0 };
-	Adafruit_SSD1306 m_display;
 
 	unsigned int getBandWidth(unsigned int bands) const;
 	int getBandPos(unsigned int band, unsigned int bandWidth) const;

@@ -2,10 +2,7 @@
 #include <BeatDisplay.h>
 #include <stdlib.h>
 
-#define SCREEN_WIDTH 128	// OLED display width, in pixels
-#define SCREEN_HEIGHT 32	// OLED display height, in pixels
-#define OLED_RESET -1		// Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_ADDRESS 0x3C // See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+
 class BeatVisualisationRoll : public BeatDisplay::BeatVisualisation
 {
 public:
@@ -21,11 +18,9 @@ public:
 	virtual void onBeat(unsigned long(&beats)[MSGEQ7Out::getBands()]);
 };
 
-BeatDisplay::BeatDisplay(NetworkHost& host, TwoWire& wire)
-	: m_host(host), m_pBeatVisualisation(newVisualisation()), m_display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET)
+BeatDisplay::BeatDisplay(NetworkHost& host)
+	: m_host(host), m_pBeatVisualisation(newVisualisation())
 {
-	if (!m_display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
-		Serial.println(F("SSD1306 allocation failed"));
 }
 
 BeatDisplay::~BeatDisplay()
@@ -67,10 +62,12 @@ void BeatDisplay::notify(const MSGEQ7Out& evt)
 
 	if (now - m_lastRefresh > m_displayRefreshPeriod)
 	{
-		m_display.clearDisplay();
-		m_display.setRotation(1);
+		resetDisplay();
 
-		m_display.setTextColor(WHITE);
+		display().setRotation(1);
+
+		display().setTextColor(getTextColour());
+
 
 		(this->*RefreshMain)(evt, bandWidth);
 		m_lastRefresh = now;
@@ -86,21 +83,21 @@ void BeatDisplay::notify(const MSGEQ7Out& evt)
 		long beatDecay = 100 * beatPeriod / m_pBeatVisualisation->pulseLength();
 		long decayAdjust = (m_topBeatSize * beatDecay / 100);
 		if (beatPeriod <= m_pBeatVisualisation->pulseLength())
-			m_display.fillRect(m_margin + decayAdjust / 2, getBandPos(n, bandWidth), m_topBeatSize - decayAdjust, bandWidth, WHITE);
+			display().fillRect(m_margin + decayAdjust / 2, getBandPos(n, bandWidth), m_topBeatSize - decayAdjust, bandWidth, getBarColour());
 		n++;
 	}
 
-	m_display.display();
+	show();
 }
 
 unsigned int BeatDisplay::getBandWidth(unsigned int bands) const
 {
-	return (m_display.height() - 2 * m_margin - m_bandMargin * (bands - 1)) / bands;
+	return (height() - 2 * m_margin - m_bandMargin * (bands - 1)) / bands;
 }
 
 int BeatDisplay::getBandPos(unsigned int band, unsigned int bandWidth) const
 {
-	return m_display.height() - bandWidth - band * (bandWidth + m_bandMargin);
+	return height() - bandWidth - band * (bandWidth + m_bandMargin);
 }
 
 void BeatDisplay::cycleDisplay()
@@ -131,13 +128,13 @@ BeatDisplay::BeatVisualisation* BeatDisplay::newVisualisation()
 
 void BeatDisplay::displayEqualiser(const MSGEQ7Out& evt, unsigned int bandWidth)
 {
-	unsigned int maxBandSize = m_display.width() - 3 * m_margin - m_topBeatSize;
+	unsigned int maxBandSize = display().width() - 3 * m_margin - m_topBeatSize;
 	unsigned int currentBand = 0;
 
 	evt.iterate_bands([this, currentBand, bandWidth, maxBandSize](const char* frequency, unsigned int value, bool beat) mutable -> void
 		{
 			unsigned int bandSize = maxBandSize * (value / 255.0);
-			m_display.fillRect(m_display.width() - m_margin - bandSize, getBandPos(currentBand++, bandWidth), bandSize, bandWidth, WHITE); });
+			display().fillRect(display().width() - m_margin - bandSize, getBandPos(currentBand++, bandWidth), bandSize, bandWidth, getBarColour()); });
 }
 
 void BeatDisplay::displayInfo(const MSGEQ7Out& evt, unsigned int bandWidth)
@@ -148,26 +145,26 @@ void BeatDisplay::displayInfo(const MSGEQ7Out& evt, unsigned int bandWidth)
 
 	int16_t x1, y1;
 	uint16_t w, h;
-	uint8_t origRotation = m_display.getRotation();
-	m_display.setRotation(0);
+	uint8_t origRotation = display().getRotation();
+	display().setRotation(0);
 
-	m_display.setFont(&IguanaFreeSans5pt7b);
-	m_display.getTextBounds(ip, m_margin, 0, &x1, &y1, &w, &h);
+	display().setFont(&IguanaFreeSans5pt7b);
+	display().getTextBounds(ip, m_margin, 0, &x1, &y1, &w, &h);
 
-	m_display.setCursor(m_margin, 2 * m_margin + m_topBeatSize + 1 + h);
-	m_display.print("Host: ");
-	m_display.print(hostname);
+	display().setCursor(m_margin, 2 * m_margin + m_topBeatSize + 1 + h);
+	display().print("Host: ");
+	display().print(hostname);
 
-	m_display.setCursor(m_margin, 3 * m_margin + m_topBeatSize + 1 + 2 * h);
-	m_display.print("IP: ");
-	m_display.print(ip);
+	display().setCursor(m_margin, 3 * m_margin + m_topBeatSize + 1 + 2 * h);
+	display().print("IP: ");
+	display().print(ip);
 
-	m_display.setCursor(m_margin, 4 * m_margin + m_topBeatSize + 1 + 3 * h);
-	m_display.print("MAC: ");
-	m_display.print(mac);
+	display().setCursor(m_margin, 4 * m_margin + m_topBeatSize + 1 + 3 * h);
+	display().print("MAC: ");
+	display().print(mac);
 
 
-	m_display.setRotation(origRotation);
+	display().setRotation(origRotation);
 }
 
 void BeatVisualisationRoll::onBeat(unsigned long(&beats)[MSGEQ7Out::getBands()])

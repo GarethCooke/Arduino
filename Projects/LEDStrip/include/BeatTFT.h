@@ -1,16 +1,20 @@
-#include "SettingsListener.h"
-#include "MSGEQ7Out.h"
+#include "BeatDisplay.h"
 
 class Adafruit_ST7735;
 
-class BeatTFT : public SettingsListener, public MSGEQ7Out::Listener
+class BeatTFT : public BeatDisplay
 {
 public:
-    BeatTFT(uint8_t pin_cs, uint8_t pin_dc, uint8_t pin_rst, uint8_t pin_mosi, uint8_t pin_sclk);
+    BeatTFT(NetworkHost& host, uint8_t pin_cs, uint8_t pin_dc, uint8_t pin_rst, uint8_t pin_mosi, uint8_t pin_sclk);
     virtual ~BeatTFT();
 
-    virtual void notify(const JsonDocument& settings);
-    virtual void notify(const MSGEQ7Out& evt);
+protected:
+    virtual Adafruit_GFX& display();
+    virtual void resetDisplay();
+    virtual void show();
+    virtual int16_t height() const;
+    virtual uint16_t getTextColour() const;
+    virtual uint16_t getBarColour() const;
 
 private:
     Adafruit_ST7735* m_pTFT;
