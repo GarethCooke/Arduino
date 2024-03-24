@@ -4,7 +4,7 @@
 #include <Adafruit_SPIDevice.h>
 #include <MSGEQ7Out.h>
 #include <BeatReceive.h>
-#include <BeatDisplay.h>
+#include <BeatSSD1306.h>
 #include <BeatWireReceiver.h>
 
 
@@ -52,7 +52,7 @@ DelaySoundInterest delaySoundInterest;
 NetworkHost noNetwork;
 BeatReceive beatReceiver;
 
-// BeatDisplay display(noNetwork, Wire);
+BeatSSD1306 display(noNetwork, Wire);
 
 void setup()
 {
