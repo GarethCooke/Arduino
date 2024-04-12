@@ -1,0 +1,9 @@
+@font-face {
+  font-family: DotMatrix;
+  src: url(DOTMATRI.TTF) format('truetype');
+}
+
+@font-face {
+  font-family: DotMatrixBold;
+  src: url(DOTMBold.TTF) format('truetype');
+}

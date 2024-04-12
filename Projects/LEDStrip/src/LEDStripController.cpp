@@ -1,12 +1,12 @@
 #include <Arduino.h>
 #include <WiFi.h>
-#include <SPIFFS.h>
 #include <sstream>
 #include <iomanip>
 #include <time.h>
 #include <algorithm>
 #include <functional>
 #include <EEPROM.h>
+#include <LittleFS.h> 
 #include "LEDStripController.h"
 
 #define EEPROM_WiFiConfig	0
@@ -21,9 +21,9 @@ uint64_t		rAddressMain = 0;				// pipe to recive data on
 LEDStripController::LEDStripController()
 	: m_wifiConnected(false)
 {
-	if (!SPIFFS.begin())
+	if (!LittleFS.begin())
 	{
-		Serial.println("An Error has occurred while mounting SPIFFS");
+		Serial.println("An Error has occurred while mounting LittleFS");
 		return;
 	}
 
@@ -64,6 +64,7 @@ LEDStripController::LEDStripController()
 
 LEDStripController::~LEDStripController()
 {
+	LittleFS.end();
 }
 
 
@@ -118,7 +119,7 @@ void LEDStripController::resetWiFiInfo(const String& strSSID, const String& strP
 		Serial.print("PWD: ");
 		Serial.println(strPassword);
 
-		Serial.print("Is config valid: ");
+		Serial.print("Is wifi config valid: ");
 		Serial.println(m_wificonfig.isValid());
 		Serial.print("SSID: ");
 		Serial.println(m_wificonfig.getSSID());
@@ -136,7 +137,7 @@ void LEDStripController::resetWiFiInfo(const String& strSSID, const String& strP
 
 void LEDStripController::resetFromSettings()
 {
-	File f = SPIFFS.open(settingsFilename(), "r");
+	File f = LittleFS.open(settingsFilename(), "r");
 
 	Serial.printf("Settings file size %d\n", f.size());
 

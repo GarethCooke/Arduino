@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <algorithm>
 #include <stdexcept>
 #include <ArduinoOTA.h>
@@ -35,16 +35,13 @@ LEDStripHTTPServ& LEDStripHTTPServ::get()
 LEDStripHTTPServ::LEDStripHTTPServ(LEDStripController& controller)
 	: m_controller(controller), m_performReboot(0), m_pServer(new AsyncWebServer(80)), m_pEvents(new AsyncEventSource("/events")), m_queue(xQueueCreate(2, sizeof(MSGEQ7Out)))
 {
-	Serve(*m_pServer, "/styles.css", "text/css");
-	Serve(*m_pServer, "/main.js", "text/javascript");
-	Serve(*m_pServer, "/polyfills.js", "text/javascript");
-	Serve(*m_pServer, "/runtime.js", "text/javascript");
+	Serve(*m_pServer, "^/.+-.+[.]css$", "text/css");
+	Serve(*m_pServer, "^/.+-.+[.]js$", "text/javascript");
 	Serve(*m_pServer, m_controller.settingsPath(), "text/json", m_controller.settingsFilename());
 	Serve(*m_pServer, "/", "", "/index.html");
 	Serve(*m_pServer, "/index.html");
-	Serve(*m_pServer, "/favicon.ico");
-	Serve(*m_pServer, "/DOTMATRI.TTF");
-	Serve(*m_pServer, "/DOTMBold.TTF");
+	Serve(*m_pServer, "^/.+[.]ico$");
+	Serve(*m_pServer, "^/.+[.]TTF$");
 
 	// Route to store JSON settings data file
 	m_pServer->on(
@@ -96,13 +93,12 @@ LEDStripHTTPServ::~LEDStripHTTPServ()
 
 void LEDStripHTTPServ::Serve(AsyncWebServer& server, const char* filename, const char* data_type, const char* sourcefile)
 {
-	m_pServer->on(filename, HTTP_GET, [filename, data_type, sourcefile](AsyncWebServerRequest* request)
-		{ request->send(SPIFFS, sourcefile ? sourcefile : filename, data_type); });
+	m_pServer->on(filename, HTTP_GET, [filename, data_type, sourcefile](AsyncWebServerRequest* request) { request->send(LittleFS, sourcefile ? sourcefile : request->url().c_str(), data_type); });
 }
 
 void LEDStripHTTPServ::handleSettingsChange(uint8_t* data, size_t len)
 {
-	File f = SPIFFS.open(m_controller.settingsFilename(), "w");
+	File f = LittleFS.open(m_controller.settingsFilename(), "w");
 	if (f)
 	{
 		Serial.println("writing...");

@@ -5,8 +5,6 @@
 #include <ArduinoJson.h>
 #include <WiFi.h>
 #include <AsyncTCP.h>
-#include <SPIFFS.h>
-#include <EEPROM.h>
 #include "FS.h"
 #include <ESPAsyncWebSrv.h>
 #include <Adafruit_I2CDevice.h>
@@ -39,8 +37,8 @@ std::unique_ptr<LEDStripController> pHub;
 std::unique_ptr<BeatSSD1306> pBeatSSD1306;
 std::unique_ptr<ButtonStatus> pCmd_btn;
 std::unique_ptr<LEDRGB> pStrip1;
-std::unique_ptr<LEDRGBAddressable> pStrip2;
-std::unique_ptr<PanelDisplay> pPanel1;
+// std::unique_ptr<LEDRGBAddressable> pStrip2;
+// std::unique_ptr<PanelDisplay> pPanel1;
 // std::unique_ptr<BeatTFT> pBeatTFT;
 std::unique_ptr<BeatBroadcast> pBroadcaster;
 
@@ -82,8 +80,8 @@ void setup(void)
 	pBeatSSD1306.reset(new BeatSSD1306(*pHub, Wire));
 	pCmd_btn.reset(new ButtonStatus(shared_ptr_lite<TwoStateValue>(new DigitalPinValue(cmndbtn_pin))));
 	pStrip1.reset(new LEDRGB(r_pin, g_pin, b_pin));
-	pStrip2.reset(new LEDRGBAddressable(led_addr_data_pin));
-	pPanel1.reset(new PanelDisplay(panel_pin_data, panel_pin_clk, panel_pin_cs, panel_devices_x, panel_devices_y));
+	// pStrip2.reset(new LEDRGBAddressable(led_addr_data_pin));
+	// pPanel1.reset(new PanelDisplay(panel_pin_data, panel_pin_clk, panel_pin_cs, panel_devices_x, panel_devices_y));
 	// pBeatTFT.reset(new BeatTFT(*pHub, tft_pin_cs, tft_pin_dc, tft_pin_rst, tft_pin_mosi, tft_pin_sclk));
 	// pBroadcaster.reset(new BeatBroadcast(unique_ptr<BeatSendImpl>(new BeatWireSender(Wire1))));
 	pBroadcaster.reset(new BeatBroadcast(unique_ptr<BeatSendImpl>(new BeatUDPSender())));
@@ -93,16 +91,16 @@ void setup(void)
 
 	beatbox.addListener(pBeatSSD1306.get());
 	beatbox.addListener(pStrip1.get());
-	beatbox.addListener(pStrip2.get());
-	beatbox.addListener(pPanel1.get());
+	// beatbox.addListener(pStrip2.get());
+	// beatbox.addListener(pPanel1.get());
 	// beatbox.addListener(pBeatTFT.get());
 	beatbox.addListener(pBroadcaster.get());
 	beatbox.addListener(&httpServer);
 
 	pHub->addListener(&beatbox);
 	pHub->addListener(pStrip1.get());
-	pHub->addListener(pStrip2.get());
-	pHub->addListener(pPanel1.get());
+	// pHub->addListener(pStrip2.get());
+	// pHub->addListener(pPanel1.get());
 
 	Serial.println("resetFromSettings...");
 	pHub->resetFromSettings();
@@ -145,7 +143,7 @@ void loop(void)
 
 	IguanaOTA::handle();
 	pStrip1->handle();
-	pStrip2->handle();
+	// pStrip2->handle();
 
 	LEDStripHTTPServ::get().handle();
 }
