@@ -49,8 +49,8 @@ void setup(void)
 
 	constexpr const static uint8_t display_sda = 18;
 	constexpr const static uint8_t display_scl = 9;
-	constexpr const static uint8_t broadcast_sda = 21;
-	constexpr const static uint8_t broadcast_scl = 20;
+	// constexpr const static uint8_t broadcast_sda = 21;
+	// constexpr const static uint8_t broadcast_scl = 20;
 	constexpr const static uint8_t r_pin = 40;
 	constexpr const static uint8_t g_pin = 41;
 	constexpr const static uint8_t b_pin = 39;
@@ -64,7 +64,6 @@ void setup(void)
 	constexpr const static uint8_t panel_pin_cs = 47;
 	constexpr const static uint8_t panel_devices_x = 4;
 	constexpr const static uint8_t panel_devices_y = 1;
-	constexpr const static uint8_t tft_pin_ = 1;
 	constexpr const static uint8_t tft_pin_mosi = 10;
 	constexpr const static uint8_t tft_pin_sclk = 11;
 	constexpr const static uint8_t tft_pin_rst = 12;
@@ -72,7 +71,7 @@ void setup(void)
 	constexpr const static uint8_t tft_pin_cs = 14;
 
 	Wire.begin(display_sda, display_scl);
-	Wire1.begin(broadcast_sda, broadcast_scl);
+	// Wire1.begin(broadcast_sda, broadcast_scl);
 
 	pHub.reset(new LEDStripController());
 	LEDStripHTTPServ::create(*pHub);
