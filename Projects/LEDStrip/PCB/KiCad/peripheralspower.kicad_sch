@@ -826,6 +826,16 @@
 	)
 	(wire
 		(pts
+			(xy 17.78 22.86) (xy 25.4 22.86)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0c90c012-3960-49e7-9bdc-34356380d5cd")
+	)
+	(wire
+		(pts
 			(xy 85.09 50.8) (xy 85.09 54.61)
 		)
 		(stroke
@@ -846,6 +856,16 @@
 	)
 	(wire
 		(pts
+			(xy 17.78 22.86) (xy 17.78 33.02)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "409c3ff5-2b51-4238-8132-49f2d5fd8525")
+	)
+	(wire
+		(pts
 			(xy 39.37 33.02) (xy 30.48 33.02)
 		)
 		(stroke
@@ -863,16 +883,6 @@
 			(type default)
 		)
 		(uuid "51d35771-c47c-4fdd-8a6d-8e4a9e1ca337")
-	)
-	(wire
-		(pts
-			(xy 22.86 22.86) (xy 17.78 22.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "54d149ac-1694-40be-a236-0d91fa7a34c6")
 	)
 	(wire
 		(pts
@@ -966,17 +976,7 @@
 	)
 	(wire
 		(pts
-			(xy 17.78 22.86) (xy 17.78 33.02)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c7ba72b7-ed90-48fc-aecc-d163cd08a9be")
-	)
-	(wire
-		(pts
-			(xy 85.09 38.1) (xy 95.25 38.1)
+			(xy 85.09 38.1) (xy 100.33 38.1)
 		)
 		(stroke
 			(width 0)
@@ -1016,7 +1016,7 @@
 	)
 	(hierarchical_label "VDD_5V"
 		(shape output)
-		(at 95.25 38.1 0)
+		(at 100.33 38.1 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1024,11 +1024,11 @@
 			)
 			(justify left)
 		)
-		(uuid "9a5378d6-3b0e-4c8a-9bf8-c706266d1879")
+		(uuid "95e86f1d-b75e-4f8a-abaf-9b4e8c3efee1")
 	)
 	(hierarchical_label "VDD_12V"
 		(shape input)
-		(at 22.86 22.86 0)
+		(at 25.4 22.86 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -1036,19 +1036,20 @@
 			)
 			(justify left)
 		)
-		(uuid "d23e7ecc-1a50-4f5e-be5e-451aaca6d335")
+		(uuid "b2b337e8-f7e1-4f8d-9116-ddaae12cd3e7")
 	)
 	(symbol
 		(lib_id "Device:C_Polarized_Small")
-		(at 17.78 39.37 0)
+		(at 30.48 39.37 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "198df649-3e46-46b1-ba63-7425e8ce726d")
-		(property "Reference" "CIN1"
-			(at 20.32 37.5538 0)
+		(fields_autoplaced yes)
+		(uuid "06fc3c2e-4c26-4267-86b0-6b5c6b5775a4")
+		(property "Reference" "CIN4"
+			(at 33.02 37.5538 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1057,7 +1058,7 @@
 			)
 		)
 		(property "Value" "330uF"
-			(at 20.32 40.0938 0)
+			(at 33.02 40.0938 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1066,7 +1067,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_Tantalum_SMD:CP_EIA-7360-38_Kemet-E"
-			(at 17.78 39.37 0)
+			(at 30.48 39.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1075,7 +1076,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 17.78 39.37 0)
+			(at 30.48 39.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1084,7 +1085,7 @@
 			)
 		)
 		(property "Description" "Polarized capacitor, small symbol"
-			(at 17.78 39.37 0)
+			(at 30.48 39.37 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1093,15 +1094,15 @@
 			)
 		)
 		(pin "2"
-			(uuid "9780902b-369c-488b-9e3d-0ae0252f9eea")
+			(uuid "f12dc8e5-be28-4a6e-9e09-a5c4019cc8ea")
 		)
 		(pin "1"
-			(uuid "a831f988-8b39-4054-93bf-1f8b574b4d71")
+			(uuid "61ebe4dc-c902-4ad1-bbee-99c7a90695a8")
 		)
 		(instances
 			(project "LEDStrip"
-				(path "/11a33c1f-278b-446f-a488-c97185c2330a/9bd9e018-8a49-48ba-8be0-8f52490c4239"
-					(reference "CIN1")
+				(path "/11a33c1f-278b-446f-a488-c97185c2330a/c2fbd119-4afa-4cba-aa70-89b96a07e817"
+					(reference "CIN4")
 					(unit 1)
 				)
 			)
@@ -1116,8 +1117,8 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "402b6cca-76ee-4482-b38b-a33b9b83ee7e")
-		(property "Reference" "U3"
+		(uuid "14e9857a-96af-4552-a144-87e0a17f934e")
+		(property "Reference" "U5"
 			(at 52.07 25.4 0)
 			(effects
 				(font
@@ -1179,8 +1180,8 @@
 		)
 		(instances
 			(project "LEDStrip"
-				(path "/11a33c1f-278b-446f-a488-c97185c2330a/9bd9e018-8a49-48ba-8be0-8f52490c4239"
-					(reference "U3")
+				(path "/11a33c1f-278b-446f-a488-c97185c2330a/c2fbd119-4afa-4cba-aa70-89b96a07e817"
+					(reference "U5")
 					(unit 1)
 				)
 			)
@@ -1195,8 +1196,8 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "426dd368-311c-41a4-8668-709b6388d80e")
-		(property "Reference" "#PWR05"
+		(uuid "66a7f65d-54f2-4232-8eec-431210074c6b")
+		(property "Reference" "#PWR025"
 			(at 52.07 60.96 0)
 			(effects
 				(font
@@ -1245,8 +1246,342 @@
 		)
 		(instances
 			(project "LEDStrip"
-				(path "/11a33c1f-278b-446f-a488-c97185c2330a/9bd9e018-8a49-48ba-8be0-8f52490c4239"
-					(reference "#PWR05")
+				(path "/11a33c1f-278b-446f-a488-c97185c2330a/c2fbd119-4afa-4cba-aa70-89b96a07e817"
+					(reference "#PWR025")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GNDREF")
+		(at 85.09 54.61 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "678f6382-cade-4063-99ca-0e673c4dcb12")
+		(property "Reference" "#PWR027"
+			(at 85.09 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "~"
+			(at 85.09 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 85.09 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 85.09 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GNDREF\" , reference supply ground"
+			(at 85.09 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "5382a23d-26f2-489a-a3af-e5ddbeb2434b")
+		)
+		(instances
+			(project "LEDStrip"
+				(path "/11a33c1f-278b-446f-a488-c97185c2330a/c2fbd119-4afa-4cba-aa70-89b96a07e817"
+					(reference "#PWR027")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GNDREF")
+		(at 17.78 54.61 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "6b0e2d1b-d947-442b-b172-29099c88fe7d")
+		(property "Reference" "#PWR023"
+			(at 17.78 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "~"
+			(at 17.78 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 17.78 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 17.78 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GNDREF\" , reference supply ground"
+			(at 17.78 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4da7682b-7737-4dd8-9be8-e9d9bb0e6cdd")
+		)
+		(instances
+			(project "LEDStrip"
+				(path "/11a33c1f-278b-446f-a488-c97185c2330a/c2fbd119-4afa-4cba-aa70-89b96a07e817"
+					(reference "#PWR023")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GNDREF")
+		(at 39.37 54.61 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "79155883-e37d-416b-99a1-12f5c7f519cb")
+		(property "Reference" "#PWR024"
+			(at 39.37 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "~"
+			(at 39.37 59.69 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 39.37 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 39.37 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GNDREF\" , reference supply ground"
+			(at 39.37 54.61 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "ea3186de-20dd-4a53-bcd2-0a1351ccc8be")
+		)
+		(instances
+			(project "LEDStrip"
+				(path "/11a33c1f-278b-446f-a488-c97185c2330a/c2fbd119-4afa-4cba-aa70-89b96a07e817"
+					(reference "#PWR024")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C_Polarized_Small")
+		(at 17.78 39.37 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "7ff02278-7e50-4a18-bc98-830f97aa4643")
+		(property "Reference" "CIN3"
+			(at 20.32 37.5538 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "330uF"
+			(at 20.32 40.0938 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_Tantalum_SMD:CP_EIA-7360-38_Kemet-E"
+			(at 17.78 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 17.78 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Polarized capacitor, small symbol"
+			(at 17.78 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "9780902b-369c-488b-9e3d-0ae0252f9eea")
+		)
+		(pin "1"
+			(uuid "a831f988-8b39-4054-93bf-1f8b574b4d71")
+		)
+		(instances
+			(project "LEDStrip"
+				(path "/11a33c1f-278b-446f-a488-c97185c2330a/c2fbd119-4afa-4cba-aa70-89b96a07e817"
+					(reference "CIN3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:L_Small")
+		(at 78.74 38.1 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a19adcbd-b1db-4064-a10b-4266ab1e63a7")
+		(property "Reference" "L2"
+			(at 78.486 35.814 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "3uH"
+			(at 78.74 39.37 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Inductor_SMD:L_Coilcraft_XAL7070-XXX"
+			(at 78.74 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 78.74 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Inductor, small symbol"
+			(at 78.74 38.1 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "dd6c60cb-b1ad-4669-94e4-e865901c1a4e")
+		)
+		(pin "1"
+			(uuid "62952fe4-13dc-4907-82d3-b56316122217")
+		)
+		(instances
+			(project "LEDStrip"
+				(path "/11a33c1f-278b-446f-a488-c97185c2330a/c2fbd119-4afa-4cba-aa70-89b96a07e817"
+					(reference "L2")
 					(unit 1)
 				)
 			)
@@ -1261,8 +1596,8 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "48f8e9a6-c077-4514-8e31-be9376577f2c")
-		(property "Reference" "#PWR06"
+		(uuid "abcb7774-5cea-4678-adc8-4f79f112edc3")
+		(property "Reference" "#PWR026"
 			(at 69.85 60.96 0)
 			(effects
 				(font
@@ -1311,8 +1646,8 @@
 		)
 		(instances
 			(project "LEDStrip"
-				(path "/11a33c1f-278b-446f-a488-c97185c2330a/9bd9e018-8a49-48ba-8be0-8f52490c4239"
-					(reference "#PWR06")
+				(path "/11a33c1f-278b-446f-a488-c97185c2330a/c2fbd119-4afa-4cba-aa70-89b96a07e817"
+					(reference "#PWR026")
 					(unit 1)
 				)
 			)
@@ -1327,8 +1662,8 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "61fac9b7-df3f-4769-9500-7277f17c44d5")
-		(property "Reference" "COUT1"
+		(uuid "c0931c2d-7109-46a7-9081-dd1514c3dff3")
+		(property "Reference" "COUT2"
 			(at 87.63 46.4438 0)
 			(effects
 				(font
@@ -1381,343 +1716,8 @@
 		)
 		(instances
 			(project "LEDStrip"
-				(path "/11a33c1f-278b-446f-a488-c97185c2330a/9bd9e018-8a49-48ba-8be0-8f52490c4239"
-					(reference "COUT1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GNDREF")
-		(at 85.09 54.61 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "76b15614-890b-404e-853b-6fc71621e338")
-		(property "Reference" "#PWR07"
-			(at 85.09 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "~"
-			(at 85.09 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 85.09 54.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 85.09 54.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GNDREF\" , reference supply ground"
-			(at 85.09 54.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "5382a23d-26f2-489a-a3af-e5ddbeb2434b")
-		)
-		(instances
-			(project "LEDStrip"
-				(path "/11a33c1f-278b-446f-a488-c97185c2330a/9bd9e018-8a49-48ba-8be0-8f52490c4239"
-					(reference "#PWR07")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C_Polarized_Small")
-		(at 30.48 39.37 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "ad12eb75-a7a8-4d30-b989-5d190b8c20ae")
-		(property "Reference" "CIN2"
-			(at 33.02 37.5538 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "330uF"
-			(at 33.02 40.0938 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_Tantalum_SMD:CP_EIA-7360-38_Kemet-E"
-			(at 30.48 39.37 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 30.48 39.37 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Polarized capacitor, small symbol"
-			(at 30.48 39.37 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "f12dc8e5-be28-4a6e-9e09-a5c4019cc8ea")
-		)
-		(pin "1"
-			(uuid "61ebe4dc-c902-4ad1-bbee-99c7a90695a8")
-		)
-		(instances
-			(project "LEDStrip"
-				(path "/11a33c1f-278b-446f-a488-c97185c2330a/9bd9e018-8a49-48ba-8be0-8f52490c4239"
-					(reference "CIN2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:L_Small")
-		(at 78.74 38.1 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "d6f7ad22-e23c-47c5-a9bf-007a6056da0c")
-		(property "Reference" "L1"
-			(at 78.486 35.814 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "3uH"
-			(at 78.74 39.37 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Inductor_SMD:L_Coilcraft_XAL7070-XXX"
-			(at 78.74 38.1 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 78.74 38.1 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Inductor, small symbol"
-			(at 78.74 38.1 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "dd6c60cb-b1ad-4669-94e4-e865901c1a4e")
-		)
-		(pin "1"
-			(uuid "62952fe4-13dc-4907-82d3-b56316122217")
-		)
-		(instances
-			(project "LEDStrip"
-				(path "/11a33c1f-278b-446f-a488-c97185c2330a/9bd9e018-8a49-48ba-8be0-8f52490c4239"
-					(reference "L1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GNDREF")
-		(at 17.78 54.61 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "d912c757-1248-4a13-aaa5-47466edc1358")
-		(property "Reference" "#PWR03"
-			(at 17.78 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "~"
-			(at 17.78 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 17.78 54.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 17.78 54.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GNDREF\" , reference supply ground"
-			(at 17.78 54.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "4da7682b-7737-4dd8-9be8-e9d9bb0e6cdd")
-		)
-		(instances
-			(project "LEDStrip"
-				(path "/11a33c1f-278b-446f-a488-c97185c2330a/9bd9e018-8a49-48ba-8be0-8f52490c4239"
-					(reference "#PWR03")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GNDREF")
-		(at 39.37 54.61 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "fbbf961f-14f3-4a26-86d8-a09c1d4ace8e")
-		(property "Reference" "#PWR04"
-			(at 39.37 60.96 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "~"
-			(at 39.37 59.69 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 39.37 54.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 39.37 54.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GNDREF\" , reference supply ground"
-			(at 39.37 54.61 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "ea3186de-20dd-4a53-bcd2-0a1351ccc8be")
-		)
-		(instances
-			(project "LEDStrip"
-				(path "/11a33c1f-278b-446f-a488-c97185c2330a/9bd9e018-8a49-48ba-8be0-8f52490c4239"
-					(reference "#PWR04")
+				(path "/11a33c1f-278b-446f-a488-c97185c2330a/c2fbd119-4afa-4cba-aa70-89b96a07e817"
+					(reference "COUT2")
 					(unit 1)
 				)
 			)
@@ -1732,8 +1732,8 @@
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "fce04bae-d2e3-4fe7-9645-8d50d95529b9")
-		(property "Reference" "D3"
+		(uuid "ecbe7e53-e4fc-4580-a337-f54aca6f7d68")
+		(property "Reference" "D7"
 			(at 72.39 46.6724 90)
 			(effects
 				(font
@@ -1786,8 +1786,8 @@
 		)
 		(instances
 			(project "LEDStrip"
-				(path "/11a33c1f-278b-446f-a488-c97185c2330a/9bd9e018-8a49-48ba-8be0-8f52490c4239"
-					(reference "D3")
+				(path "/11a33c1f-278b-446f-a488-c97185c2330a/c2fbd119-4afa-4cba-aa70-89b96a07e817"
+					(reference "D7")
 					(unit 1)
 				)
 			)

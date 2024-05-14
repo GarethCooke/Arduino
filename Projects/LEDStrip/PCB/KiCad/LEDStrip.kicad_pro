@@ -26,15 +26,15 @@
         },
         "fab_line_width": 0.1,
         "fab_text_italic": false,
-        "fab_text_size_h": 1.0,
-        "fab_text_size_v": 1.0,
-        "fab_text_thickness": 0.15,
+        "fab_text_size_h": 0.5,
+        "fab_text_size_v": 0.8,
+        "fab_text_thickness": 0.125,
         "fab_text_upright": false,
         "other_line_width": 0.1,
         "other_text_italic": false,
-        "other_text_size_h": 1.0,
-        "other_text_size_v": 1.0,
-        "other_text_thickness": 0.15,
+        "other_text_size_h": 0.5,
+        "other_text_size_v": 0.8,
+        "other_text_thickness": 0.125,
         "other_text_upright": false,
         "pads": {
           "drill": 0.762,
@@ -43,16 +43,43 @@
         },
         "silk_line_width": 0.1,
         "silk_text_italic": false,
-        "silk_text_size_h": 1.0,
-        "silk_text_size_v": 1.0,
+        "silk_text_size_h": 0.5,
+        "silk_text_size_v": 0.8,
         "silk_text_thickness": 0.1,
         "silk_text_upright": false,
         "zones": {
           "min_clearance": 0.5
         }
       },
-      "diff_pair_dimensions": [],
-      "drc_exclusions": [],
+      "diff_pair_dimensions": [
+        {
+          "gap": 0.0,
+          "via_gap": 0.0,
+          "width": 0.0
+        }
+      ],
+      "drc_exclusions": [
+        "drill_out_of_range|181550000|54410000|12537346-37fe-4691-9ea3-d93d63a7c3cc|00000000-0000-0000-0000-000000000000",
+        "drill_out_of_range|181550000|55810000|7473b2ef-dff8-45ae-a28c-93729eff7555|00000000-0000-0000-0000-000000000000",
+        "drill_out_of_range|182250000|53710000|6a1ccc1a-2603-42fd-bcb2-06303630abf4|00000000-0000-0000-0000-000000000000",
+        "drill_out_of_range|182250000|55110000|f05ce47d-323a-48db-8a50-cba0aa6c5a11|00000000-0000-0000-0000-000000000000",
+        "drill_out_of_range|182250000|56510000|337e9fb9-da29-40fc-ae36-2223ee467a2f|00000000-0000-0000-0000-000000000000",
+        "drill_out_of_range|182950000|54410000|e49e800f-c0fe-4c54-bc3a-485b58e511f8|00000000-0000-0000-0000-000000000000",
+        "drill_out_of_range|182950000|55810000|fac47113-530d-47e3-a674-aa475d1a5059|00000000-0000-0000-0000-000000000000",
+        "drill_out_of_range|183650000|53710000|76cac398-e747-460f-a57b-5f8205131fb9|00000000-0000-0000-0000-000000000000",
+        "drill_out_of_range|183650000|55110000|e4a50b4a-a17d-4540-be6b-ebf6bb669dfd|00000000-0000-0000-0000-000000000000",
+        "drill_out_of_range|183650000|56510000|98b2a6bb-afbd-490a-a3f7-414b6f782e5b|00000000-0000-0000-0000-000000000000",
+        "drill_out_of_range|184350000|54410000|c49c0e34-b4a3-45e4-bf11-3e16f60599be|00000000-0000-0000-0000-000000000000",
+        "drill_out_of_range|184350000|55810000|b5d10633-16cc-419c-b65d-7decbf86b44d|00000000-0000-0000-0000-000000000000",
+        "hole_clearance|136780000|133330000|904b8343-ac99-4c4f-bf01-97fd713e5812|24e2d98a-6539-4c3c-a6b5-e5c5eed5c73f",
+        "hole_clearance|136780000|133330000|904b8343-ac99-4c4f-bf01-97fd713e5812|404e756a-78e4-4d1c-8d3e-6bcddb68b638",
+        "hole_clearance|136980000|133330000|904b8343-ac99-4c4f-bf01-97fd713e5812|e0f48b58-3373-4e6c-807a-553b53b550bd",
+        "hole_clearance|136980000|133330000|904b8343-ac99-4c4f-bf01-97fd713e5812|e6232141-d51d-4f62-a763-e7abbcd865f2",
+        "hole_clearance|142380000|133330000|d390e715-d255-4bd9-b80a-f659e70ac0fd|34a737dc-c6cf-4855-94e6-c94660045914",
+        "hole_clearance|142380000|133330000|d390e715-d255-4bd9-b80a-f659e70ac0fd|47ba4ab1-b716-42f4-8f94-0708f67f344c",
+        "hole_clearance|142580000|133330000|d390e715-d255-4bd9-b80a-f659e70ac0fd|0650bc5d-0d01-4299-993c-d70f80cc25b6",
+        "hole_clearance|142580000|133330000|d390e715-d255-4bd9-b80a-f659e70ac0fd|b1239a33-fd2b-4439-a5a7-e814ce380183"
+      ],
       "meta": {
         "version": 2
       },
@@ -109,19 +136,19 @@
       },
       "rules": {
         "max_error": 0.005,
-        "min_clearance": 0.0,
-        "min_connection": 0.0,
-        "min_copper_edge_clearance": 0.5,
+        "min_clearance": 0.15,
+        "min_connection": 0.15,
+        "min_copper_edge_clearance": 0.25,
         "min_hole_clearance": 0.25,
         "min_hole_to_hole": 0.25,
         "min_microvia_diameter": 0.2,
         "min_microvia_drill": 0.1,
         "min_resolved_spokes": 2,
-        "min_silk_clearance": 0.0,
+        "min_silk_clearance": 0.15,
         "min_text_height": 0.8,
         "min_text_thickness": 0.08,
         "min_through_hole_diameter": 0.3,
-        "min_track_width": 0.0,
+        "min_track_width": 0.15,
         "min_via_annular_width": 0.1,
         "min_via_diameter": 0.5,
         "solder_mask_to_copper_clearance": 0.0,
@@ -170,7 +197,11 @@
           "td_width_to_size_filter_ratio": 0.9
         }
       ],
-      "track_widths": [],
+      "track_widths": [
+        0.0,
+        0.3,
+        2.0
+      ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
           "corner_radius_percentage": 80,
@@ -197,7 +228,12 @@
           "spacing": 0.6
         }
       },
-      "via_dimensions": [],
+      "via_dimensions": [
+        {
+          "diameter": 0.0,
+          "drill": 0.0
+        }
+      ],
       "zones_allow_external_fillets": false
     },
     "ipc2581": {
@@ -415,7 +451,7 @@
       "no_connect_dangling": "warning",
       "pin_not_connected": "error",
       "pin_not_driven": "error",
-      "pin_to_pin": "warning",
+      "pin_to_pin": "error",
       "power_pin_not_driven": "error",
       "similar_labels": "warning",
       "simulation_model_issue": "ignore",
@@ -451,14 +487,66 @@
         "via_diameter": 0.6,
         "via_drill": 0.3,
         "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.15,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "MAX9814",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.15,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Power",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.2,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
       }
     ],
     "meta": {
       "version": 3
     },
     "net_colors": null,
-    "netclass_assignments": null,
-    "netclass_patterns": []
+    "netclass_assignments": {
+      "<NO NET>": "MAX9814",
+      "AR": "MAX9814",
+      "AUDIO": "MAX9814",
+      "ESP_3V3": "MAX9814",
+      "GAIN": "MAX9814",
+      "Net-(U6-BIAS)": "MAX9814",
+      "Net-(U6-CG)": "MAX9814",
+      "Net-(U6-CT)": "MAX9814",
+      "Net-(U6-MICBIAS)": "MAX9814",
+      "Net-(U6-MICIN)": "MAX9814",
+      "Net-(U6-TH)": "MAX9814",
+      "VCC_12V": "Power"
+    },
+    "netclass_patterns": [
+      {
+        "netclass": "Default",
+        "pattern": "<NO NET>"
+      }
+    ]
   },
   "pcbnew": {
     "last_paths": {
@@ -536,6 +624,96 @@
           "group_by": false,
           "label": "Description",
           "name": "Description",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Availability",
+          "name": "Availability",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "CUI_PURCHASE_URL",
+          "name": "CUI_PURCHASE_URL",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "CUI_purchase_URL",
+          "name": "CUI_purchase_URL",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Check_prices",
+          "name": "Check_prices",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "DESCRIPTION",
+          "name": "DESCRIPTION",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Description_1",
+          "name": "Description_1",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "MF",
+          "name": "MF",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "MP",
+          "name": "MP",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "PACKAGE",
+          "name": "PACKAGE",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "PRICE",
+          "name": "PRICE",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Package",
+          "name": "Package",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Price",
+          "name": "Price",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Purchase-URL",
+          "name": "Purchase-URL",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "SnapEDA_Link",
+          "name": "SnapEDA_Link",
+          "show": false
+        },
+        {
+          "group_by": false,
+          "label": "AVAILABILITY",
+          "name": "AVAILABILITY",
           "show": false
         }
       ],
