@@ -1,4 +1,4 @@
-23126715601665809
+23128432263494926
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -2523,6 +2523,13 @@ Buzzer_Beeper
 Speaker_CUI_CMR-1206S-67
 Speaker, 30mW, 300-7000Hz, IP67 face, 12x6x2,25mm, https://www.cuidevices.com/product/resource/cmr-12062s-67.pdf
 speaker CUI
+0
+2
+2
+CMA-4544PF-W
+MIC_CMA-4544PF-W
+
+
 0
 2
 2
@@ -56840,12 +56847,12 @@ heatsink
 0
 0
 IguanaLibrary
-Button 1.5mm SMD
+SW_RGB_JST_SH
 
 
 0
-0
-0
+9
+8
 Inductor_SMD
 L_6.3x6.3_H3
 Choke, SMD, 6.3x6.3mm 3mm height
