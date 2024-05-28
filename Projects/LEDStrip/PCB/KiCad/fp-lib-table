@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "IguanaWare")(type "KiCad")(uri "${KIPRJMOD}/IguanaWare.pretty")(options "")(descr ""))
+)
