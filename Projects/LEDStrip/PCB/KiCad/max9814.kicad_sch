@@ -574,7 +574,16 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "9.7 mm, Omnidirectional, PCB Mount, 3.0 Vdc, Electret Condenser Microphone"
+			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "MF" "CUI Devices"
 				(at 0 0 0)
 				(effects
 					(font
@@ -584,7 +593,7 @@
 					(hide yes)
 				)
 			)
-			(property "MF" "CUI Devices"
+			(property "DESCRIPTION" "9.7 mm, Omnidirectional, PCB Mount, 3.0 Vdc, Electret Condenser Microphone"
 				(at 0 0 0)
 				(effects
 					(font

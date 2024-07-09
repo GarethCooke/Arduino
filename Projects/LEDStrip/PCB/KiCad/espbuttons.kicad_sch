@@ -689,7 +689,7 @@
 		)
 		(uuid "04c712c2-0fa0-4052-99b6-71bd077eec9a")
 	)
-	(global_label "ESP_3V3"
+	(global_label "VCC_3V3"
 		(shape input)
 		(at 45.72 20.32 0)
 		(fields_autoplaced yes)
