@@ -1,0 +1,64 @@
+﻿pos_x,pos_y,rotation,side,designator,mpn,pack,footprint,value,mount_type
+135.195,-90.345,-90.0,top,C1,,,C_0603_1608Metric,10uF,smt
+149.025,-90.525,180.0,top,C10,,,C_0603_1608Metric,0.1uF,smt
+145.425,-102.925,180.0,top,C11,,,C_0603_1608Metric,0.1uF,smt
+149.225,-102.925,0.0,top,C12,,,C_0603_1608Metric,0.1uF,smt
+141.775,-102.0,90.0,top,C13,,,C_0603_1608Metric,0.1uF,smt
+141.65,-108.425,90.0,top,C14,,,C_0603_1608Metric,0.1uF,smt
+159.75,-103.8,0.0,top,C15,,,CP_EIA-3216-18_Kemet-A,22nF - 1uF,smt
+160.05,-100.2,180.0,top,C16,,,CP_EIA-3216-18_Kemet-A,2.2uF,smt
+159.95,-97.6,180.0,top,C17,,,CP_EIA-3216-18_Kemet-A,0.47uF,smt
+172.4,-105.95,-90.0,top,C18,,,CP_EIA-3216-18_Kemet-A,0.1uF,smt
+164.45,-104.4,180.0,top,C19,,,CP_EIA-3216-18_Kemet-A,1uF,smt
+133.665,-70.65,90.0,top,C2,,,C_0603_1608Metric,10uF,smt
+135.865,-70.675,90.0,top,C3,,,C_0603_1608Metric,0.1uF,smt
+133.865,-67.1,-90.0,top,C4,,,C_0603_1608Metric,10uF,smt
+135.865,-67.075,-90.0,top,C5,,,C_0603_1608Metric,0.1uF,smt
+173.415,-72.425,90.0,top,C6,,,C_0603_1608Metric,10uF,smt
+170.79,-73.05,180.0,top,C7,,,C_0603_1608Metric,0.1uF,smt
+144.24,-73.65,180.0,top,C8,,,C_0603_1608Metric,1uF,smt
+153.025,-102.925,0.0,top,C9,,,C_0603_1608Metric,33pF,smt
+159.0,-109.8,0.0,top,CIN1,,,CP_EIA-7360-38_Kemet-E,330uF,smt
+149.8875,-109.0,0.0,top,CIN2,,,CP_EIA-7360-38_Kemet-E,330uF,smt
+142.15,-111.8,0.0,top,COUT1,,,CP_EIA-3216-18_Kemet-A,220uF,smt
+138.76,-91.25,-90.0,top,D1,,,D_SOD-123,1N5819HW-7-F,smt
+136.96,-87.35,-90.0,top,D2,,,D_SOD-523,LESD5D5.0CT1G,smt
+134.0,-126.8,-90.0,top,D3,,,D_SMA,SK32,smt
+136.96,-84.35,-90.0,top,D4,,,D_SOD-523,LESD5D5.0CT1G,smt
+136.76,-90.15,90.0,top,D5,,,D_SOD-523,LESD5D5.0CT1G,smt
+141.8775,-64.45,180.0,top,D6,,,LED_0603_1608Metric,LED,smt
+130.47,-88.17,-90.0,top,J1,,,USB_C_Receptacle_Palconn_UTC16-G,USB C,smt
+139.8,-126.925,0.0,top,J2,,,JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal,RGB LED,smt
+132.4,-104.35,90.0,top,J3,,,JST_EH_S4B-EH_1x04_P2.50mm_Horizontal,LED ADDR,tht
+170.925,-93.3,90.0,top,J4,,,JST_SH_SM05B-SRSS-TB_1x05-1MP_P1.00mm_Horizontal,LED MATRIX,smt
+161.2,-115.95,90.0,top,J5,,,BarrelJack_Kycon_KLDX-0202-xC_Horizontal,Barrel Jack,tht
+128.8,-110.46,0.0,top,J6,,,PinHeader_1x04_P2.54mm_Vertical,SSD1306,tht
+169.4,-101.62,0.0,top,J7,,,PinHeader_1x08_P2.54mm_Vertical,TFT,tht
+135.2,-114.6,90.0,top,L1,,,L_Coilcraft_XAL7070-XXX,3uH,smt
+160.6,-91.27,0.0,top,MK1,,6-DIP-6 CUI,MIC_CMA-4544PF-W,CMA-4544PF-W,tht
+141.6625,-121.6,180.0,top,Q1,,,SOT-23,IRFML8244,smt
+137.6625,-121.6,180.0,top,Q2,,,SOT-23,IRFML8244,smt
+142.2625,-117.05,180.0,top,Q3,,,SOT-23,IRFML8244,smt
+135.16,-84.425,90.0,top,R1,,,R_0603_1608Metric,5.1K,smt
+168.015,-81.825,-90.0,top,R10,,,R_0603_1608Metric,330,smt
+168.015,-78.675,-90.0,top,R11,,,R_0603_1608Metric,330,smt
+165.775,-107.4,180.0,top,R12,,,R_0603_1608Metric,100k,smt
+156.175,-100.425,90.0,top,R13,,,R_0603_1608Metric,150k,smt
+172.4,-110.775,90.0,top,R14,,,R_0603_1608Metric,2.2k,smt
+168.015,-85.075,-90.0,top,R15,,,R_0603_1608Metric,330,smt
+168.015,-75.475,-90.0,top,R16,,,R_0603_1608Metric,1k,smt
+140.0,-84.4,90.0,top,R2,,,R_0603_1608Metric,5.1K,smt
+138.465,-64.45,0.0,top,R3,,,R_0603_1608Metric,56,smt
+140.44,-73.65,0.0,top,R4,,,R_0603_1608Metric,10k,smt
+153.175,-90.325,180.0,top,R5,,,R_0603_1608Metric,200k,smt
+145.375,-90.525,0.0,top,R6,,,R_0603_1608Metric,22k,smt
+137.95,-104.775,180.0,top,R7,,,R_0603_1608Metric,10k,smt
+132.575,-109.6,180.0,top,R8,,,R_0603_1608Metric,10k,smt
+137.975,-102.175,0.0,top,SW1,,,SW_Push_1P1T_NO_CK_KMR2,RESET,smt
+138.0,-108.6,0.0,top,SW2,,,SW_Push_1P1T_NO_CK_KMR2,SW_DIP_x01,smt
+171.765,-79.35,-90.0,top,SW3,,,SW_RGB_JST_SH,CMD BTN,smt
+153.0,-92.925,-90.0,top,U1,,,DIP-8_W7.62mm_Socket,MSGEQ7,tht
+156.015,-70.1,0.0,top,U2,,,ESP32-S3-WROOM-1,ESP32-S3-WROOM-1,smt
+150.0,-123.7,-90.0,top,U3,,,TO-263-5_TabPin3,LM2596S-5,smt
+141.265,-69.05,0.0,top,U4,,,SOT-223-3_TabPin2,AMS1117-3.3,smt
+164.5875,-100.05,90.0,top,U6,,,DFN-14-1EP_3x3mm_P0.4mm_EP1.78x2.35mm,MAX9814,smt
