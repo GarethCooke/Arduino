@@ -6,7 +6,13 @@ https://github.com/PatrickE94/pycalima
 Fan boost (characteristic 118c949c-28c8-4139-b0b3-36657fd055a9) on via app, value:
 
 00 0000 0000 - off
-01 6009 6E03 - just on for 30 mins
+01 6009 6E03 - just on for 15 mins
 01 6009 DA02 - a couple of mins
 01 6009 D402 - a few secs later
 00 0000 0000 - boost turned off a couple of mins later
+
+21-Mar-25
+
+Need to do two things to make fan boost work:
+1) 
+2) send (the pin) 0160098403 to characteristic c119e8580531468196745a11f0e53bb4::118c949c28c84139b0b336657fd055a9
