@@ -1,0 +1,10 @@
+# PlatformIO build artifacts and downloaded libraries
+MorrayServer/.pio/
+
+# Node.js dependencies
+MorrayClient/node_modules/
+MorrayClient/test-server/node_modules/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
