@@ -1,16 +1,16 @@
 # MorrayGlow
 
-IoT LED strip controller — ESP8266 firmware + web UI with Home Assistant integration.
+IoT LED strip controller — ESP32 firmware + web UI with Home Assistant integration.
 
 ## Project Summary
 
-MorrayGlow controls an RGB LED strip via a **Wemos D1 mini (ESP8266)**. The device hosts a web UI and exposes a REST + WebSocket API. A browser-based client lets you toggle the strip on/off and pick a colour. The device also integrates with **Home Assistant** via MQTT auto-discovery, so it appears automatically as a light entity.
+MorrayGlow controls an RGB LED strip via an **ESP32**. The device hosts a web UI and exposes a REST + WebSocket API. A browser-based client lets you toggle the strip on/off and pick a colour. The device also integrates with **Home Assistant** via MQTT auto-discovery, so it appears automatically as a light entity.
 
 ## Project Structure
 
 ```text
 MorayGlow/
-├── MorrayServer/               # ESP8266 firmware (C++, PlatformIO)
+├── MorrayServer/               # ESP32 firmware (C++, PlatformIO)
 │   ├── platformio.ini
 │   ├── src/main.cpp            # WiFi, LittleFS, REST API, WebSocket
 │   ├── include/
@@ -48,9 +48,9 @@ MorayGlow/
 
 | Decision       | Choice                                          | Reason                                                  |
 | -------------- | ----------------------------------------------- | ------------------------------------------------------- |
-| MCU            | Wemos D1 mini (ESP8266)                         | Small, cheap, Wi-Fi built in                            |
+| MCU            | ESP32 Dev Board                                 | Dual-core, Wi-Fi + Bluetooth built in                   |
 | Build system   | PlatformIO                                      | Dependency management, board config, native test env    |
-| Web server     | `esphome/ESPAsyncWebServer-esphome`             | Supports ESP8266 + ESP32; async                         |
+| Web server     | `esphome/ESPAsyncWebServer-esphome`             | Supports ESP32; async                                   |
 | Filesystem     | LittleFS                                        | Serves client files from device flash                   |
 | JSON           | ArduinoJson v7 (`JsonDocument`)                 | No capacity arg needed; widely supported                |
 | MQTT           | `knolleary/PubSubClient` + `setBufferSize(512)` | Lightweight, well-maintained                            |

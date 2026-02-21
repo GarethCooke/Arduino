@@ -1,0 +1,17 @@
+{
+  "folders": [
+    {
+      "name": "MorrayServer (Firmware)",
+      "path": "MorrayServer"
+    },
+    {
+      "name": "MorrayClient (Web UI)",
+      "path": "MorrayClient"
+    },
+    {
+      "name": "MorrayClient (Mock Server)",
+      "path": "MorrayClient/test-server"
+    }
+  ],
+  "settings": {}
+}

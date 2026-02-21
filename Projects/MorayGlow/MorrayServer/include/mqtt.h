@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include "config.h"
@@ -29,7 +29,7 @@ static void publishDiscovery() {
     JsonObject device = doc["device"].to<JsonObject>();
     device["identifiers"][0] = DEVICE_ID;
     device["name"]           = DEVICE_NAME;
-    device["model"]          = "Wemos D1 Mini";
+    device["model"]          = "ESP32 Dev Board";
     device["manufacturer"]   = "MorrayGlow";
 
     String payload;
