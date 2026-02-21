@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(test:*)",
+      "Bash(dir:*)",
+      "Bash(git -C \"c:/Development/Arduino/Projects/MorayGlow\" log --oneline --all)",
+      "Bash(git -C \"c:/Development/Arduino/Projects/MorayGlow\" show 57683c4 --stat)",
+      "Read(//c/Users/garet/.claude/**)"
+    ]
+  }
+}
