@@ -6,20 +6,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 MorayGlow is an IoT LED strip controller. It has two separate sub-projects:
 
-- **MorrayServer/** — ESP8266 firmware (C++, PlatformIO, Arduino framework)
+- **MorrayServer/** — ESP32-S3 firmware (C++, PlatformIO, Arduino framework) targeting the Seeed XIAO ESP32-S3
 - **MorrayClient/** — Web UI served from the device (vanilla HTML/CSS/JS) + a Node.js dev mock server
 
 ## Build & Flash Commands (Firmware)
 
 ```bash
 # Build firmware
-pio run -e esp32dev
+pio run -e xiao_esp32s3
 
 # Upload firmware to device
-pio run -e esp32dev -t upload
+pio run -e xiao_esp32s3 -t upload
 
 # Upload web UI files to LittleFS on device (run after firmware is on device)
-pio run -e esp32dev -t uploadfs
+pio run -e xiao_esp32s3 -t uploadfs
 
 # Serial monitor
 pio device monitor
@@ -42,6 +42,12 @@ cd MorrayClient
 npm test
 ```
 
+Test-server JS tests (Jest):
+```bash
+cd MorrayClient/test-server
+npm test
+```
+
 ## Architecture
 
 ### Data & Control Flow
@@ -49,7 +55,7 @@ npm test
 ```
 Home Assistant
     ↕ MQTT (morrayglow/state, morrayglow/command)
-ESP8266 Firmware (MorrayServer)
+ESP32-S3 Firmware (MorrayServer)
     ↕ REST + WebSocket (/api/state, /api/power, /api/color, /ws)
 Web Browser (MorrayClient)
 ```
@@ -64,9 +70,24 @@ State changes from any source (REST, MQTT, WebSocket) all call the same two func
 - **[js/morray.js](MorrayClient/js/morray.js)** — UMD utility module (works in browser and Node.js): `buildWsUrl`, `isValidHexColor`.
 - **[test-server/logic.js](MorrayClient/test-server/logic.js)** — Server-side validation logic mirroring `state.h` in JavaScript.
 
+### LED Hardware (main.cpp)
+
+GPIO pin assignments on the XIAO ESP32-S3:
+
+- `PIN_RED` (GPIO1), `PIN_GREEN` (GPIO2), `PIN_BLUE` (GPIO3) — PWM output via LEDC channels
+- `PIN_STATUS` (GPIO4) — Status LED indicator
+- `PIN_BUTTON` (GPIO5) — Button input with 50ms debounce and hold detection
+
+`applyLedState()` drives the RGB strip via LEDC hardware PWM. The current firmware also includes:
+
+- **Auto colour cycling**: cycles through 8 preset colours every 3 seconds
+- **Button hold-to-reset**: hold 5 seconds to factory reset (status LED blinks faster as threshold approaches)
+- **Boot blink**: 2-blink sequence on startup
+
 ### MQTT Payload Format
 
 MQTT commands use Home Assistant JSON schema, which **differs from the REST API**:
+
 ```json
 // MQTT command (subscribe):  morrayglow/command
 { "state": "ON", "color": { "r": 255, "g": 0, "b": 0 } }
@@ -77,13 +98,9 @@ MQTT commands use Home Assistant JSON schema, which **differs from the REST API*
 
 HA auto-discovery is published to `homeassistant/light/morrayglow_01/config` on every MQTT reconnect.
 
-### LED Strip Driver
-
-`applyLedState()` in [src/main.cpp](MorrayServer/src/main.cpp) is a stub — it currently only logs to Serial. GPIO driving of the actual LED strip goes here.
-
 ### LittleFS
 
-The web UI files (`index.html`, `css/`, `js/`) are uploaded to LittleFS on the device via `pio run -t uploadfs`. The firmware serves them as static files. The client has no build step — edit files directly.
+The web UI files (`index.html`, `css/`, `js/`) are uploaded to LittleFS on the device via `pio run -t uploadfs`. The `data/` directory is the source for this. The client has no build step — edit files directly.
 
 ## Library Conventions
 
