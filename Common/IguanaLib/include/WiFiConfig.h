@@ -3,6 +3,7 @@
 #pragma pack(push)  // push current alignment to stack
 #pragma pack(1)     // set alignment to 1 byte boundary
 
+#include <cstring>
 #include "IguanaStored.h"
 
 #define LEN_SSID	33
