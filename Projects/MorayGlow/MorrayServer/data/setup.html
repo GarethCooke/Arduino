@@ -45,6 +45,11 @@
             cursor: pointer;
         }
         .btn-connect:disabled { opacity: 0.4; cursor: not-allowed; }
+        .device-url-card[hidden] { display: none; }
+        .device-url-text { font-size: 0.9rem; color: var(--on-color); text-decoration: underline; }
+        .device-url-text:hover { opacity: 0.8; }
+        .card-header { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+        .btn-rescan { background: none; border: none; cursor: pointer; padding: 0; font-size: 1rem; }
     </style>
 </head>
 <body>
@@ -53,7 +58,10 @@
         <p class="status">WiFi Setup</p>
 
         <div class="card">
-            <p class="color-label">Available Networks</p>
+            <div class="card-header">
+                <p class="color-label">Available Networks</p>
+                <button id="rescan" type="button" class="nav-link btn-rescan" aria-label="Rescan">&#8635;</button>
+            </div>
             <div id="networks" class="network-list">
                 <p class="status">Scanning&hellip;</p>
             </div>
@@ -73,6 +81,11 @@
         </div>
 
         <p id="msg" class="status"></p>
+
+        <div class="card device-url-card" id="device-url-card" hidden>
+            <p class="color-label">After connecting, visit</p>
+            <a id="device-url" class="status device-url-text" target="_blank" rel="noopener"></a>
+        </div>
     </div>
 
     <script>
@@ -84,6 +97,19 @@
         var btn        = document.getElementById('btn');
         var networksEl = document.getElementById('networks');
         var msgEl      = document.getElementById('msg');
+        var urlCard    = document.getElementById('device-url-card');
+        var urlEl      = document.getElementById('device-url');
+        var rescanBtn  = document.getElementById('rescan');
+
+        // Show the predicted device URL so the user knows where to go after setup.
+        fetch('/api/deviceinfo')
+            .then(function (r) { return r.json(); })
+            .then(function (info) {
+                urlEl.href        = info.url;
+                urlEl.textContent = info.url;
+                urlCard.hidden    = false;
+            })
+            .catch(function () { /* non-critical, hide silently */ });
 
         ssidEl.addEventListener('input', function () {
             btn.disabled = ssidEl.value.trim().length === 0;
@@ -105,29 +131,43 @@
             pwdEl.focus();
         }
 
-        fetch('/api/networkdata')
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-                var nets = (data.networks || []).sort(function (a, b) { return b.rssi - a.rssi; });
-                if (nets.length === 0) {
-                    networksEl.innerHTML = '<p class="status">No networks found</p>';
-                    return;
-                }
-                networksEl.innerHTML = '';
-                nets.forEach(function (n) {
-                    var el = document.createElement('div');
-                    el.className = 'net-item';
-                    el.dataset.ssid = n.ssid;
-                    el.innerHTML = '<span>' + n.ssid + '</span>'
-                        + '<span class="net-signal">' + bars(n.rssi)
-                        + (n.secure ? ' &#128274;' : '') + '</span>';
-                    el.addEventListener('click', function () { selectNetwork(n.ssid); });
-                    networksEl.appendChild(el);
+        function scanNetworks() {
+            networksEl.innerHTML = '<p class="status">Scanning&hellip;</p>';
+            rescanBtn.disabled = true;
+            fetch('/api/networkdata')
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.scanning) {
+                        // Scan still running on device — retry after 1 s
+                        setTimeout(scanNetworks, 1000);
+                        return;
+                    }
+                    rescanBtn.disabled = false;
+                    var nets = (data.networks || []).sort(function (a, b) { return b.rssi - a.rssi; });
+                    if (nets.length === 0) {
+                        networksEl.innerHTML = '<p class="status">No networks found</p>';
+                        return;
+                    }
+                    networksEl.innerHTML = '';
+                    nets.forEach(function (n) {
+                        var el = document.createElement('div');
+                        el.className = 'net-item';
+                        el.dataset.ssid = n.ssid;
+                        el.innerHTML = '<span>' + n.ssid + '</span>'
+                            + '<span class="net-signal">' + bars(n.rssi)
+                            + (n.secure ? ' &#128274;' : '') + '</span>';
+                        el.addEventListener('click', function () { selectNetwork(n.ssid); });
+                        networksEl.appendChild(el);
+                    });
+                })
+                .catch(function () {
+                    networksEl.innerHTML = '<p class="status">Scan failed</p>';
+                    rescanBtn.disabled = false;
                 });
-            })
-            .catch(function () {
-                networksEl.innerHTML = '<p class="status">Scan failed</p>';
-            });
+        }
+
+        rescanBtn.addEventListener('click', scanNetworks);
+        scanNetworks();
 
         btn.addEventListener('click', function () {
             var ssid = ssidEl.value.trim();

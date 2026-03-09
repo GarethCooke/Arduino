@@ -13,21 +13,23 @@
 //   1. Reads WiFi credentials from EEPROM (via IguanaLib WiFiConfig).
 //   2. If valid credentials found → connects to home network (station mode).
 //   3. If no credentials or connection fails → starts "MorrayGlow-Setup" AP.
-//      Connect to that AP and visit http://192.168.4.1 to configure WiFi.
+//      Connect to that AP and visit http://10.0.0.1 to configure WiFi.
 //   4. Hold button 5 s → clears saved credentials and restarts into AP mode.
 
 #include <Arduino.h>
 #include <ButtonStatus.h>
 #include <EEPROM.h>
+#include <ESPmDNS.h>
 #include <TwoStateValue.h>
 #include <WiFi.h>
 #include <WiFiConfig.h>
 
 #include "IguanaOTA.h"
 #include "config.h"
+#include "device.h"
 #include "state.h"
-#include "webserver.h"  // defines broadcastState()
-#include "mqtt.h"       // uses extern broadcastState()
+#include "webserver.h"
+#include "mqtt.h"
 
 #define PIN_RED    1
 #define PIN_GREEN  2
@@ -64,15 +66,30 @@ const Colour colourSequence[] = {
 const uint8_t NUM_COLOURS   = sizeof(colourSequence) / sizeof(colourSequence[0]);
 uint8_t       currentColour = 0;
 
-// ── LED state — referenced as extern by webserver.h and mqtt.h ───────────────
-bool   ledOn    = false;
-String ledColor = "#ffffff";
-bool   apMode   = false;
+// ── LED state — referenced as extern by webserver.cpp and mqtt.cpp ───────────
+bool   ledOn     = false;
+String ledColor  = "#ffffff";
+bool   cycleMode = true;   // true = auto colour cycle; false = hold user colour
+bool   apMode    = false;
 
 ButtonStatus* pBtn         = nullptr;
 uint32_t      lastColourChange = 0;
 
 // ── Hardware helpers ─────────────────────────────────────────────────────────
+
+static void blinkStatus(int count, uint32_t onMs, uint32_t offMs) {
+    for (int i = 0; i < count; i++) {
+        digitalWrite(PIN_STATUS, HIGH);
+        delay(onMs);
+        digitalWrite(PIN_STATUS, LOW);
+        delay(offMs);
+    }
+}
+
+static void setupLedChannel(uint8_t channel, uint8_t pin) {
+    ledcSetup(channel, LEDC_FREQ_HZ, LEDC_RESOLUTION);
+    ledcAttachPin(pin, channel);
+}
 
 void setColour(uint8_t r, uint8_t g, uint8_t b) {
     ledcWrite(LEDC_CH_RED, r);
@@ -93,12 +110,7 @@ void applyLedState() {
 // Blink status LED, clear saved WiFi credentials, restart into AP mode.
 void flashAndReset() {
     setColour(0, 0, 0);
-    for (int i = 0; i < FLASH_COUNT; i++) {
-        digitalWrite(PIN_STATUS, HIGH);
-        delay(FLASH_ON_MS);
-        digitalWrite(PIN_STATUS, LOW);
-        delay(FLASH_OFF_MS);
-    }
+    blinkStatus(FLASH_COUNT, FLASH_ON_MS, FLASH_OFF_MS);
     // Zero out the WiFiConfig block so isValid() returns false on next boot
     for (size_t i = 0; i < sizeof(WiFiConfig); i++) EEPROM.write(i, 0);
     EEPROM.commit();
@@ -110,11 +122,16 @@ void flashAndReset() {
 
 void setupNetwork() {
     EEPROM.begin(512);
+
+    // MAC address is stable once WiFi mode is set — derive device ID now.
+    WiFi.mode(WIFI_STA);
+    Device::init();
+    Serial.printf("Device ID: %s\n", Device::id().c_str());
+
     WiFiConfig cfg;
     EEPROM.get(0, cfg);
 
     if (cfg.isValid() && cfg.hasSSID()) {
-        WiFi.mode(WIFI_STA);
         WiFi.begin(cfg.getSSID(), cfg.getPassword());
         Serial.printf("Connecting to %s", cfg.getSSID());
         uint32_t start    = millis();
@@ -129,6 +146,13 @@ void setupNetwork() {
             digitalWrite(PIN_STATUS, HIGH);
             Serial.printf("\nWiFi connected — IP: %s\n",
                           WiFi.localIP().toString().c_str());
+
+            // Register unique mDNS hostname (morrayglow-a1b2c3.local)
+            if (MDNS.begin(Device::id().c_str())) {
+                MDNS.addService("morrayglow", "tcp", 80);
+                Serial.printf("mDNS: http://%s.local\n", Device::id().c_str());
+            }
+
             IguanaOTA::Initialise(OTA_HOSTNAME);
             mqttSetup();
             return;
@@ -139,19 +163,15 @@ void setupNetwork() {
     }
 
     // Fall back to AP mode
-    apMode = true;
+    apMode       = true;
+    String ssid  = Device::apSsid();  // e.g. "MorrayGlow-A1B2C3"
     WiFi.mode(WIFI_AP);
-    WiFi.softAP(AP_SSID);
-    Serial.printf("AP started — connect to '%s' and visit http://%s\n",
-                  AP_SSID, WiFi.softAPIP().toString().c_str());
+    WiFi.softAPConfig(IPAddress(10, 0, 0, 1), IPAddress(10, 0, 0, 1), IPAddress(255, 255, 255, 0));
+    WiFi.softAP(ssid.c_str());
+    Serial.printf("AP started — connect to '%s' and visit http://10.0.0.1\n", ssid.c_str());
 
     // Slow blink to indicate AP mode (distinct from boot blink)
-    for (int i = 0; i < 4; i++) {
-        digitalWrite(PIN_STATUS, HIGH);
-        delay(500);
-        digitalWrite(PIN_STATUS, LOW);
-        delay(500);
-    }
+    blinkStatus(4, 500, 500);
 }
 
 // ── Arduino lifecycle ────────────────────────────────────────────────────────
@@ -162,12 +182,9 @@ void setup() {
 
     setupNetwork();
 
-    ledcSetup(LEDC_CH_RED, LEDC_FREQ_HZ, LEDC_RESOLUTION);
-    ledcSetup(LEDC_CH_GREEN, LEDC_FREQ_HZ, LEDC_RESOLUTION);
-    ledcSetup(LEDC_CH_BLUE, LEDC_FREQ_HZ, LEDC_RESOLUTION);
-    ledcAttachPin(PIN_RED, LEDC_CH_RED);
-    ledcAttachPin(PIN_GREEN, LEDC_CH_GREEN);
-    ledcAttachPin(PIN_BLUE, LEDC_CH_BLUE);
+    setupLedChannel(LEDC_CH_RED,   PIN_RED);
+    setupLedChannel(LEDC_CH_GREEN, PIN_GREEN);
+    setupLedChannel(LEDC_CH_BLUE,  PIN_BLUE);
 
     // DigitalPinValue sets INPUT in its ctor; override immediately to INPUT_PULLUP.
     // highOn=false because the pin is active-low (INPUT_PULLUP, pressed = LOW).
@@ -177,13 +194,7 @@ void setup() {
 
     webserverSetup();
 
-    // Boot flash: 2 blinks on status LED
-    for (int i = 0; i < 2; i++) {
-        digitalWrite(PIN_STATUS, HIGH);
-        delay(200);
-        digitalWrite(PIN_STATUS, LOW);
-        delay(200);
-    }
+    blinkStatus(2, 200, 200);  // Boot flash: 2 blinks on status LED
 
     applyLedState();
     digitalWrite(PIN_STATUS, HIGH);
@@ -211,8 +222,8 @@ void loop() {
         digitalWrite(PIN_STATUS, HIGH);
     }
 
-    // ── Auto colour cycle every 3 s (paused while button held) ───────────────
-    if (!pBtn->isOn() && (now - lastColourChange >= COLOUR_CHANGE_INTERVAL_MS)) {
+    // ── Auto colour cycle every 3 s (only in cycle mode, paused while button held) ──
+    if (cycleMode && !pBtn->isOn() && (now - lastColourChange >= COLOUR_CHANGE_INTERVAL_MS)) {
         currentColour        = (currentColour + 1) % NUM_COLOURS;
         const Colour& c      = colourSequence[currentColour];
         ledOn                = true;

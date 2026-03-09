@@ -9,11 +9,12 @@ using String = std::string;
 
 #include <ArduinoJson.h>
 
-// Returns the full state as a JSON string: {"on":true,"color":"#rrggbb"}
-inline String stateToJson(bool on, const String& color) {
+// Returns the full state as a JSON string: {"on":true,"color":"#rrggbb","cycle":true}
+inline String stateToJson(bool on, const String& color, bool cycle) {
     JsonDocument doc;
     doc["on"]    = on;
     doc["color"] = color;
+    doc["cycle"] = cycle;
     String out;
     serializeJson(doc, out);
     return out;
@@ -30,10 +31,10 @@ inline String rgbToHex(int r, int g, int b) {
     return String(hex);
 }
 
-// Parses an MQTT command payload like {"state":"ON","color":{"r":255,"g":0,"b":0}}.
-// Populates outOn and outColor only when those keys are present.
+// Parses an MQTT command payload like {"state":"ON","color":{"r":255,"g":0,"b":0},"cycle":false}.
+// Populates out* only when those keys are present.
 // Returns false if the JSON is malformed; true otherwise.
-inline bool parseMqttCommand(const String& payload, bool& outOn, String& outColor) {
+inline bool parseMqttCommand(const String& payload, bool& outOn, String& outColor, bool& outCycle) {
     JsonDocument doc;
     if (deserializeJson(doc, payload) != DeserializationError::Ok) return false;
 
@@ -46,6 +47,9 @@ inline bool parseMqttCommand(const String& payload, bool& outOn, String& outColo
             doc["color"]["g"].as<int>(),
             doc["color"]["b"].as<int>()
         );
+    }
+    if (doc["cycle"].is<bool>()) {
+        outCycle = doc["cycle"].as<bool>();
     }
     return true;
 }

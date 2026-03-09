@@ -129,3 +129,37 @@ h1 {
     color: var(--muted);
     text-align: center;
 }
+
+/* Mode card row */
+.card-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mode-btn {
+    padding: 0.3rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid var(--on-color);
+    background: transparent;
+    color: var(--on-color);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: background 0.2s, color 0.2s;
+}
+
+.mode-btn.static {
+    border-color: var(--muted);
+    color: var(--muted);
+}
+
+/* Unobtrusive navigation link */
+.nav-link {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-decoration: none;
+}
+.nav-link:hover { color: var(--text); }

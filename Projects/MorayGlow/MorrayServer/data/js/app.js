@@ -4,11 +4,12 @@
     const powerBtn    = document.getElementById('power-btn');
     const powerLabel  = document.getElementById('power-label');
     const colorPicker = document.getElementById('color-picker');
+    const modeBtn     = document.getElementById('mode-btn');
     const statusEl    = document.getElementById('status');
     const ledStrip    = document.getElementById('led-strip');
     const leds        = ledStrip.querySelectorAll('.led');
 
-    let state         = { on: false, color: '#ffffff' };
+    let state         = { on: false, color: '#ffffff', cycle: true };
     let ws            = null;
     let colorDebounce = null;
 
@@ -16,13 +17,16 @@
 
     function applyState(s) {
         state                  = s;
+        const cycling          = s.cycle !== false;
         powerBtn.classList.toggle('on', s.on);
         powerLabel.textContent = s.on ? 'ON' : 'OFF';
         colorPicker.value      = s.color;
-        colorPicker.disabled   = !s.on;
+        colorPicker.disabled   = !s.on || cycling;
         ledStrip.style.setProperty('--color-glow', s.color);
         leds.forEach((led) => led.classList.toggle('lit', s.on));
-        ledStrip.classList.toggle('disabled', !s.on);
+        ledStrip.classList.toggle('disabled', !s.on || cycling);
+        modeBtn.textContent = cycling ? 'Cycling' : 'Static';
+        modeBtn.classList.toggle('static', !cycling);
     }
 
     function setStatus(msg) {
@@ -61,6 +65,8 @@
     }
 
     powerBtn.addEventListener('click', () => apiPost('/api/power', { on: !state.on }));
+
+    modeBtn.addEventListener('click', () => apiPost('/api/mode', { cycle: state.cycle === false }));
 
     colorPicker.addEventListener('input', (e) => {
         clearTimeout(colorDebounce);
