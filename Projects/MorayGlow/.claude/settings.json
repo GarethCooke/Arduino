@@ -7,7 +7,8 @@
       "Bash(git -C \"c:/Development/Arduino/Projects/MorayGlow\" show 57683c4 --stat)",
       "Read(//c/Users/garet/.claude/**)",
       "Bash(pio run -e xiao_esp32s3 -t upload)",
-      "Read(//c/Users/garet/**)"
+      "Read(//c/Users/garet/**)",
+      "Bash(arp -a)"
     ],
     "additionalDirectories": [
       "c:\\Development\\Arduino\\Common\\IguanaLib\\include"
