@@ -1,5 +1,6 @@
 #include "mqtt.h"
 #include "config.h"
+#include "state.h"
 #include "ble.h"
 #include <WiFi.h>
 #include <PubSubClient.h>
@@ -19,7 +20,7 @@ void MqttManager::onMessage(const char* topic, uint8_t* payload, unsigned int le
     Serial.printf("[MQTT] %s → %s\n", topic, msg);
 
     if (strcmp(topic, MQTT_TOPIC_COMMAND) == 0) {
-        if (strcmp(msg, MQTT_PAYLOAD_ON) == 0 || strcmp(msg, "1") == 0) {
+        if (parseBoostCommand(msg)) {
             Mqtt.publishState(true);  // optimistic ON
             Ble.trigger();
             // loop() will publish OFF once Ble.isRunning() drops to false
