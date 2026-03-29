@@ -1,7 +1,6 @@
 #include "mqtt.h"
 #include "config.h"
 #include "state.h"
-#include "ble.h"
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
@@ -19,11 +18,11 @@ void MqttManager::onMessage(const char* topic, uint8_t* payload, unsigned int le
     memcpy(msg, payload, min((size_t)length, sizeof(msg) - 1));
     Serial.printf("[MQTT] %s → %s\n", topic, msg);
 
-    if (strcmp(topic, MQTT_TOPIC_COMMAND) == 0) {
+    if (strcmp(topic, Mqtt._topicCommand.c_str()) == 0) {
         if (parseBoostCommand(msg)) {
             Mqtt.publishState(true);  // optimistic ON
-            Ble.trigger();
-            // loop() will publish OFF once Ble.isRunning() drops to false
+            if (Mqtt._commandCallback) Mqtt._commandCallback();
+            // loop() will publish OFF once the BLE task completes
         }
         // Ignore "OFF" — boost is a one-shot action, not a toggle
     }
@@ -31,10 +30,11 @@ void MqttManager::onMessage(const char* topic, uint8_t* payload, unsigned int le
 
 void MqttManager::publishDiscovery() {
     JsonDocument doc;
+    String entityId      = String("whisperbridge_") + _deviceId;
     doc["name"]          = "Boost";
-    doc["unique_id"]     = String("whisperbridge_") + _deviceId + "_boost";
-    doc["command_topic"] = MQTT_TOPIC_COMMAND;
-    doc["state_topic"]   = MQTT_TOPIC_STATE;
+    doc["unique_id"]     = entityId + "_boost";
+    doc["command_topic"] = _topicCommand;
+    doc["state_topic"]   = _topicState;
     doc["payload_on"]    = MQTT_PAYLOAD_ON;
     doc["payload_off"]   = MQTT_PAYLOAD_OFF;
     doc["optimistic"]    = false;
@@ -45,12 +45,15 @@ void MqttManager::publishDiscovery() {
     dev["name"]           = "WhisperBridge";
     dev["model"]          = "WhisperBridge v1";
     dev["manufacturer"]   = "Custom";
-    dev["identifiers"][0] = String("whisperbridge_") + _deviceId;
+    dev["identifiers"][0] = entityId;
 
     char buf[512];
     serializeJson(doc, buf, sizeof(buf));
-    s_mqtt.publish(MQTT_TOPIC_DISCOVERY, buf, /*retain=*/true);
-    Serial.println("[MQTT] HA discovery published");
+    if (!s_mqtt.publish(_topicDiscovery.c_str(), buf, /*retain=*/true)) {
+        Serial.println("[MQTT] Discovery publish failed");
+    } else {
+        Serial.println("[MQTT] HA discovery published");
+    }
 }
 
 void MqttManager::connect() {
@@ -61,7 +64,7 @@ void MqttManager::connect() {
 
     if (ok) {
         Serial.println("[MQTT] Connected");
-        s_mqtt.subscribe(MQTT_TOPIC_COMMAND);
+        s_mqtt.subscribe(_topicCommand.c_str());
         publishDiscovery();
         publishState(false);
     } else {
@@ -72,7 +75,10 @@ void MqttManager::connect() {
 // ── Public API ────────────────────────────────────────────────────────────────
 
 void MqttManager::setup(const char* deviceId) {
-    _deviceId = deviceId;
+    strncpy(_deviceId, deviceId, sizeof(_deviceId) - 1);
+    _topicCommand   = String("whisperbridge/") + _deviceId + "/boost";
+    _topicState     = String("whisperbridge/") + _deviceId + "/boost/state";
+    _topicDiscovery = String("homeassistant/switch/whisperbridge_") + _deviceId + "_boost/config";
     s_mqtt.setServer(MQTT_HOST, MQTT_PORT);
     s_mqtt.setCallback(onMessage);
     s_mqtt.setBufferSize(512);
@@ -91,5 +97,9 @@ void MqttManager::loop() {
 }
 
 void MqttManager::publishState(bool on) {
-    s_mqtt.publish(MQTT_TOPIC_STATE, on ? MQTT_PAYLOAD_ON : MQTT_PAYLOAD_OFF, /*retain=*/true);
+    s_mqtt.publish(_topicState.c_str(), on ? MQTT_PAYLOAD_ON : MQTT_PAYLOAD_OFF, /*retain=*/true);
+}
+
+void MqttManager::setCommandCallback(CommandCallback cb) {
+    _commandCallback = cb;
 }

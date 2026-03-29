@@ -17,7 +17,8 @@
 static Preferences    s_prefs;
 static AsyncWebServer s_server(80);
 static DNSServer      s_dns;
-static bool           s_apMode   = false;
+static bool           s_apMode        = false;
+static bool           s_pendingRestart = false;
 static String         s_deviceId;  // set once in setup()
 
 // ── WiFi scan (AP mode only) ───────────────────────────────────────────────────
@@ -42,7 +43,8 @@ static void pollScan() {
 static String getDeviceId() {
     uint8_t mac[6];
     WiFi.macAddress(mac);
-    char id[8];
+    // mac[0..5] = most- to least-significant; use last 3 bytes for a short unique suffix
+    char id[7];  // 6 hex chars + null terminator
     snprintf(id, sizeof(id), "%02x%02x%02x", mac[3], mac[4], mac[5]);
     return String(id);
 }
@@ -83,11 +85,12 @@ static bool connectWifi() {
 // ── AP / captive-portal mode ──────────────────────────────────────────────────
 
 static void startAP() {
+    const IPAddress apIp(10, 0, 0, 1);
     s_apMode = true;
     WiFi.mode(WIFI_AP);
-    WiFi.softAPConfig(IPAddress(10,0,0,1), IPAddress(10,0,0,1), IPAddress(255,255,255,0));
+    WiFi.softAPConfig(apIp, apIp, IPAddress(255, 255, 255, 0));
     WiFi.softAP(WIFI_AP_SSID, WIFI_AP_PASSWORD);
-    s_dns.start(53, "*", IPAddress(10,0,0,1));
+    s_dns.start(53, "*", apIp);
     Serial.printf("[WiFi] AP started: %s  IP: 10.0.0.1\n", WIFI_AP_SSID);
 
     registerCommonEndpoints();
@@ -137,7 +140,8 @@ static void startAP() {
         req->send(200, "application/json", output);
     });
 
-    // Save credentials and reboot
+    // Save credentials — schedule restart via loop() to avoid calling delay/restart
+    // from within an AsyncWebServer callback (runs on the lwIP task, not loopTask)
     s_server.on("/api/networkset", HTTP_POST,
         [](AsyncWebServerRequest* req) {},
         nullptr,
@@ -153,8 +157,7 @@ static void startAP() {
             s_prefs.putString("pass", doc["password"] | "");
             s_prefs.end();
             req->send(200, "application/json", "{\"ok\":true}");
-            delay(500);
-            ESP.restart();
+            s_pendingRestart = true;
         }
     );
 
@@ -191,9 +194,9 @@ static void startStation() {
         doc["ble_ok"]  = Ble.lastSuccess();
         doc["ip"]      = WiFi.localIP().toString();
         doc["rssi"]    = WiFi.RSSI();
-        char buf[256];
-        serializeJson(doc, buf, sizeof(buf));
-        req->send(200, "application/json", buf);
+        String output;
+        serializeJson(doc, output);
+        req->send(200, "application/json", output);
     });
 
     s_server.on("/api/boost", HTTP_POST, [](AsyncWebServerRequest* req) {
@@ -208,6 +211,7 @@ static void startStation() {
     s_server.serveStatic("/", LittleFS, "/").setDefaultFile("index.html");
     s_server.begin();
 
+    Mqtt.setCommandCallback([]() { Ble.trigger(); });
     Mqtt.setup(s_deviceId.c_str());
 }
 
@@ -237,6 +241,7 @@ void loop() {
     if (s_apMode) {
         s_dns.processNextRequest();
         pollScan();
+        if (s_pendingRestart) { delay(500); ESP.restart(); }
         return;
     }
 

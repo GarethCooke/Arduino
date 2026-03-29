@@ -11,34 +11,23 @@ void BleBoost::cleanup(NimBLEClient* client) {
     NimBLEDevice::deleteClient(client);
 }
 
-void BleBoost::abandon(NimBLEClient* client, const char* verb, const char* subject) {
-    Serial.printf("[BLE] %s %s\n", verb, subject);
-    cleanup(client);
-}
-
 NimBLERemoteCharacteristic* BleBoost::getChar(
         NimBLEClient* client,
         const char* svcUuid, const char* charUuid,
         const char* svcLabel, const char* charLabel) {
-    auto fail = [&](const char* label) -> NimBLERemoteCharacteristic* {
-        abandon(client, label, "not found");
-        return nullptr;
-    };
-
     NimBLERemoteService* svc = client->getService(svcUuid);
-    if (!svc) return fail(svcLabel);
+    if (!svc) { Serial.printf("[BLE] %s not found\n", svcLabel); return nullptr; }
 
     NimBLERemoteCharacteristic* ch = svc->getCharacteristic(charUuid);
-    if (!ch) return fail(charLabel);
+    if (!ch) { Serial.printf("[BLE] %s not found\n", charLabel); return nullptr; }
     return ch;
 }
 
-bool BleBoost::writeChar(NimBLEClient* client,
-                         NimBLERemoteCharacteristic* ch,
+bool BleBoost::writeChar(NimBLERemoteCharacteristic* ch,
                          const uint8_t* data, size_t len,
                          const char* label) {
     if (!ch->writeValue(data, len, true)) {
-        abandon(client, "Write failed:", label);
+        Serial.printf("[BLE] Write failed: %s\n", label);
         return false;
     }
     Serial.printf("[BLE] Written: %s\n", label);
@@ -59,19 +48,17 @@ bool BleBoost::runSequence() {
     NimBLERemoteCharacteristic* authChar = getChar(client,
         BLE_AUTH_SERVICE_UUID, BLE_AUTH_CHAR_UUID,
         "Auth service", "Auth characteristic");
-    if (!authChar) return false;
+    if (!authChar) { cleanup(client); return false; }
 
-    uint8_t pin[] = BLE_PIN_BYTES;
-    if (!writeChar(client, authChar, pin, sizeof(pin), "PIN")) return false;
+    if (!writeChar(authChar, BLE_PIN_BYTES, sizeof(BLE_PIN_BYTES), "PIN")) { cleanup(client); return false; }
     vTaskDelay(pdMS_TO_TICKS(200));  // brief settle after auth
 
     NimBLERemoteCharacteristic* cmdChar = getChar(client,
         BLE_CMD_SERVICE_UUID, BLE_CMD_CHAR_UUID,
         "Command service", "Command characteristic");
-    if (!cmdChar) return false;
+    if (!cmdChar) { cleanup(client); return false; }
 
-    uint8_t boost[] = BLE_BOOST_BYTES;
-    if (!writeChar(client, cmdChar, boost, sizeof(boost), "Boost command")) return false;
+    if (!writeChar(cmdChar, BLE_BOOST_BYTES, sizeof(BLE_BOOST_BYTES), "Boost command")) { cleanup(client); return false; }
 
     cleanup(client);
     return true;
@@ -93,7 +80,7 @@ void BleBoost::taskEntry(void* param) {
 
 void BleBoost::setup() {
     NimBLEDevice::init("");
-    NimBLEDevice::setPower(ESP_PWR_LVL_P9);
+    NimBLEDevice::setPower(ESP_PWR_LVL_P9);  // max TX power — fan may be across the room or through a wall
     xTaskCreate(taskEntry, "ble_boost", 8192, this, 5,
                 reinterpret_cast<TaskHandle_t*>(&_task));
     Serial.println("[BLE] Ready");
