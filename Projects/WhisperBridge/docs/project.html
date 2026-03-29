@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhisperBridge — Project Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  /* ── MD3 Design Tokens (dark scheme) ────────────────────────────── */
+  :root {
+    --md-primary:           #82b4ff;
+    --md-on-primary:        #003063;
+    --md-primary-container: #00458e;
+    --md-on-primary-cont:   #d6e3ff;
+
+    --md-secondary:         #b8c8e8;
+    --md-on-secondary:      #223249;
+
+    --md-tertiary:          #d6bee4;
+    --md-on-tertiary:       #3b2948;
+
+    --md-error:             #ffb4ab;
+    --md-error-container:   #93000a;
+
+    --md-surface:           #111318;
+    --md-surface-1:         #1d2029;   /* +5% primary tint */
+    --md-surface-2:         #222532;
+    --md-surface-3:         #272b3b;
+    --md-surface-4:         #2c3145;
+    --md-on-surface:        #e2e2e9;
+    --md-on-surface-var:    #c5c6d0;
+    --md-outline:           #8f909a;
+    --md-outline-var:       #44464f;
+
+    --md-warning:           #ffb74d;
+    --md-warning-container:#3d2000;
+    --md-success:           #79d47f;
+    --md-success-container:#003910;
+
+    --md-shape-xs:  4px;
+    --md-shape-sm:  8px;
+    --md-shape-md:  12px;
+    --md-shape-lg:  16px;
+    --md-shape-xl:  28px;
+    --md-shape-full:9999px;
+
+    --md-elev1: 0 1px 2px rgba(0,0,0,.3), 0 1px 3px 1px rgba(0,0,0,.15);
+    --md-elev2: 0 1px 2px rgba(0,0,0,.3), 0 2px 6px 2px rgba(0,0,0,.15);
+    --md-elev3: 0 4px 8px 3px rgba(0,0,0,.15), 0 1px 3px rgba(0,0,0,.3);
+  }
+
+  /* ── Reset & Base ────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Roboto", sans-serif;
+    background: var(--md-surface);
+    color: var(--md-on-surface);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+  a { color: var(--md-primary); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  strong { color: var(--md-on-surface); font-weight: 500; }
+
+  /* ── Navigation rail (left sidebar) ─────────────────────────────── */
+  .nav {
+    position: fixed; top: 0; left: 0; bottom: 0; width: 80px;
+    background: var(--md-surface-1);
+    border-right: 1px solid var(--md-outline-var);
+    display: flex; flex-direction: column; align-items: center;
+    padding: 1rem 0; gap: 0.25rem; z-index: 100;
+  }
+  .nav-logo {
+    width: 48px; height: 48px; border-radius: var(--md-shape-md);
+    background: var(--md-primary-container);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem;
+  }
+  .nav-logo .material-icons { color: var(--md-on-primary-cont); font-size: 28px; }
+  .nav-item {
+    width: 56px; padding: 0.4rem 0; border-radius: var(--md-shape-full);
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0.2rem; cursor: pointer; text-decoration: none;
+    transition: background 0.2s;
+    color: var(--md-on-surface-var); font-size: 10px;
+  }
+  .nav-item:hover { background: rgba(130,180,255,.1); text-decoration: none; }
+  .nav-item.active { color: var(--md-primary); }
+  .nav-item.active .nav-pill {
+    background: var(--md-primary-container); width: 56px; height: 32px;
+    border-radius: var(--md-shape-full);
+  }
+  .nav-pill { width: 56px; height: 32px; display: flex; align-items: center; justify-content: center; }
+  .nav-item .material-icons { font-size: 22px; }
+
+  /* ── Main layout ─────────────────────────────────────────────────── */
+  .layout { margin-left: 80px; }
+
+  /* ── Hero header ─────────────────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(135deg, #001a3d 0%, #0a0e1a 50%, #1a0a2a 100%);
+    padding: 4rem 3rem 3rem;
+    border-bottom: 1px solid var(--md-outline-var);
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -80px; right: -80px;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(130,180,255,0.08) 0%, transparent 70%);
+  }
+  .hero::after {
+    content: '';
+    position: absolute; bottom: -60px; left: 20%;
+    width: 200px; height: 200px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(214,190,228,0.06) 0%, transparent 70%);
+  }
+  .hero-inner { max-width: 1100px; position: relative; z-index: 1; }
+  .hero-eyebrow {
+    display: flex; align-items: center; gap: 0.5rem;
+    color: var(--md-primary); font-size: 0.75rem; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem;
+  }
+  .hero-eyebrow .material-icons { font-size: 16px; }
+  .hero h1 {
+    font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; color: #fff;
+    letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 0.75rem;
+  }
+  .hero h1 span { color: var(--md-primary); font-weight: 400; }
+  .hero-sub {
+    font-size: 1rem; color: var(--md-on-surface-var); margin-bottom: 2rem;
+    max-width: 540px;
+  }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    background: rgba(130,180,255,0.12); color: var(--md-primary);
+    border: 1px solid rgba(130,180,255,0.25); border-radius: var(--md-shape-full);
+    padding: 0.25rem 0.75rem; font-size: 0.78rem; font-weight: 500;
+  }
+  .chip.green  { background: rgba(121,212,127,0.1); color: var(--md-success); border-color: rgba(121,212,127,0.25); }
+  .chip.amber  { background: rgba(255,183,77,0.1);  color: var(--md-warning); border-color: rgba(255,183,77,0.25); }
+  .chip.purple { background: rgba(214,190,228,0.1); color: var(--md-tertiary); border-color: rgba(214,190,228,0.25); }
+  .chip .material-icons { font-size: 14px; }
+
+  /* ── Content area ────────────────────────────────────────────────── */
+  .content { max-width: 1100px; padding: 2.5rem 3rem; }
+
+  /* ── Section headings ────────────────────────────────────────────── */
+  .section { margin-bottom: 3rem; scroll-margin-top: 1rem; }
+  .section-header {
+    display: flex; align-items: center; gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .section-icon {
+    width: 40px; height: 40px; border-radius: var(--md-shape-sm);
+    background: var(--md-primary-container);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .section-icon .material-icons { color: var(--md-on-primary-cont); font-size: 20px; }
+  .section-icon.green  { background: var(--md-success-container); }
+  .section-icon.green .material-icons  { color: var(--md-success); }
+  .section-icon.amber  { background: var(--md-warning-container); }
+  .section-icon.amber .material-icons  { color: var(--md-warning); }
+  .section-icon.purple { background: rgba(59,41,72,0.8); }
+  .section-icon.purple .material-icons { color: var(--md-tertiary); }
+  h2 {
+    font-size: 1.25rem; font-weight: 500; color: var(--md-on-surface);
+    letter-spacing: 0.01em;
+  }
+  h3 {
+    font-size: 0.95rem; font-weight: 500; color: var(--md-primary);
+    margin: 1.5rem 0 0.6rem; display: flex; align-items: center; gap: 0.4rem;
+  }
+  h3::before { content: ''; display: block; width: 3px; height: 1em; background: var(--md-primary); border-radius: 2px; }
+
+  p  { color: var(--md-on-surface-var); margin-bottom: 0.9rem; font-size: 0.9rem; }
+  ul, ol { margin: 0.5rem 0 0.9rem 1.5rem; color: var(--md-on-surface-var); font-size: 0.9rem; }
+  li { margin-bottom: 0.4rem; }
+
+  /* ── Cards ───────────────────────────────────────────────────────── */
+  .card {
+    background: var(--md-surface-1); border-radius: var(--md-shape-lg);
+    border: 1px solid var(--md-outline-var); padding: 1.5rem;
+    margin-bottom: 1rem; box-shadow: var(--md-elev1);
+  }
+  .card-row { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .card-row .card { flex: 1; min-width: 200px; margin-bottom: 0; }
+  .card-label { font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--md-outline); margin-bottom: 0.4rem; }
+  .card-value { font-size: 0.9rem; color: var(--md-on-surface); }
+  .card-value small { color: var(--md-outline); }
+
+  /* ── Flow diagram ────────────────────────────────────────────────── */
+  .flow-diagram {
+    background: var(--md-surface-1); border: 1px solid var(--md-outline-var);
+    border-radius: var(--md-shape-lg); padding: 2rem 1.5rem;
+    margin: 1.25rem 0; overflow-x: auto;
+  }
+  .flow {
+    display: flex; align-items: stretch; flex-wrap: nowrap;
+    gap: 0; min-width: 600px;
+  }
+  .flow-node {
+    flex: 1; background: var(--md-surface-2);
+    border: 1px solid var(--md-outline-var); border-radius: var(--md-shape-md);
+    padding: 1rem 0.75rem; text-align: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 0.25rem; transition: border-color 0.2s;
+  }
+  .flow-node:hover { border-color: var(--md-primary); }
+  .flow-node .material-icons { font-size: 24px; color: var(--md-primary); margin-bottom: 0.25rem; }
+  .flow-node.green .material-icons  { color: var(--md-success); }
+  .flow-node.amber  .material-icons { color: var(--md-warning); }
+  .flow-node.purple .material-icons { color: var(--md-tertiary); }
+  .flow-node strong { font-size: 0.85rem; color: var(--md-on-surface); font-weight: 500; display: block; }
+  .flow-node small  { font-size: 0.72rem; color: var(--md-outline); display: block; }
+  .flow-node .flow-topic { font-size: 0.65rem; color: var(--md-primary); margin-top: 0.3rem; font-family: "Roboto Mono", monospace; }
+  .flow-connector {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 0 0.4rem; min-width: 44px; gap: 0.15rem;
+  }
+  .flow-connector .material-icons { font-size: 18px; color: var(--md-primary); }
+  .flow-connector.ble .material-icons { color: var(--md-tertiary); }
+  .flow-connector span { font-size: 0.6rem; color: var(--md-outline); text-align: center; }
+
+  /* ── Schematic ───────────────────────────────────────────────────── */
+  .schematic-card {
+    background: var(--md-surface-1); border: 1px solid var(--md-outline-var);
+    border-radius: var(--md-shape-lg); padding: 1.5rem;
+    margin: 1.25rem 0; box-shadow: var(--md-elev2);
+  }
+  .schematic-card svg { display: block; width: 100%; height: auto; }
+
+  /* ── Tables ──────────────────────────────────────────────────────── */
+  .table-wrap { border-radius: var(--md-shape-md); overflow: hidden; border: 1px solid var(--md-outline-var); margin: 1rem 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+  thead tr { background: var(--md-surface-3); }
+  th { padding: 0.75rem 1rem; text-align: left; color: var(--md-on-surface); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  td { padding: 0.7rem 1rem; border-top: 1px solid var(--md-outline-var); color: var(--md-on-surface-var); vertical-align: top; }
+  tbody tr:hover { background: rgba(130,180,255,0.04); }
+  td:first-child { color: var(--md-on-surface); font-weight: 500; font-family: "Roboto Mono", monospace; font-size: 0.82rem; }
+
+  /* ── Code ────────────────────────────────────────────────────────── */
+  .code-block {
+    background: #0d1117; border: 1px solid var(--md-outline-var);
+    border-radius: var(--md-shape-md); overflow: hidden; margin: 0.8rem 0 1.2rem;
+  }
+  .code-header {
+    background: var(--md-surface-3); padding: 0.5rem 1rem;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--md-outline-var);
+  }
+  .code-header span { font-size: 0.75rem; color: var(--md-outline); font-family: "Roboto Mono", monospace; }
+  .code-header .material-icons { font-size: 16px; color: var(--md-outline); cursor: pointer; }
+  .code-header .material-icons:hover { color: var(--md-primary); }
+  pre { padding: 1rem 1.25rem; overflow-x: auto; font-size: 0.82rem; line-height: 1.6; background: transparent; border: none; border-radius: 0; margin: 0; }
+  code { font-family: "Roboto Mono", monospace; color: #c9d1d9; }
+  p code, li code {
+    background: var(--md-surface-3); padding: 0.1em 0.45em;
+    border-radius: var(--md-shape-xs); font-size: 0.82em;
+    color: var(--md-primary); font-family: "Roboto Mono", monospace;
+    border: 1px solid var(--md-outline-var);
+  }
+
+  /* ── Alert banners ───────────────────────────────────────────────── */
+  .alert {
+    display: flex; gap: 0.75rem; align-items: flex-start;
+    border-radius: var(--md-shape-md); padding: 0.9rem 1rem;
+    margin: 1rem 0; font-size: 0.875rem;
+  }
+  .alert .material-icons { font-size: 20px; flex-shrink: 0; margin-top: 0.1rem; }
+  .alert-body { color: var(--md-on-surface-var); }
+  .alert-body strong { color: var(--md-on-surface); }
+  .alert.info    { background: rgba(130,180,255,0.08); border: 1px solid rgba(130,180,255,0.2); }
+  .alert.info    .material-icons { color: var(--md-primary); }
+  .alert.warning { background: rgba(255,183,77,0.08);  border: 1px solid rgba(255,183,77,0.2); }
+  .alert.warning .material-icons { color: var(--md-warning); }
+
+  /* ── Steps ───────────────────────────────────────────────────────── */
+  .steps { display: flex; flex-direction: column; gap: 0; margin: 1rem 0; }
+  .step  { display: flex; gap: 1rem; padding: 1rem 0; position: relative; }
+  .step:not(:last-child)::after {
+    content: ''; position: absolute; left: 19px; top: 48px; bottom: 0;
+    width: 2px; background: var(--md-outline-var);
+  }
+  .step-num {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    background: var(--md-primary-container);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.9rem; color: var(--md-on-primary-cont);
+    position: relative; z-index: 1;
+  }
+  .step-body h3 { margin-top: 0.5rem; }
+  .step-body p  { margin-bottom: 0.5rem; }
+
+  /* ── BLE sequence steps ──────────────────────────────────────────── */
+  .ble-steps { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; }
+  .ble-step {
+    display: flex; align-items: center; gap: 1rem;
+    background: var(--md-surface-2); border: 1px solid var(--md-outline-var);
+    border-radius: var(--md-shape-md); padding: 0.75rem 1rem;
+    transition: border-color 0.15s;
+  }
+  .ble-step:hover { border-color: var(--md-primary); }
+  .ble-step-n {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    background: var(--md-primary-container); color: var(--md-on-primary-cont);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700;
+  }
+  .ble-step-text { font-size: 0.875rem; color: var(--md-on-surface-var); flex: 1; }
+  .ble-step-text strong { color: var(--md-on-surface); }
+
+  /* ── Footer ──────────────────────────────────────────────────────── */
+  /* ── Reference links ─────────────────────────────────────────────── */
+  .ref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+  .ref-card {
+    background: var(--md-surface-1); border: 1px solid var(--md-outline-var);
+    border-radius: var(--md-shape-lg); padding: 1rem 1.1rem;
+    display: flex; align-items: flex-start; gap: 0.85rem;
+    text-decoration: none; color: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .ref-card:hover { border-color: var(--md-primary); box-shadow: var(--md-elev2); text-decoration: none; }
+  .ref-icon {
+    width: 38px; height: 38px; border-radius: var(--md-shape-sm); flex-shrink: 0;
+    background: var(--md-primary-container);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ref-icon .material-icons { font-size: 20px; color: var(--md-on-primary-cont); }
+  .ref-icon.green  { background: var(--md-success-container); }
+  .ref-icon.green  .material-icons { color: var(--md-success); }
+  .ref-icon.amber  { background: var(--md-warning-container); }
+  .ref-icon.amber  .material-icons { color: var(--md-warning); }
+  .ref-icon.purple { background: rgba(59,41,72,0.8); }
+  .ref-icon.purple .material-icons { color: var(--md-tertiary); }
+  .ref-icon.red    { background: rgba(147,0,10,0.4); }
+  .ref-icon.red    .material-icons { color: var(--md-error); }
+  .ref-title { font-size: 0.9rem; font-weight: 500; color: var(--md-on-surface); display: block; margin-bottom: 0.2rem; }
+  .ref-desc  { font-size: 0.78rem; color: var(--md-outline); line-height: 1.4; display: block; }
+
+  footer {
+    border-top: 1px solid var(--md-outline-var); margin-left: 80px;
+    padding: 1.5rem 3rem; display: flex; align-items: center; gap: 0.5rem;
+    color: var(--md-outline); font-size: 0.8rem;
+  }
+  footer .material-icons { font-size: 16px; }
+
+  /* ── Responsive ──────────────────────────────────────────────────── */
+  @media (max-width: 700px) {
+    .nav { display: none; }
+    .layout, footer { margin-left: 0; }
+    .hero, .content { padding: 2rem 1.25rem; }
+    .flow { flex-wrap: wrap; min-width: unset; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Navigation Rail ───────────────────────────────────────────────── -->
+<nav class="nav">
+  <div class="nav-logo">
+    <span class="material-icons">router</span>
+  </div>
+  <a href="#overview"   class="nav-item active">
+    <div class="nav-pill"><span class="material-icons">info</span></div>
+    <span>Overview</span>
+  </a>
+  <a href="#hardware"   class="nav-item">
+    <div class="nav-pill"><span class="material-icons">memory</span></div>
+    <span>Hardware</span>
+  </a>
+  <a href="#schematic"  class="nav-item">
+    <div class="nav-pill"><span class="material-icons">schema</span></div>
+    <span>Wiring</span>
+  </a>
+  <a href="#software"   class="nav-item">
+    <div class="nav-pill"><span class="material-icons">code</span></div>
+    <span>Software</span>
+  </a>
+  <a href="#mqtt"       class="nav-item">
+    <div class="nav-pill"><span class="material-icons">hub</span></div>
+    <span>MQTT</span>
+  </a>
+  <a href="#structure"  class="nav-item">
+    <div class="nav-pill"><span class="material-icons">folder_open</span></div>
+    <span>Files</span>
+  </a>
+  <a href="#refs" class="nav-item">
+    <div class="nav-pill"><span class="material-icons">menu_book</span></div>
+    <span>Docs</span>
+  </a>
+</nav>
+
+<div class="layout">
+
+<!-- ── Hero ──────────────────────────────────────────────────────────── -->
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">
+      <span class="material-icons">bluetooth</span>
+      ESP32 Firmware Project
+    </div>
+    <h1>Whisper<span>Bridge</span></h1>
+    <p class="hero-sub">
+      BLE &rarr; MQTT bridge for the Vent-Axia Svara bathroom fan.
+      Sits on your WiFi network and translates Home Assistant commands into Bluetooth sequences.
+    </p>
+    <div class="chip-row">
+      <span class="chip"><span class="material-icons">developer_board</span>ESP32 DevKit V1</span>
+      <span class="chip"><span class="material-icons">bluetooth</span>NimBLE</span>
+      <span class="chip"><span class="material-icons">hub</span>MQTT</span>
+      <span class="chip green"><span class="material-icons">home</span>Home Assistant</span>
+      <span class="chip amber"><span class="material-icons">settings</span>FreeRTOS</span>
+      <span class="chip purple"><span class="material-icons">science</span>PlatformIO</span>
+    </div>
+  </div>
+</header>
+
+<main class="content">
+
+  <!-- ── Overview ──────────────────────────────────────────────────── -->
+  <section class="section" id="overview">
+    <div class="section-header">
+      <div class="section-icon"><span class="material-icons">info</span></div>
+      <h2>Overview</h2>
+    </div>
+
+    <p>
+      WhisperBridge is an ESP32-based bridge that allows a Vent-Axia Svara bathroom extractor fan
+      to be controlled by Home Assistant (or any MQTT client). The fan itself is only controllable
+      via Bluetooth Low Energy — there is no WiFi on the fan. WhisperBridge provides the translation
+      layer: it sits on your WiFi network, subscribes to an MQTT topic, and when an <code>ON</code>
+      command arrives it connects to the fan over BLE, authenticates, sends the boost command, and
+      disconnects.
+    </p>
+    <p>
+      Because the ESP32 handles all BLE communication wirelessly, <strong>there is no physical wiring
+      to the fan</strong>. The only real-world connections are power to the ESP32 and optionally a
+      status LED.
+    </p>
+
+    <h3>Control Flow</h3>
+    <div class="flow-diagram">
+      <div class="flow">
+        <div class="flow-node">
+          <span class="material-icons">record_voice_over</span>
+          <strong>Alexa</strong>
+          <small>Voice command</small>
+        </div>
+        <div class="flow-connector">
+          <span class="material-icons">arrow_forward</span>
+          <span>intent</span>
+        </div>
+        <div class="flow-node green">
+          <span class="material-icons">home</span>
+          <strong>Home Assistant</strong>
+          <small>Automation / switch</small>
+        </div>
+        <div class="flow-connector">
+          <span class="material-icons">arrow_forward</span>
+          <span>publish</span>
+        </div>
+        <div class="flow-node amber">
+          <span class="material-icons">hub</span>
+          <strong>Mosquitto</strong>
+          <small>MQTT broker</small>
+          <span class="flow-topic">whisperbridge/&lt;id&gt;/boost</span>
+        </div>
+        <div class="flow-connector">
+          <span class="material-icons">arrow_forward</span>
+          <span>subscribe</span>
+        </div>
+        <div class="flow-node">
+          <span class="material-icons">router</span>
+          <strong>WhisperBridge</strong>
+          <small>ESP32 — this device</small>
+        </div>
+        <div class="flow-connector ble">
+          <span class="material-icons">bluetooth</span>
+          <span>BLE GATT</span>
+        </div>
+        <div class="flow-node purple">
+          <span class="material-icons">air</span>
+          <strong>Svara Fan</strong>
+          <small>Vent-Axia</small>
+        </div>
+      </div>
+    </div>
+
+    <h3>BLE Sequence</h3>
+    <p>WhisperBridge performs this sequence on every boost command:</p>
+    <div class="ble-steps">
+      <div class="ble-step"><div class="ble-step-n">1</div><div class="ble-step-text">Connect to the fan by <strong>MAC address</strong></div></div>
+      <div class="ble-step"><div class="ble-step-n">2</div><div class="ble-step-text">Write 4-byte PIN to auth characteristic: <code>e3 14 62 05</code></div></div>
+      <div class="ble-step"><div class="ble-step-n">3</div><div class="ble-step-text">Wait <strong>200 ms</strong> for the fan to validate the PIN</div></div>
+      <div class="ble-step"><div class="ble-step-n">4</div><div class="ble-step-text">Write 5-byte boost payload to command characteristic: <code>01 60 09 84 03</code></div></div>
+      <div class="ble-step"><div class="ble-step-n">5</div><div class="ble-step-text">Disconnect cleanly</div></div>
+    </div>
+
+    <div class="alert info">
+      <span class="material-icons">info</span>
+      <div class="alert-body">
+        The entire BLE sequence runs in a dedicated <strong>FreeRTOS task</strong> so the
+        WiFi stack, MQTT client, and web server continue to respond while the (slow) BLE
+        connection is in progress.
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Hardware ───────────────────────────────────────────────────── -->
+  <section class="section" id="hardware">
+    <div class="section-header">
+      <div class="section-icon green"><span class="material-icons">memory</span></div>
+      <h2>Hardware Required</h2>
+    </div>
+
+    <div class="card-row">
+      <div class="card">
+        <div class="card-label">Microcontroller</div>
+        <div class="card-value">ESP32 DevKit V1<br><small>or any 38-pin ESP32 dev board</small></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Power</div>
+        <div class="card-value">5 V USB supply, 1 A min<br><small>Micro-USB cable for first flash</small></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Optional</div>
+        <div class="card-value">3 mm LED + 330 &Omega; resistor<br><small>Visual status indicator</small></div>
+      </div>
+    </div>
+
+    <div class="alert info">
+      <span class="material-icons">bluetooth</span>
+      <div class="alert-body">
+        The Vent-Axia Svara communicates entirely over BLE — <strong>no wires connect the ESP32 to the fan</strong>.
+        Place the ESP32 within BLE range. The firmware sets TX power to maximum
+        (<code>ESP_PWR_LVL_P9</code>, +9 dBm) to maximise range through walls.
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Schematic ──────────────────────────────────────────────────── -->
+  <section class="section" id="schematic">
+    <div class="section-header">
+      <div class="section-icon amber"><span class="material-icons">schema</span></div>
+      <h2>Schematic / Wiring Diagram</h2>
+    </div>
+    <p>The minimal build requires only USB power. The optional status LED wiring is shown on the right.</p>
+
+    <div class="schematic-card">
+      <svg width="780" height="410" viewBox="0 0 780 410" xmlns="http://www.w3.org/2000/svg"
+           font-family="'Roboto Mono', monospace" font-size="11">
+
+        <rect width="780" height="410" fill="#0d1117" rx="10"/>
+
+        <!-- ── Grid dots ─────────────────────────────────────────── -->
+        <pattern id="grid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+          <circle cx="10" cy="10" r="0.8" fill="#1e2a3a"/>
+        </pattern>
+        <rect width="780" height="410" fill="url(#grid)" rx="10"/>
+
+        <!-- ── USB Power Supply ──────────────────────────────────── -->
+        <rect x="22" y="148" width="108" height="72" rx="8" fill="#0d1a0d" stroke="#4caf50" stroke-width="1.5"/>
+        <text x="76" y="172" text-anchor="middle" fill="#4caf50" font-weight="bold" font-size="12">USB PSU</text>
+        <text x="76" y="189" text-anchor="middle" fill="#666" font-size="10">5 V / 1 A min</text>
+        <text x="76" y="204" text-anchor="middle" fill="#555" font-size="9">phone charger OK</text>
+        <!-- USB-A connector sketch -->
+        <rect x="126" y="165" width="8" height="22" rx="2" fill="#4caf50" opacity="0.8"/>
+        <rect x="128" y="169" width="4" height="14" rx="1" fill="#0d1a0d"/>
+
+        <!-- ── ESP32 DevKit V1 ────────────────────────────────────── -->
+        <!-- Board shadow -->
+        <rect x="276" y="68" width="204" height="284" rx="10" fill="rgba(0,70,142,0.15)"/>
+        <!-- Board body -->
+        <rect x="272" y="64" width="204" height="284" rx="10" fill="#101828" stroke="#82b4ff" stroke-width="2"/>
+
+        <!-- PCB traces visual -->
+        <rect x="284" y="76" width="180" height="260" rx="6" fill="#0a1520" stroke="#1a2a3a" stroke-width="1"/>
+
+        <!-- Title bar -->
+        <rect x="284" y="76" width="180" height="28" rx="6" fill="#0d2040"/>
+        <text x="374" y="95" text-anchor="middle" fill="#82b4ff" font-weight="bold" font-size="12">ESP32 DevKit V1</text>
+
+        <!-- Left pin header (gold) -->
+        <rect x="272" y="112" width="14" height="220" rx="3" fill="#1a2a1a" stroke="#3a3a1a" stroke-width="1"/>
+
+        <!-- Pin labels LEFT -->
+        <!-- VIN -->
+        <rect x="256" y="116" width="28" height="14" rx="3" fill="#0d2a0d" stroke="#4caf50" stroke-width="1.2"/>
+        <text x="270" y="127" text-anchor="middle" fill="#4caf50" font-size="9" font-weight="bold">VIN</text>
+        <!-- GND -->
+        <rect x="256" y="138" width="28" height="14" rx="3" fill="#2a0d0d" stroke="#ef5350" stroke-width="1.2"/>
+        <text x="270" y="149" text-anchor="middle" fill="#ef5350" font-size="9" font-weight="bold">GND</text>
+        <!-- IO2 -->
+        <rect x="256" y="160" width="28" height="14" rx="3" fill="#0d1a2a" stroke="#ffb74d" stroke-width="1.2"/>
+        <text x="270" y="171" text-anchor="middle" fill="#ffb74d" font-size="9" font-weight="bold">IO2</text>
+
+        <!-- Right pin header -->
+        <rect x="466" y="112" width="14" height="220" rx="3" fill="#1a2a1a" stroke="#3a3a1a" stroke-width="1"/>
+        <!-- USB port (right side) -->
+        <rect x="468" y="108" width="14" height="24" rx="3" fill="#333" stroke="#888" stroke-width="1.2"/>
+        <rect x="471" y="112" width="8" height="16" rx="1" fill="#222"/>
+        <text x="490" y="124" fill="#555" font-size="9">USB</text>
+
+        <!-- Chip outline -->
+        <rect x="330" y="148" width="88" height="60" rx="4" fill="#0a0f1a" stroke="#1e3a5f" stroke-width="1.5"/>
+        <text x="374" y="173" text-anchor="middle" fill="#2a4a7a" font-size="10">ESP32-WROOM</text>
+        <text x="374" y="188" text-anchor="middle" fill="#1e3050" font-size="9">240 MHz dual-core</text>
+
+        <!-- Antenna -->
+        <text x="368" y="226" text-anchor="end" fill="#82b4ff" font-size="9">2.4 GHz antenna</text>
+        <line x1="370" y1="221" x2="400" y2="221" stroke="#82b4ff" stroke-width="1.5"/>
+        <line x1="382" y1="221" x2="382" y2="204" stroke="#82b4ff" stroke-width="1.5"/>
+        <line x1="375" y1="210" x2="389" y2="210" stroke="#82b4ff" stroke-width="1.2"/>
+        <line x1="377" y1="204" x2="387" y2="204" stroke="#82b4ff" stroke-width="1"/>
+        <circle cx="382" cy="226" r="2.5" fill="#82b4ff"/>
+
+        <!-- Pin function labels -->
+        <text x="295" y="127" fill="#bbb" font-size="9">5 V in (USB or VIN pin)</text>
+        <text x="295" y="149" fill="#bbb" font-size="9">Ground</text>
+        <text x="295" y="171" fill="#ffb74d" font-size="9">LED out (optional)</text>
+
+        <!-- WiFi label -->
+        <text x="374" y="258" text-anchor="middle" fill="#82b4ff" font-size="9">WiFi 2.4 GHz</text>
+        <path d="M344,268 Q374,259 404,268" stroke="#82b4ff" stroke-width="1" fill="none" opacity="0.7"/>
+        <path d="M352,274 Q374,267 396,274" stroke="#82b4ff" stroke-width="1" fill="none" opacity="0.7"/>
+        <path d="M360,280 Q374,274 388,280" stroke="#82b4ff" stroke-width="1" fill="none" opacity="0.7"/>
+        <circle cx="374" cy="283" r="2" fill="#82b4ff"/>
+        <text x="374" y="297" text-anchor="middle" fill="#444" font-size="8">→ MQTT broker</text>
+
+        <!-- BLE label -->
+        <text x="374" y="315" text-anchor="middle" fill="#d6bee4" font-size="9">BLE 2.4 GHz</text>
+        <path d="M344,325 Q374,316 404,325" stroke="#d6bee4" stroke-width="1" fill="none" opacity="0.7"/>
+        <path d="M352,331 Q374,324 396,331" stroke="#d6bee4" stroke-width="1" fill="none" opacity="0.7"/>
+        <path d="M360,337 Q374,331 388,337" stroke="#d6bee4" stroke-width="1" fill="none" opacity="0.7"/>
+        <circle cx="374" cy="340" r="2" fill="#d6bee4"/>
+        <text x="374" y="354" text-anchor="middle" fill="#444" font-size="8">→ Svara fan (wireless)</text>
+
+        <!-- ── Wires from PSU to ESP32 ─────────────────────────── -->
+        <line x1="134" y1="171" x2="254" y2="123" stroke="#4caf50" stroke-width="2" stroke-dasharray="7,4"/>
+        <line x1="134" y1="196" x2="254" y2="145" stroke="#ef5350" stroke-width="2" stroke-dasharray="7,4"/>
+        <!-- Wire labels -->
+        <text x="188" y="142" text-anchor="middle" fill="#4caf50" font-size="10" transform="rotate(-19,188,142)">5 V</text>
+        <text x="194" y="180" text-anchor="middle" fill="#ef5350" font-size="10" transform="rotate(-10,194,180)">GND</text>
+
+        <!-- ── Optional LED circuit ────────────────────────────── -->
+        <!-- Label pill -->
+        <rect x="574" y="60" width="150" height="22" rx="11" fill="#2a1800" stroke="#ffb74d" stroke-width="1"/>
+        <text x="649" y="75" text-anchor="middle" fill="#ffb74d" font-size="10" font-weight="bold">OPTIONAL — status LED</text>
+
+        <!-- LED symbol (schematic style) -->
+        <!-- Anode wire -->
+        <line x1="622" y1="106" x2="622" y2="134" stroke="#ffb74d" stroke-width="2"/>
+        <!-- Anode triangle -->
+        <polygon points="612,134 632,134 622,150" fill="#2a1800" stroke="#ffb74d" stroke-width="1.5"/>
+        <!-- Cathode bar -->
+        <line x1="612" y1="150" x2="632" y2="150" stroke="#ffb74d" stroke-width="2"/>
+        <!-- Cathode wire -->
+        <line x1="622" y1="150" x2="622" y2="172" stroke="#888" stroke-width="1.5"/>
+        <!-- Light rays -->
+        <line x1="635" y1="138" x2="648" y2="128" stroke="#ffb74d" stroke-width="1.2" stroke-dasharray="2,2"/>
+        <line x1="638" y1="145" x2="654" y2="140" stroke="#ffb74d" stroke-width="1.2" stroke-dasharray="2,2"/>
+        <text x="622" y="100" text-anchor="middle" fill="#ffb74d" font-size="10">LED</text>
+        <text x="622" y="188" text-anchor="middle" fill="#888" font-size="9">any colour</text>
+
+        <!-- Resistor symbol (schematic style) -->
+        <line x1="622" y1="188" x2="622" y2="202" stroke="#888" stroke-width="1.5"/>
+        <rect x="610" y="202" width="24" height="44" rx="2" fill="#1a1400" stroke="#aaa" stroke-width="1.5"/>
+        <!-- Resistor stripes -->
+        <line x1="612" y1="214" x2="634" y2="214" stroke="#ff6b35" stroke-width="2.5"/>
+        <line x1="612" y1="222" x2="634" y2="222" stroke="#ff6b35" stroke-width="2.5"/>
+        <line x1="612" y1="230" x2="634" y2="230" stroke="#888" stroke-width="2.5"/>
+        <text x="648" y="218" fill="#aaa" font-size="10">330 Ω</text>
+        <text x="648" y="231" fill="#666" font-size="9">¼ W</text>
+        <line x1="622" y1="246" x2="622" y2="266" stroke="#888" stroke-width="1.5"/>
+
+        <!-- GND rail -->
+        <line x1="590" y1="266" x2="660" y2="266" stroke="#888" stroke-width="1.5"/>
+        <!-- GND symbol -->
+        <line x1="612" y1="266" x2="632" y2="266" stroke="#888" stroke-width="2"/>
+        <line x1="615" y1="272" x2="629" y2="272" stroke="#888" stroke-width="1.5"/>
+        <line x1="619" y1="278" x2="625" y2="278" stroke="#888" stroke-width="1"/>
+        <text x="670" y="275" fill="#888" font-size="10">GND</text>
+
+        <!-- IO2 wire to LED anode -->
+        <line x1="284" y1="167" x2="572" y2="167" stroke="#ffb74d" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <line x1="572" y1="167" x2="572" y2="106" stroke="#ffb74d" stroke-width="1.5"/>
+        <line x1="572" y1="106" x2="622" y2="106" stroke="#ffb74d" stroke-width="1.5"/>
+        <text x="428" y="161" text-anchor="middle" fill="#ffb74d" font-size="9">GPIO 2  (optional status LED)</text>
+
+        <!-- GND from board to LED GND rail -->
+        <line x1="284" y1="145" x2="542" y2="145" stroke="#ef5350" stroke-width="1" stroke-dasharray="5,4" opacity="0.5"/>
+        <line x1="542" y1="145" x2="542" y2="266" stroke="#ef5350" stroke-width="1" stroke-dasharray="5,4" opacity="0.5"/>
+        <line x1="542" y1="266" x2="590" y2="266" stroke="#ef5350" stroke-width="1" stroke-dasharray="5,4" opacity="0.5"/>
+
+        <!-- ── Legend ───────────────────────────────────────────── -->
+        <rect x="22" y="306" width="230" height="88" rx="8" fill="#0a0f1a" stroke="#1e2a3a" stroke-width="1"/>
+        <text x="38" y="326" fill="#82b4ff" font-size="11" font-weight="bold">LEGEND</text>
+        <!-- 5V -->
+        <line x1="38" y1="340" x2="75" y2="340" stroke="#4caf50" stroke-width="2" stroke-dasharray="7,4"/>
+        <text x="82" y="344" fill="#888" font-size="10">5 V power</text>
+        <!-- GND -->
+        <line x1="38" y1="355" x2="75" y2="355" stroke="#ef5350" stroke-width="2" stroke-dasharray="7,4"/>
+        <text x="82" y="359" fill="#888" font-size="10">Ground</text>
+        <!-- Optional -->
+        <line x1="38" y1="370" x2="75" y2="370" stroke="#ffb74d" stroke-width="1.5" stroke-dasharray="6,4"/>
+        <text x="82" y="374" fill="#888" font-size="10">Optional LED signal</text>
+        <!-- Wireless -->
+        <line x1="38" y1="385" x2="52" y2="385" stroke="#82b4ff" stroke-width="1.5"/>
+        <path d="M52,385 Q58,379 64,385 Q70,391 76,385" stroke="#82b4ff" stroke-width="1.5" fill="none"/>
+        <text x="82" y="389" fill="#888" font-size="10">Wireless (WiFi / BLE)</text>
+
+      </svg>
+    </div>
+
+    <h3>Power</h3>
+    <p>The ESP32 DevKit V1 can be powered in two ways:</p>
+    <ul>
+      <li><strong>Micro-USB</strong> — plug in any 5 V USB charger (1 A or greater recommended). Also used for first-time flashing.</li>
+      <li><strong>VIN pin</strong> — connect 5 V to the <code>VIN</code> pin and ground to any <code>GND</code> pin for hardwired installations.</li>
+    </ul>
+
+    <div class="alert warning">
+      <span class="material-icons">warning</span>
+      <div class="alert-body">
+        <strong>Do not connect 3.3 V to the VIN pin.</strong> It bypasses the regulator and will under-power the
+        ESP32. The board requires 5 V on VIN (or via USB). The ESP32 chip itself runs at 3.3 V internally.
+      </div>
+    </div>
+
+    <h3>Optional Status LED</h3>
+    <p>
+      The DevKit V1 has a built-in blue LED on GPIO2 — no external component needed.
+      For a brighter external indicator, wire GPIO2 → 330 Ω resistor → LED anode → LED cathode → GND.
+    </p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Connection point</th><th>Component</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>GPIO 2</td><td>330 Ω resistor (one leg)</td><td>Current-limiting resistor — ¼ W is fine</td></tr>
+          <tr><td>Resistor (other leg)</td><td>LED anode (+)</td><td>Any 3 mm or 5 mm LED</td></tr>
+          <tr><td>LED cathode (−)</td><td>GND</td><td>Short leg of LED to any GND pin</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>BLE Range</h3>
+    <ul>
+      <li><strong>Same room, unobstructed:</strong> reliable up to 10 m</li>
+      <li><strong>Through stud wall:</strong> typically 3–5 m</li>
+      <li><strong>Through brick/concrete:</strong> 1–3 m — place the ESP32 close to the fan side</li>
+    </ul>
+  </section>
+
+  <!-- ── ESP32 Pinout ────────────────────────────────────────────────── -->
+  <section class="section" id="pinout">
+    <div class="section-header">
+      <div class="section-icon green"><span class="material-icons">developer_board</span></div>
+      <h2>ESP32 DevKit V1 — Pins Used</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pin</th><th>Function</th><th>Direction</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>VIN</td><td>5 V power input</td><td>In</td><td>From USB or external 5 V supply</td></tr>
+          <tr><td>GND</td><td>Ground</td><td>—</td><td>Multiple GND pins available</td></tr>
+          <tr><td>GPIO2</td><td>Built-in LED</td><td>Out</td><td>On-board blue LED; also accessible as header pin for external LED</td></tr>
+          <tr><td><em>(internal)</em></td><td>WiFi 2.4 GHz</td><td>Wireless</td><td>Connects to MQTT broker on local network</td></tr>
+          <tr><td><em>(internal)</em></td><td>BLE 2.4 GHz</td><td>Wireless</td><td>Connects to Vent-Axia Svara fan</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Software Setup ─────────────────────────────────────────────── -->
+  <section class="section" id="software">
+    <div class="section-header">
+      <div class="section-icon"><span class="material-icons">code</span></div>
+      <h2>Software Setup</h2>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Configure credentials</h3>
+          <p>Edit <code>WhisperServer/include/config.h</code> before flashing:</p>
+          <div class="code-block">
+            <div class="code-header"><span>config.h</span><span class="material-icons">content_copy</span></div>
+            <pre><code>// MQTT broker
+#define MQTT_HOST     "192.168.1.xxx"   // your broker IP
+#define MQTT_USER     "user"            // leave "" if no auth
+#define MQTT_PASSWORD "password"
+
+// Fan MAC address (find with a BLE scanner app)
+#define FAN_MAC_ADDRESS "AA:BB:CC:DD:EE:FF"
+
+// OTA password
+#define OTA_PASSWORD "choose-something-secure"</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Flash via USB (first time)</h3>
+          <div class="code-block">
+            <div class="code-header"><span>terminal</span></div>
+            <pre><code>cd WhisperServer
+pio run -e esp32dev -t upload</code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>WiFi setup</h3>
+          <p>
+            On first boot with no saved credentials the device starts in AP mode.
+            Connect to the <code>WhisperBridge-Setup</code> WiFi network (password: <code>whisperbridge</code>),
+            then browse to <code>http://10.0.0.1/setup.html</code>. Select your network, enter the
+            password, and tap Connect. The device restarts and joins your network.
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Home Assistant MQTT discovery</h3>
+          <p>
+            Once connected, the device publishes an MQTT auto-discovery payload automatically.
+            Home Assistant will create a switch entity named <strong>Boost</strong> under a
+            <em>WhisperBridge</em> device. Toggling it ON triggers the fan boost sequence.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MQTT Topics ─────────────────────────────────────────────────── -->
+  <section class="section" id="mqtt">
+    <div class="section-header">
+      <div class="section-icon amber"><span class="material-icons">hub</span></div>
+      <h2>MQTT Topics</h2>
+    </div>
+    <p>Topics are unique per device using the last 3 bytes of the MAC address (e.g. <code>a1b2c3</code>):</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Topic</th><th>Direction</th><th>Payload</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>whisperbridge/&lt;id&gt;/boost</td>
+            <td>Subscribe (command)</td>
+            <td><code>ON</code> or <code>1</code> triggers boost; <code>OFF</code> is ignored (boost is one-shot)</td>
+          </tr>
+          <tr>
+            <td>whisperbridge/&lt;id&gt;/boost/state</td>
+            <td>Publish (state, retained)</td>
+            <td><code>ON</code> when BLE sequence starts; <code>OFF</code> when it completes</td>
+          </tr>
+          <tr>
+            <td>homeassistant/switch/whisperbridge_&lt;id&gt;_boost/config</td>
+            <td>Publish (retained)</td>
+            <td>Home Assistant auto-discovery JSON</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Project Structure ──────────────────────────────────────────── -->
+  <section class="section" id="structure">
+    <div class="section-header">
+      <div class="section-icon purple"><span class="material-icons">folder_open</span></div>
+      <h2>Project Structure</h2>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span>directory tree</span></div>
+      <pre><code>WhisperBridge/
+├── WhisperServer/          # ESP32 firmware (PlatformIO / Arduino)
+│   ├── platformio.ini      # envs: esp32dev (USB), esp32dev_ota, native (tests)
+│   ├── include/
+│   │   ├── config.h        # Edit before flashing — WiFi, MQTT, BLE credentials
+│   │   ├── state.h         # parseBoostCommand() — shared with native tests
+│   │   ├── ble.h           # BleBoost class declaration
+│   │   └── mqtt.h          # MqttManager class declaration
+│   ├── src/
+│   │   ├── main.cpp        # setup/loop, WiFi, AP captive portal, web server
+│   │   ├── ble.cpp         # BLE GATT client, FreeRTOS task
+│   │   └── mqtt.cpp        # MQTT subscribe/publish, HA auto-discovery
+│   ├── data/               # LittleFS web UI
+│   │   ├── index.html      # Status page + manual boost button
+│   │   └── setup.html      # WiFi captive portal
+│   └── test/
+│       └── test_mqtt.cpp   # Unity tests for parseBoostCommand
+└── WhisperClient/
+    └── test-server/        # Node.js mock server (npm start → localhost:3000)
+        └── server.js       # Mirrors firmware REST API for UI development</code></pre>
+    </div>
+  </section>
+
+  <!-- ── References ────────────────────────────────────────────────── -->
+  <section class="section" id="refs">
+    <div class="section-header">
+      <div class="section-icon purple"><span class="material-icons">menu_book</span></div>
+      <h2>Documentation &amp; References</h2>
+    </div>
+    <div class="ref-grid">
+      <a class="ref-card" href="https://www.vent-axia.com" target="_blank" rel="noopener">
+        <div class="ref-icon red"><span class="material-icons">air</span></div>
+        <div>
+          <span class="ref-title">Vent-Axia Svara</span>
+          <span class="ref-desc">Product page for the Svara bathroom fan — the BLE-controlled device this project bridges to Home Assistant</span>
+        </div>
+      </a>
+      <a class="ref-card" href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32/" target="_blank" rel="noopener">
+        <div class="ref-icon"><span class="material-icons">developer_board</span></div>
+        <div>
+          <span class="ref-title">ESP-IDF — ESP32</span>
+          <span class="ref-desc">Official Espressif IoT Development Framework docs for ESP32 peripherals, WiFi, and FreeRTOS APIs</span>
+        </div>
+      </a>
+      <a class="ref-card" href="https://docs.espressif.com/projects/arduino-esp32/en/latest/" target="_blank" rel="noopener">
+        <div class="ref-icon"><span class="material-icons">memory</span></div>
+        <div>
+          <span class="ref-title">Arduino ESP32 Core</span>
+          <span class="ref-desc">Arduino framework port for ESP32 — WiFi, Preferences, ArduinoOTA, LittleFS APIs</span>
+        </div>
+      </a>
+      <a class="ref-card" href="https://h2zero.github.io/NimBLE-Arduino/" target="_blank" rel="noopener">
+        <div class="ref-icon"><span class="material-icons">bluetooth</span></div>
+        <div>
+          <span class="ref-title">NimBLE-Arduino</span>
+          <span class="ref-desc">Lightweight BLE library for ESP32. Used for GATT client, service/characteristic discovery, and writes</span>
+        </div>
+      </a>
+      <a class="ref-card" href="https://www.freertos.org/Documentation/RTOS_book.html" target="_blank" rel="noopener">
+        <div class="ref-icon amber"><span class="material-icons">settings</span></div>
+        <div>
+          <span class="ref-title">FreeRTOS</span>
+          <span class="ref-desc">Task management, xTaskCreate, xTaskNotifyGive / ulTaskNotifyTake — used to offload BLE from the main loop</span>
+        </div>
+      </a>
+      <a class="ref-card" href="https://mqtt.org/mqtt-specification/" target="_blank" rel="noopener">
+        <div class="ref-icon amber"><span class="material-icons">hub</span></div>
+        <div>
+          <span class="ref-title">MQTT 3.1.1 Specification</span>
+          <span class="ref-desc">OASIS standard covering publish/subscribe, QoS levels, retained messages, and topic wildcards</span>
+        </div>
+      </a>
+      <a class="ref-card" href="https://github.com/knolleary/pubsubclient" target="_blank" rel="noopener">
+        <div class="ref-icon amber"><span class="material-icons">sync_alt</span></div>
+        <div>
+          <span class="ref-title">PubSubClient</span>
+          <span class="ref-desc">Arduino MQTT client library by Nick O'Leary. Used for broker connection, subscribe, and publish</span>
+        </div>
+      </a>
+      <a class="ref-card" href="https://www.home-assistant.io/integrations/mqtt/" target="_blank" rel="noopener">
+        <div class="ref-icon green"><span class="material-icons">home</span></div>
+        <div>
+          <span class="ref-title">HA MQTT Integration</span>
+          <span class="ref-desc">Home Assistant MQTT integration docs — auto-discovery payload format, device registry, switch entity</span>
+        </div>
+      </a>
+      <a class="ref-card" href="https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery" target="_blank" rel="noopener">
+        <div class="ref-icon green"><span class="material-icons">search</span></div>
+        <div>
+          <span class="ref-title">HA MQTT Discovery</span>
+          <span class="ref-desc">Auto-discovery payload schema — how WhisperBridge registers itself as a switch entity automatically</span>
+        </div>
+      </a>
+      <a class="ref-card" href="https://arduinojson.org/v7/doc/" target="_blank" rel="noopener">
+        <div class="ref-icon"><span class="material-icons">data_object</span></div>
+        <div>
+          <span class="ref-title">ArduinoJson v7</span>
+          <span class="ref-desc">JSON serialisation / deserialisation library. Used for MQTT discovery payloads and REST API responses</span>
+        </div>
+      </a>
+      <a class="ref-card" href="https://github.com/esphome/ESPAsyncWebServer" target="_blank" rel="noopener">
+        <div class="ref-icon"><span class="material-icons">language</span></div>
+        <div>
+          <span class="ref-title">ESPAsyncWebServer</span>
+          <span class="ref-desc">Async HTTP server for ESP32 — handles REST endpoints, static file serving from LittleFS, and body callbacks</span>
+        </div>
+      </a>
+      <a class="ref-card" href="https://docs.platformio.org/en/latest/frameworks/arduino.html" target="_blank" rel="noopener">
+        <div class="ref-icon purple"><span class="material-icons">science</span></div>
+        <div>
+          <span class="ref-title">PlatformIO</span>
+          <span class="ref-desc">Build system, library management, OTA upload, and native unit test runner used by this project</span>
+        </div>
+      </a>
+      <a class="ref-card" href="https://github.com/ThrowTheSwitch/Unity" target="_blank" rel="noopener">
+        <div class="ref-icon purple"><span class="material-icons">check_circle</span></div>
+        <div>
+          <span class="ref-title">Unity Test Framework</span>
+          <span class="ref-desc">C unit testing framework used for native host-side tests of parseBoostCommand() logic</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span class="material-icons">info</span>
+  WhisperBridge — custom hardware project — not affiliated with Vent-Axia
+</footer>
+
+</div><!-- .layout -->
+
+<script>
+  // Highlight active nav item on scroll
+  const sections = document.querySelectorAll('section[id], #pinout');
+  const navItems = document.querySelectorAll('.nav-item');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navItems.forEach(n => n.classList.remove('active'));
+        const active = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => obs.observe(s));
+
+  // Copy code blocks
+  document.querySelectorAll('.code-header .material-icons').forEach(icon => {
+    icon.title = 'Copy';
+    icon.addEventListener('click', () => {
+      const code = icon.closest('.code-block').querySelector('pre').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        icon.textContent = 'check';
+        setTimeout(() => icon.textContent = 'content_copy', 1500);
+      });
+    });
+  });
+</script>
+</body>
+</html>
