@@ -228,6 +228,11 @@ void setup() {
     s_deviceId = getDeviceId();
     Serial.printf("\n[Main] WhisperBridge  id=%s\n", s_deviceId.c_str());
 
+#ifdef STATUS_LED_PIN
+    pinMode(STATUS_LED_PIN, OUTPUT);
+    digitalWrite(STATUS_LED_PIN, LOW);
+#endif
+
     Ble.setup();
 
     if (connectWifi()) {
@@ -255,4 +260,8 @@ void loop() {
         Mqtt.publishState(false);
     }
     s_wasRunning = running;
+
+#ifdef STATUS_LED_PIN
+    digitalWrite(STATUS_LED_PIN, running ? HIGH : LOW);
+#endif
 }

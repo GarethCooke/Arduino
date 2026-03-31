@@ -33,5 +33,9 @@ constexpr uint8_t BLE_PIN_BYTES[] = { 0xe3, 0x14, 0x62, 0x05 };
 // Boost command payload
 constexpr uint8_t BLE_BOOST_BYTES[] = { 0x01, 0x60, 0x09, 0x84, 0x03 };
 
+// ── Optional status LED ──────────────────────────────────────────────────────
+// HIGH while BLE boost sequence is running. Comment out to disable.
+#define STATUS_LED_PIN 2
+
 // ── OTA ──────────────────────────────────────────────────────────────────────
 #define OTA_PASSWORD "password"  // TODO: change before production

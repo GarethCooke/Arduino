@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Development/Arduino/Projects/WhisperBridge -type f -name README*)"
+    ]
+  }
+}
