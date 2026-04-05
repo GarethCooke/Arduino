@@ -1,7 +1,25 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find /c/Development/Arduino/Projects/WhisperBridge -type f -name README*)"
+      "Bash(find /c/Development/Arduino/Projects/WhisperBridge -type f -name README*)",
+      "Edit(~/.claude/skills/project-html-docs/**)",
+      "Bash(curl -o /dev/null -s -w \"%{http_code}\" -L --max-time 8 \"https://github.com/h2zero/NimBLE-Arduino\")",
+      "Bash(curl -o /dev/null -s -w \"%{http_code}\" -L --max-time 8 \"https://github.com/knolleary/pubsubclient\")",
+      "Bash(curl -o /dev/null -s -w \"%{http_code}\" -L --max-time 8 \"https://arduinojson.org\")",
+      "Bash(curl -o /dev/null -s -w \"%{http_code}\" -L --max-time 8 \"https://github.com/esphome/ESPAsyncWebServer\")",
+      "Bash(curl -o /dev/null -s -w \"%{http_code}\" -L --max-time 8 \"https://platformio.org/lib/show/739/PubSubClient\")",
+      "Bash(npm install:*)",
+      "Bash(node server.js)",
+      "Bash(echo \"Server started, PID=$!\")",
+      "Bash('/c/Program Files/Google/Chrome/Application/chrome.exe' --headless=new --no-sandbox --disable-gpu --window-size=1280,800 --screenshot=/c/Development/Arduino/Projects/WhisperBridge/docs/screenshot_index.png http://localhost:3000/index.html)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash('/c/Program Files/Google/Chrome/Application/chrome.exe' --headless=new --no-sandbox --disable-gpu --window-size=1280,800 --screenshot=/c/Development/Arduino/Projects/WhisperBridge/docs/screenshot_setup.png http://localhost:3000/setup.html)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //PID 1664 //F)",
+      "Read(//tmp/**)",
+      "Bash(py --version)",
+      "Bash(where python:*)",
+      "Bash(python -)"
     ]
   }
 }
