@@ -29,6 +29,7 @@ app.get('/api/status', (_req, res) => {
     res.json({
         running: state.running,
         ble_ok:  state.ble_ok,
+        ssid:    'HomeNetwork',
         ip:      '192.168.1.99',
         rssi:    -55,
     });

@@ -37,5 +37,10 @@ constexpr uint8_t BLE_BOOST_BYTES[] = { 0x01, 0x60, 0x09, 0x84, 0x03 };
 // HIGH while BLE boost sequence is running. Comment out to disable.
 #define STATUS_LED_PIN 2
 
+// ── Optional reset button ────────────────────────────────────────────────────
+// Hold for 5 s (any mode) to clear WiFi credentials and restart into AP setup.
+// GPIO0 is the BOOT button on most ESP32 dev boards. Comment out to disable.
+// #define RESET_BUTTON_PIN 0
+
 // ── OTA ──────────────────────────────────────────────────────────────────────
 #define OTA_PASSWORD "password"  // TODO: change before production

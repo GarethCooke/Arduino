@@ -18,8 +18,12 @@ static Preferences    s_prefs;
 static AsyncWebServer s_server(80);
 static DNSServer      s_dns;
 static bool           s_apMode        = false;
-static bool           s_pendingRestart = false;
+static volatile bool  s_pendingRestart = false;
 static String         s_deviceId;  // set once in setup()
+
+static constexpr char NVS_NAMESPACE[] = "whisper";
+static constexpr char NVS_KEY_SSID[]  = "ssid";
+static constexpr char NVS_KEY_PASS[]  = "pass";
 
 // ── WiFi scan (AP mode only) ───────────────────────────────────────────────────
 
@@ -49,6 +53,15 @@ static String getDeviceId() {
     return String(id);
 }
 
+static void factoryReset() {
+    Serial.println("[Reset] Clearing credentials — restarting into AP mode");
+    s_prefs.begin(NVS_NAMESPACE, false);
+    s_prefs.remove(NVS_KEY_SSID);
+    s_prefs.remove(NVS_KEY_PASS);
+    s_prefs.end();
+    s_pendingRestart = true;
+}
+
 // ── Common endpoints (registered in both AP and station mode) ─────────────────
 
 static void registerCommonEndpoints() {
@@ -61,9 +74,9 @@ static void registerCommonEndpoints() {
 // ── WiFi ──────────────────────────────────────────────────────────────────────
 
 static bool connectWifi() {
-    s_prefs.begin("whisper", /*readOnly=*/true);
-    String ssid = s_prefs.getString("ssid", "");
-    String pass = s_prefs.getString("pass", "");
+    s_prefs.begin(NVS_NAMESPACE, /*readOnly=*/true);
+    String ssid = s_prefs.getString(NVS_KEY_SSID, "");
+    String pass = s_prefs.getString(NVS_KEY_PASS, "");
     s_prefs.end();
 
     if (ssid.isEmpty()) return false;
@@ -152,9 +165,9 @@ static void startAP() {
                 req->send(400, "application/json", "{\"error\":\"bad json\"}");
                 return;
             }
-            s_prefs.begin("whisper", false);
-            s_prefs.putString("ssid", doc["ssid"].as<String>());
-            s_prefs.putString("pass", doc["password"] | "");
+            s_prefs.begin(NVS_NAMESPACE, false);
+            s_prefs.putString(NVS_KEY_SSID, doc["ssid"].as<String>());
+            s_prefs.putString(NVS_KEY_PASS, doc["password"] | "");
             s_prefs.end();
             req->send(200, "application/json", "{\"ok\":true}");
             s_pendingRestart = true;
@@ -192,6 +205,7 @@ static void startStation() {
         JsonDocument doc;
         doc["running"] = Ble.isRunning();
         doc["ble_ok"]  = Ble.lastSuccess();
+        doc["ssid"]    = WiFi.SSID();
         doc["ip"]      = WiFi.localIP().toString();
         doc["rssi"]    = WiFi.RSSI();
         String output;
@@ -206,6 +220,11 @@ static void startStation() {
         }
         Ble.trigger();
         req->send(200, "application/json", "{\"ok\":true}");
+    });
+
+    s_server.on("/api/reprovision", HTTP_POST, [](AsyncWebServerRequest* req) {
+        req->send(200, "application/json", "{\"ok\":true}");
+        factoryReset();
     });
 
     s_server.serveStatic("/", LittleFS, "/").setDefaultFile("index.html");
@@ -232,6 +251,9 @@ void setup() {
     pinMode(STATUS_LED_PIN, OUTPUT);
     digitalWrite(STATUS_LED_PIN, LOW);
 #endif
+#ifdef RESET_BUTTON_PIN
+    pinMode(RESET_BUTTON_PIN, INPUT_PULLUP);
+#endif
 
     Ble.setup();
 
@@ -243,10 +265,25 @@ void setup() {
 }
 
 void loop() {
+    if (s_pendingRestart) { delay(500); ESP.restart(); }
+
+#ifdef RESET_BUTTON_PIN
+    static unsigned long s_btnPressedAt = 0;
+    if (digitalRead(RESET_BUTTON_PIN) == LOW) {
+        if (s_btnPressedAt == 0) s_btnPressedAt = millis();
+        else if (millis() - s_btnPressedAt >= 5000) {
+            Serial.println("[Reset] Button held 5 s — clearing credentials");
+            factoryReset();
+            s_btnPressedAt = 0;
+        }
+    } else {
+        s_btnPressedAt = 0;
+    }
+#endif
+
     if (s_apMode) {
         s_dns.processNextRequest();
         pollScan();
-        if (s_pendingRestart) { delay(500); ESP.restart(); }
         return;
     }
 

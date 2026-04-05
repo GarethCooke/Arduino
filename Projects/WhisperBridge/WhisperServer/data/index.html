@@ -26,6 +26,12 @@
   button:disabled { background: #333; color: #555; cursor: not-allowed; }
   button:not(:disabled):hover { background: #1565c0; }
   #msg { margin-top: 1rem; font-size: 0.85rem; color: #888; min-height: 1.2em; text-align: center; }
+  .btn-secondary {
+    background: transparent; color: #666; border: 1px solid #333;
+    padding: 0.5rem; font-size: 0.8rem; font-weight: 400;
+    margin-top: 0.5rem; letter-spacing: 0;
+  }
+  .btn-secondary:not(:disabled):hover { background: #1e1e1e; color: #ccc; }
 </style>
 </head>
 <body>
@@ -33,14 +39,16 @@
 <p class="sub">Vent-Axia Svara controller</p>
 
 <div class="card">
+  <div class="row"><span class="label">Network</span><span class="value" id="ssid">—</span></div>
   <div class="row"><span class="label">IP</span><span class="value" id="ip">—</span></div>
   <div class="row"><span class="label">RSSI</span><span class="value" id="rssi">—</span></div>
   <div class="row"><span class="label">Status</span><span class="value" id="status">—</span></div>
   <div class="row"><span class="label">Last BLE</span><span class="value" id="ble_ok">—</span></div>
 </div>
 
-<button id="btn" onclick="triggerBoost()">Boost</button>
+<button type="button" id="btn" onclick="triggerBoost()">Boost</button>
 <div id="msg"></div>
+<button type="button" class="btn-secondary" onclick="reprovision()">Change network</button>
 
 <script>
 function setMsg(txt, colour) {
@@ -50,6 +58,7 @@ function setMsg(txt, colour) {
 }
 
 function updateStatus(data) {
+  document.getElementById('ssid').textContent = data.ssid || '—';
   document.getElementById('ip').textContent   = data.ip   || '—';
   document.getElementById('rssi').textContent = data.rssi != null ? data.rssi + ' dBm' : '—';
 
@@ -91,6 +100,20 @@ async function triggerBoost() {
   } catch (e) {
     setMsg('Request failed: ' + e.message, '#f44336');
     document.getElementById('btn').disabled = false;
+  }
+}
+
+async function reprovision() {
+  if (!confirm('Clear WiFi credentials and restart into setup mode?')) return;
+  try {
+    const res = await fetch('/api/reprovision', { method: 'POST' });
+    if (res.ok) {
+      setMsg('Restarting into setup mode…');
+    } else {
+      setMsg('Error: ' + res.status, '#f44336');
+    }
+  } catch (e) {
+    setMsg('Request failed: ' + e.message, '#f44336');
   }
 }
 
