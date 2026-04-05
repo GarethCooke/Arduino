@@ -4,12 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WhisperBridge Setup</title>
+<link rel="stylesheet" href="/style.css">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: sans-serif; background: #111; color: #eee; display: flex; flex-direction: column; align-items: center; padding: 2rem 1rem; min-height: 100vh; }
-  h1 { font-size: 1.4rem; margin-bottom: 0.25rem; letter-spacing: 0.05em; }
-  .sub { font-size: 0.8rem; color: #888; margin-bottom: 2rem; }
-  .card { background: #1e1e1e; border-radius: 12px; padding: 1.5rem; width: 100%; max-width: 360px; margin-bottom: 1rem; }
   .card-title { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
 
   /* Network list */
@@ -44,7 +40,6 @@
   }
   button.secondary { background: #2a2a2a; color: #aaa; flex: 0 0 auto; padding: 0.9rem 1rem; }
   button.rescan { flex: none; padding: 0.1rem 0.5rem; font-size: 0.75rem; border-radius: 6px; }
-  button:disabled { background: #333; color: #555; cursor: not-allowed; }
   button:not(:disabled):not(.secondary):hover { background: #1565c0; }
   button.secondary:not(:disabled):hover { background: #333; color: #eee; }
 
@@ -53,7 +48,7 @@
   .url-label { font-size: 0.75rem; color: #888; margin-bottom: 0.25rem; }
   .url-link { font-size: 0.9rem; color: #2979ff; word-break: break-all; }
 
-  #msg { margin-top: 0.75rem; font-size: 0.85rem; color: #888; min-height: 1.2em; text-align: center; width: 100%; max-width: 360px; }
+  #msg { margin-top: 0.75rem; width: 100%; max-width: 360px; }
 </style>
 </head>
 <body>
@@ -72,7 +67,7 @@
 
 <div class="card">
   <label for="ssid">Network name (SSID)</label>
-  <input id="ssid" type="text" placeholder="MyNetwork" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+  <input id="ssid" type="text" placeholder="MyNetwork" autocomplete="off" autocorrect="off" spellcheck="false">
   <label for="pass">Password</label>
   <input id="pass" type="password" placeholder="leave empty for open networks" autocomplete="off">
   <div class="btn-row">
@@ -83,6 +78,11 @@
 
 <script>
 var selectedSsid = null;
+
+// ── HTML escaping (prevents XSS from malicious AP SSIDs) ──────────────────────
+function escHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
 // ── Device info preview ───────────────────────────────────────────────────────
 fetch('/api/deviceinfo').then(function(r) { return r.json(); }).then(function(info) {
@@ -106,6 +106,16 @@ function signalLabel(rssi) {
 }
 
 // ── Network list ──────────────────────────────────────────────────────────────
+function networkItemHtml(n) {
+  return '<div class="net-item" data-ssid="' + escHtml(n.ssid) + '" onclick="selectNetwork(this.dataset.ssid)">' +
+    '<span class="net-name">' + escHtml(n.ssid) + '</span>' +
+    '<span class="net-meta">' +
+      '<span style="font-family:monospace">' + signalLabel(n.rssi) + '</span>' +
+      (n.secure ? '<span class="net-lock">🔒</span>' : '') +
+    '</span>' +
+  '</div>';
+}
+
 function selectNetwork(ssid) {
   selectedSsid = ssid;
   document.getElementById('ssid').value = ssid;
@@ -122,16 +132,7 @@ function renderNetworks(networks) {
     list.innerHTML = '<p class="scanning">No networks found — try rescanning.</p>';
     return;
   }
-  list.innerHTML = networks.map(function(n) {
-    return '<div class="net-item" data-ssid="' + n.ssid.replace(/"/g, '&quot;') + '" onclick="selectNetwork(this.dataset.ssid)">' +
-      '<span class="net-name">' + n.ssid.replace(/</g, '&lt;') + '</span>' +
-      '<span class="net-meta">' +
-        '<span style="font-family:monospace">' + signalLabel(n.rssi) + '</span>' +
-        (n.secure ? '<span class="net-lock">🔒</span>' : '') +
-      '</span>' +
-    '</div>';
-  }).join('');
-  // Re-apply selection if still present
+  list.innerHTML = networks.map(networkItemHtml).join('');
   if (selectedSsid) {
     document.querySelectorAll('.net-item').forEach(function(el) {
       el.classList.toggle('selected', el.dataset.ssid === selectedSsid);
@@ -142,13 +143,18 @@ function renderNetworks(networks) {
 function startScan() {
   document.getElementById('net-list').innerHTML = '<p class="scanning">Scanning…</p>';
   document.getElementById('rescan').disabled = true;
-  pollNetworks();
+  pollNetworks(0);
 }
 
-function pollNetworks() {
+function pollNetworks(retries) {
+  if (retries > 15) {
+    document.getElementById('rescan').disabled = false;
+    document.getElementById('net-list').innerHTML = '<p class="scanning">Scan timed out — try rescanning.</p>';
+    return;
+  }
   fetch('/api/networkdata').then(function(r) { return r.json(); }).then(function(data) {
     if (data.scanning) {
-      setTimeout(pollNetworks, 1000);
+      setTimeout(function() { pollNetworks(retries + 1); }, 1000);
       return;
     }
     document.getElementById('rescan').disabled = false;
