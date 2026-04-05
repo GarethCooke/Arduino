@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MorayGlow — WiFi RGB LED Strip Controller</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+/* ── MD3 Design Tokens (dark scheme) ────────────────────────────── */
+:root {
+  --md-primary:           #82b4ff;
+  --md-on-primary:        #003063;
+  --md-primary-container: #00458e;
+  --md-on-primary-cont:   #d6e3ff;
+
+  --md-secondary:         #b8c8e8;
+  --md-on-secondary:      #223249;
+
+  --md-tertiary:          #d6bee4;
+  --md-on-tertiary:       #3b2948;
+
+  --md-error:             #ffb4ab;
+  --md-error-container:   #93000a;
+
+  --md-surface:           #111318;
+  --md-surface-1:         #1d2029;
+  --md-surface-2:         #222532;
+  --md-surface-3:         #272b3b;
+  --md-surface-4:         #2c3145;
+  --md-on-surface:        #e2e2e9;
+  --md-on-surface-var:    #c5c6d0;
+  --md-outline:           #8f909a;
+  --md-outline-var:       #44464f;
+
+  --md-warning:           #ffb74d;
+  --md-warning-container: #3d2000;
+  --md-success:           #79d47f;
+  --md-success-container: #003910;
+
+  --md-shape-xs:   4px;
+  --md-shape-sm:   8px;
+  --md-shape-md:   12px;
+  --md-shape-lg:   16px;
+  --md-shape-xl:   28px;
+  --md-shape-full: 9999px;
+
+  --md-elev1: 0 1px 2px rgba(0,0,0,.3), 0 1px 3px 1px rgba(0,0,0,.15);
+  --md-elev2: 0 1px 2px rgba(0,0,0,.3), 0 2px 6px 2px rgba(0,0,0,.15);
+  --md-elev3: 0 4px 8px 3px rgba(0,0,0,.15), 0 1px 3px rgba(0,0,0,.3);
+}
+
+/* ── Reset & Base ────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: "Roboto", sans-serif;
+  background: var(--md-surface);
+  color: var(--md-on-surface);
+  line-height: 1.6;
+  font-size: 14px;
+}
+a { color: var(--md-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+strong { color: var(--md-on-surface); font-weight: 500; }
+
+/* ── Navigation rail ─────────────────────────────────────────────── */
+.nav {
+  position: fixed; top: 0; left: 0; bottom: 0; width: 80px;
+  background: var(--md-surface-1);
+  border-right: 1px solid var(--md-outline-var);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 1rem 0; gap: 0.25rem; z-index: 100;
+}
+.nav-logo {
+  width: 48px; height: 48px; border-radius: var(--md-shape-md);
+  background: var(--md-primary-container);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 1rem;
+}
+.nav-logo .material-icons { color: var(--md-on-primary-cont); font-size: 28px; }
+.nav-item {
+  width: 56px; padding: 0.4rem 0; border-radius: var(--md-shape-full);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0.2rem; cursor: pointer; text-decoration: none;
+  transition: background 0.2s;
+  color: var(--md-on-surface-var); font-size: 10px;
+}
+.nav-item:hover { background: rgba(130,180,255,.1); text-decoration: none; }
+.nav-item.active { color: var(--md-primary); }
+.nav-item.active .nav-pill {
+  background: var(--md-primary-container); width: 56px; height: 32px;
+  border-radius: var(--md-shape-full);
+}
+.nav-pill { width: 56px; height: 32px; display: flex; align-items: center; justify-content: center; }
+.nav-item .material-icons { font-size: 22px; }
+
+/* ── Main layout ─────────────────────────────────────────────────── */
+.layout { margin-left: 80px; }
+
+/* ── Hero header ─────────────────────────────────────────────────── */
+.hero {
+  background: linear-gradient(135deg, #001a3d 0%, #0a0e1a 50%, #1a0a2a 100%);
+  padding: 4rem 3rem 3rem;
+  border-bottom: 1px solid var(--md-outline-var);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: -80px; right: -80px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(130,180,255,0.08) 0%, transparent 70%);
+}
+.hero::after {
+  content: '';
+  position: absolute; bottom: -60px; left: 20%;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(214,190,228,0.06) 0%, transparent 70%);
+}
+.hero-inner { max-width: 1100px; position: relative; z-index: 1; }
+.hero-eyebrow {
+  display: flex; align-items: center; gap: 0.5rem;
+  color: var(--md-primary); font-size: 0.75rem; font-weight: 500;
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem;
+}
+.hero-eyebrow .material-icons { font-size: 16px; }
+.hero h1 {
+  font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; color: #fff;
+  letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 0.75rem;
+}
+.hero h1 span { color: var(--md-primary); font-weight: 400; }
+.hero-sub {
+  font-size: 1rem; color: var(--md-on-surface-var); margin-bottom: 2rem;
+  max-width: 540px;
+}
+.chip-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.chip {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  background: rgba(130,180,255,0.12); color: var(--md-primary);
+  border: 1px solid rgba(130,180,255,0.25); border-radius: var(--md-shape-full);
+  padding: 0.25rem 0.75rem; font-size: 0.78rem; font-weight: 500;
+}
+.chip.green  { background: rgba(121,212,127,0.1);  color: var(--md-success);  border-color: rgba(121,212,127,0.25); }
+.chip.amber  { background: rgba(255,183,77,0.1);   color: var(--md-warning);  border-color: rgba(255,183,77,0.25); }
+.chip.purple { background: rgba(214,190,228,0.1);  color: var(--md-tertiary); border-color: rgba(214,190,228,0.25); }
+.chip .material-icons { font-size: 14px; }
+
+/* ── Content area ────────────────────────────────────────────────── */
+.content { max-width: 1100px; padding: 2.5rem 3rem; }
+
+/* ── Section headings ────────────────────────────────────────────── */
+.section { margin-bottom: 3rem; scroll-margin-top: 1rem; }
+.section-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
+.section-icon {
+  width: 40px; height: 40px; border-radius: var(--md-shape-sm);
+  background: var(--md-primary-container);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.section-icon .material-icons { color: var(--md-on-primary-cont); font-size: 20px; }
+.section-icon.green  { background: var(--md-success-container); }
+.section-icon.green  .material-icons { color: var(--md-success); }
+.section-icon.amber  { background: var(--md-warning-container); }
+.section-icon.amber  .material-icons { color: var(--md-warning); }
+.section-icon.purple { background: rgba(59,41,72,0.8); }
+.section-icon.purple .material-icons { color: var(--md-tertiary); }
+h2 { font-size: 1.25rem; font-weight: 500; color: var(--md-on-surface); letter-spacing: 0.01em; }
+h3 {
+  font-size: 0.95rem; font-weight: 500; color: var(--md-primary);
+  margin: 1.5rem 0 0.6rem; display: flex; align-items: center; gap: 0.4rem;
+}
+h3::before { content: ''; display: block; width: 3px; height: 1em; background: var(--md-primary); border-radius: 2px; }
+
+p  { color: var(--md-on-surface-var); margin-bottom: 0.9rem; font-size: 0.9rem; }
+ul, ol { margin: 0.5rem 0 0.9rem 1.5rem; color: var(--md-on-surface-var); font-size: 0.9rem; }
+li { margin-bottom: 0.4rem; }
+
+/* ── Cards ───────────────────────────────────────────────────────── */
+.card {
+  background: var(--md-surface-1); border-radius: var(--md-shape-lg);
+  border: 1px solid var(--md-outline-var); padding: 1.5rem;
+  margin-bottom: 1rem; box-shadow: var(--md-elev1);
+}
+.card-row { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.card-row .card { flex: 1; min-width: 200px; margin-bottom: 0; }
+.card-label { font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: var(--md-outline); margin-bottom: 0.4rem; }
+.card-value { font-size: 0.9rem; color: var(--md-on-surface); }
+.card-value small { color: var(--md-outline); }
+
+/* ── Flow diagram ────────────────────────────────────────────────── */
+.flow-diagram {
+  background: var(--md-surface-1); border: 1px solid var(--md-outline-var);
+  border-radius: var(--md-shape-lg); padding: 2rem 1.5rem;
+  margin: 1.25rem 0; overflow-x: auto;
+}
+.flow { display: flex; align-items: stretch; flex-wrap: nowrap; gap: 0; min-width: 600px; }
+.flow-node {
+  flex: 1; background: var(--md-surface-2);
+  border: 1px solid var(--md-outline-var); border-radius: var(--md-shape-md);
+  padding: 1rem 0.75rem; text-align: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.25rem; transition: border-color 0.2s;
+}
+.flow-node:hover { border-color: var(--md-primary); }
+.flow-node .material-icons { font-size: 24px; color: var(--md-primary); margin-bottom: 0.25rem; }
+.flow-node.green  .material-icons { color: var(--md-success); }
+.flow-node.amber  .material-icons { color: var(--md-warning); }
+.flow-node.purple .material-icons { color: var(--md-tertiary); }
+.flow-node strong { font-size: 0.85rem; color: var(--md-on-surface); font-weight: 500; display: block; }
+.flow-node small  { font-size: 0.72rem; color: var(--md-outline); display: block; }
+.flow-node .flow-topic { font-size: 0.65rem; color: var(--md-primary); margin-top: 0.3rem; font-family: "Roboto Mono", monospace; }
+.flow-connector {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 0 0.4rem; min-width: 44px; gap: 0.15rem;
+}
+.flow-connector .material-icons { font-size: 18px; color: var(--md-primary); }
+.flow-connector.ble .material-icons { color: var(--md-tertiary); }
+.flow-connector span { font-size: 0.6rem; color: var(--md-outline); text-align: center; }
+
+/* ── Schematic ───────────────────────────────────────────────────── */
+.schematic-card {
+  background: var(--md-surface-1); border: 1px solid var(--md-outline-var);
+  border-radius: var(--md-shape-lg); padding: 1.5rem;
+  margin: 1.25rem 0; box-shadow: var(--md-elev2);
+}
+.schematic-card svg { display: block; width: 100%; height: auto; }
+
+/* ── Tables ──────────────────────────────────────────────────────── */
+.table-wrap { border-radius: var(--md-shape-md); overflow: hidden; border: 1px solid var(--md-outline-var); margin: 1rem 0; }
+table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+thead tr { background: var(--md-surface-3); }
+th { padding: 0.75rem 1rem; text-align: left; color: var(--md-on-surface); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+td { padding: 0.7rem 1rem; border-top: 1px solid var(--md-outline-var); color: var(--md-on-surface-var); vertical-align: top; }
+tbody tr:hover { background: rgba(130,180,255,0.04); }
+td:first-child { color: var(--md-on-surface); font-weight: 500; font-family: "Roboto Mono", monospace; font-size: 0.82rem; }
+
+/* ── Code ────────────────────────────────────────────────────────── */
+.code-block {
+  background: #0d1117; border: 1px solid var(--md-outline-var);
+  border-radius: var(--md-shape-md); overflow: hidden; margin: 0.8rem 0 1.2rem;
+}
+.code-header {
+  background: var(--md-surface-3); padding: 0.5rem 1rem;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--md-outline-var);
+}
+.code-header span { font-size: 0.75rem; color: var(--md-outline); font-family: "Roboto Mono", monospace; }
+.code-header .material-icons { font-size: 16px; color: var(--md-outline); cursor: pointer; }
+.code-header .material-icons:hover { color: var(--md-primary); }
+pre { padding: 1rem 1.25rem; overflow-x: auto; font-size: 0.82rem; line-height: 1.6; background: transparent; border: none; border-radius: 0; margin: 0; }
+code { font-family: "Roboto Mono", monospace; color: #c9d1d9; }
+p code, li code {
+  background: var(--md-surface-3); padding: 0.1em 0.45em;
+  border-radius: var(--md-shape-xs); font-size: 0.82em;
+  color: var(--md-primary); font-family: "Roboto Mono", monospace;
+  border: 1px solid var(--md-outline-var);
+}
+
+/* ── Alert banners ───────────────────────────────────────────────── */
+.alert {
+  display: flex; gap: 0.75rem; align-items: flex-start;
+  border-radius: var(--md-shape-md); padding: 0.9rem 1rem;
+  margin: 1rem 0; font-size: 0.875rem;
+}
+.alert .material-icons { font-size: 20px; flex-shrink: 0; margin-top: 0.1rem; }
+.alert-body { color: var(--md-on-surface-var); }
+.alert-body strong { color: var(--md-on-surface); }
+.alert.info    { background: rgba(130,180,255,0.08); border: 1px solid rgba(130,180,255,0.2); }
+.alert.info    .material-icons { color: var(--md-primary); }
+.alert.warning { background: rgba(255,183,77,0.08);  border: 1px solid rgba(255,183,77,0.2); }
+.alert.warning .material-icons { color: var(--md-warning); }
+
+/* ── Numbered steps ──────────────────────────────────────────────── */
+.steps { display: flex; flex-direction: column; gap: 0; margin: 1rem 0; }
+.step  { display: flex; gap: 1rem; padding: 1rem 0; position: relative; }
+.step:not(:last-child)::after {
+  content: ''; position: absolute; left: 19px; top: 48px; bottom: 0;
+  width: 2px; background: var(--md-outline-var);
+}
+.step-num {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  background: var(--md-primary-container);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.9rem; color: var(--md-on-primary-cont);
+  position: relative; z-index: 1;
+}
+.step-body h3 { margin-top: 0.5rem; }
+.step-body p  { margin-bottom: 0.5rem; }
+
+/* ── BLE / protocol sequence steps ──────────────────────────────── */
+.ble-steps { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; }
+.ble-step {
+  display: flex; align-items: center; gap: 1rem;
+  background: var(--md-surface-2); border: 1px solid var(--md-outline-var);
+  border-radius: var(--md-shape-md); padding: 0.75rem 1rem;
+  transition: border-color 0.15s;
+}
+.ble-step:hover { border-color: var(--md-primary); }
+.ble-step-n {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  background: var(--md-primary-container); color: var(--md-on-primary-cont);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700;
+}
+.ble-step-text { font-size: 0.875rem; color: var(--md-on-surface-var); flex: 1; }
+.ble-step-text strong { color: var(--md-on-surface); }
+
+/* ── Reference grid ──────────────────────────────────────────────── */
+.ref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+.ref-card {
+  background: var(--md-surface-1); border: 1px solid var(--md-outline-var);
+  border-radius: var(--md-shape-lg); padding: 1rem 1.1rem;
+  display: flex; align-items: flex-start; gap: 0.85rem;
+  text-decoration: none; color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.ref-card:hover { border-color: var(--md-primary); box-shadow: var(--md-elev2); text-decoration: none; }
+.ref-icon {
+  width: 38px; height: 38px; border-radius: var(--md-shape-sm); flex-shrink: 0;
+  background: var(--md-primary-container);
+  display: flex; align-items: center; justify-content: center;
+}
+.ref-icon .material-icons { font-size: 20px; color: var(--md-on-primary-cont); }
+.ref-icon.green  { background: var(--md-success-container); }
+.ref-icon.green  .material-icons { color: var(--md-success); }
+.ref-icon.amber  { background: var(--md-warning-container); }
+.ref-icon.amber  .material-icons { color: var(--md-warning); }
+.ref-icon.purple { background: rgba(59,41,72,0.8); }
+.ref-icon.purple .material-icons { color: var(--md-tertiary); }
+.ref-icon.red    { background: rgba(147,0,10,0.4); }
+.ref-icon.red    .material-icons { color: var(--md-error); }
+.ref-title { font-size: 0.9rem; font-weight: 500; color: var(--md-on-surface); display: block; margin-bottom: 0.2rem; }
+.ref-desc  { font-size: 0.78rem; color: var(--md-outline); line-height: 1.4; display: block; }
+
+/* ── Footer ──────────────────────────────────────────────────────── */
+footer {
+  border-top: 1px solid var(--md-outline-var); margin-left: 80px;
+  padding: 1.5rem 3rem; display: flex; align-items: center; gap: 0.5rem;
+  color: var(--md-outline); font-size: 0.8rem;
+}
+footer .material-icons { font-size: 16px; }
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .nav { display: none; }
+  .layout, footer { margin-left: 0; }
+  .hero, .content { padding: 2rem 1.25rem; }
+  .flow { flex-wrap: wrap; min-width: unset; }
+}
+
+/* ── Project-specific overrides (add below this line if needed) ─── */
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation Rail ───────────────────────────────────────────────── -->
+<nav class="nav">
+  <div class="nav-logo"><span class="material-icons">lightbulb</span></div>
+
+  <a class="nav-item active" href="#overview">
+    <div class="nav-pill"><span class="material-icons">info</span></div>
+    <span>About</span>
+  </a>
+  <a class="nav-item" href="#hardware">
+    <div class="nav-pill"><span class="material-icons">memory</span></div>
+    <span>HW</span>
+  </a>
+  <a class="nav-item" href="#schematic">
+    <div class="nav-pill"><span class="material-icons">schema</span></div>
+    <span>Wiring</span>
+  </a>
+  <a class="nav-item" href="#pinout">
+    <div class="nav-pill"><span class="material-icons">developer_board</span></div>
+    <span>Pins</span>
+  </a>
+  <a class="nav-item" href="#firmware">
+    <div class="nav-pill"><span class="material-icons">code</span></div>
+    <span>FW</span>
+  </a>
+  <a class="nav-item" href="#api">
+    <div class="nav-pill"><span class="material-icons">api</span></div>
+    <span>API</span>
+  </a>
+  <a class="nav-item" href="#structure">
+    <div class="nav-pill"><span class="material-icons">folder</span></div>
+    <span>Files</span>
+  </a>
+  <a class="nav-item" href="#references">
+    <div class="nav-pill"><span class="material-icons">link</span></div>
+    <span>Refs</span>
+  </a>
+</nav>
+
+<div class="layout">
+
+  <!-- ── Hero ─────────────────────────────────────────────────────────── -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">
+        <span class="material-icons">lightbulb</span>
+        IoT LED Controller · ESP32-S3
+      </div>
+      <h1>Moray<span>Glow</span></h1>
+      <p class="hero-sub">WiFi-connected RGB LED strip controller built on the Seeed XIAO ESP32-S3 — REST API, live WebSocket, and Home Assistant MQTT auto-discovery, served from a captive-portal-capable device with no cloud dependency.</p>
+      <div class="chip-row">
+        <span class="chip"><span class="material-icons">code</span>C++</span>
+        <span class="chip"><span class="material-icons">code</span>JavaScript</span>
+        <span class="chip green"><span class="material-icons">memory</span>XIAO ESP32-S3</span>
+        <span class="chip amber"><span class="material-icons">wifi</span>WiFi 2.4 GHz</span>
+        <span class="chip amber"><span class="material-icons">sensors</span>MQTT</span>
+        <span class="chip amber"><span class="material-icons">http</span>REST + WebSocket</span>
+        <span class="chip purple"><span class="material-icons">build</span>PlatformIO</span>
+        <span class="chip green"><span class="material-icons">home</span>Home Assistant</span>
+        <span class="chip purple"><span class="material-icons">storage</span>LittleFS</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ── 1. OVERVIEW ──────────────────────────────────────────────────── -->
+    <section class="section" id="overview">
+      <div class="section-header">
+        <div class="section-icon">
+          <span class="material-icons">info</span>
+        </div>
+        <h2>Overview</h2>
+      </div>
+
+      <p>MorayGlow is a compact WiFi-connected RGB LED strip controller built around the Seeed XIAO ESP32-S3. It drives a 12 V 5050 RGB strip through three IRLML6344TR N-channel MOSFETs, with smooth hardware PWM at 1 kHz delivered by the ESP32's LEDC peripheral across three independent 8-bit channels. An MP1584 buck converter steps the 12 V supply down to 5 V to power the XIAO, so the only external supply needed is a single 12 V DC adapter.</p>
+
+      <p>The device exposes a REST API and a live WebSocket feed, meaning any browser on the local network can control power, colour, and animation mode in real time. The web UI is bundled in LittleFS and served directly from the XIAO — no cloud intermediary, no mobile app. Full Home Assistant integration is handled through MQTT auto-discovery: on every broker reconnect the device publishes its configuration to <code>homeassistant/light/&lt;device-id&gt;/config</code>, registering itself as a <code>light</code> entity with RGB colour support.</p>
+
+      <p>On first boot, or after a factory reset triggered by a 5-second button hold, the device launches a captive-portal access point so WiFi credentials can be configured from any phone or laptop. Once connected, it registers a MAC-derived mDNS hostname (<code>morrayglow-XXXXXX.local</code>) and an mDNS device-discovery endpoint lets a single web UI tile browse and control all MorayGlow units on the network simultaneously.</p>
+
+      <h3>System Data Flow</h3>
+      <div class="flow-diagram">
+        <div class="flow">
+          <div class="flow-node green">
+            <span class="material-icons">home</span>
+            <strong>Home Assistant</strong>
+            <small>HA light entity</small>
+            <span class="flow-topic">light.morrayglow</span>
+          </div>
+          <div class="flow-connector">
+            <span class="material-icons">swap_horiz</span>
+            <span>MQTT</span>
+          </div>
+          <div class="flow-node amber">
+            <span class="material-icons">hub</span>
+            <strong>MQTT Broker</strong>
+            <small>Mosquitto / etc.</small>
+            <span class="flow-topic">&lt;id&gt;/command</span>
+          </div>
+          <div class="flow-connector">
+            <span class="material-icons">swap_horiz</span>
+            <span>TCP 1883</span>
+          </div>
+          <div class="flow-node purple">
+            <span class="material-icons">developer_board</span>
+            <strong>XIAO ESP32-S3</strong>
+            <small>MorayGlow firmware</small>
+            <span class="flow-topic">applyLedState()</span>
+          </div>
+          <div class="flow-connector">
+            <span class="material-icons">swap_horiz</span>
+            <span>REST / WS</span>
+          </div>
+          <div class="flow-node">
+            <span class="material-icons">web</span>
+            <strong>Web UI</strong>
+            <small>Browser client</small>
+            <span class="flow-topic">/ws · /api/*</span>
+          </div>
+        </div>
+      </div>
+
+      <h3>State Change Sequence</h3>
+      <div class="ble-steps">
+        <div class="ble-step">
+          <div class="ble-step-n">1</div>
+          <div class="ble-step-text">State change arrives via <strong>REST POST</strong>, incoming <strong>WebSocket message</strong>, or <strong>MQTT command</strong> on <code>&lt;device-id&gt;/command</code></div>
+        </div>
+        <div class="ble-step">
+          <div class="ble-step-n">2</div>
+          <div class="ble-step-text">Handler writes to shared globals: <code>ledOn</code>, <code>ledColor</code> (hex string), <code>cycleMode</code></div>
+        </div>
+        <div class="ble-step">
+          <div class="ble-step-n">3</div>
+          <div class="ble-step-text"><code>applyLedState()</code> drives GPIO1–GPIO3 via LEDC hardware PWM — RGB channels update immediately</div>
+        </div>
+        <div class="ble-step">
+          <div class="ble-step-n">4</div>
+          <div class="ble-step-text"><code>broadcastState()</code> pushes JSON state to <strong>all connected WebSocket clients</strong> so every open browser tab updates in real time</div>
+        </div>
+        <div class="ble-step">
+          <div class="ble-step-n">5</div>
+          <div class="ble-step-text"><code>mqttPublishState()</code> publishes a <strong>retained</strong> message to <code>&lt;device-id&gt;/state</code> — Home Assistant receives the new light state</div>
+        </div>
+      </div>
+
+      <div class="alert info">
+        <span class="material-icons">info</span>
+        <div class="alert-body"><strong>Single unified state path.</strong> Every control source — REST, WebSocket, or MQTT — converges on the same three global variables before calling <code>applyLedState()</code>. There is no per-source state; after any change, all clients see a consistent view. This means an MQTT command from Home Assistant is instantly reflected in any open browser tabs, and vice versa.</div>
+      </div>
+    </section>
+
+    <!-- ── 2. HARDWARE ───────────────────────────────────────────────────── -->
+    <section class="section" id="hardware">
+      <div class="section-header">
+        <div class="section-icon green">
+          <span class="material-icons">memory</span>
+        </div>
+        <h2>Hardware</h2>
+      </div>
+
+      <div class="card-row">
+        <div class="card">
+          <div class="card-label">MCU</div>
+          <div class="card-value">Seeed XIAO ESP32-S3<br><small>Xtensa LX7 dual-core 240 MHz · 8 MB Flash · WiFi 2.4 GHz · USB-C</small></div>
+        </div>
+        <div class="card">
+          <div class="card-label">RGB Output</div>
+          <div class="card-value">3× IRLML6344TR N-MOSFET<br><small>One per colour channel · LEDC hardware PWM 1 kHz 8-bit · 12 V 5050 strip</small></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Power</div>
+          <div class="card-value">MP1584 buck converter<br><small>12 V in → 5 V out for XIAO · USB-C used for programming and flashing only</small></div>
+        </div>
+      </div>
+      <div class="card-row">
+        <div class="card">
+          <div class="card-label">Status LED</div>
+          <div class="card-value">GPIO4 / D3 — active HIGH<br><small>330 Ω to GND · boot blink (2×), WiFi connecting (fast blink), AP mode (slow 4×)</small></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Button</div>
+          <div class="card-value">GPIO5 / D4 — INPUT_PULLUP<br><small>Active LOW · hold 5 s to factory-reset · blink rate increases as hold approaches threshold</small></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Colour Cycle</div>
+          <div class="card-value">8-colour auto sequence<br><small>Red → Green → Blue → Yellow → Cyan → Magenta → White → Amber · 3 s interval</small></div>
+        </div>
+      </div>
+
+      <div class="alert warning">
+        <span class="material-icons">warning</span>
+        <div class="alert-body"><strong>12 V strip requires external MOSFETs.</strong> The XIAO's GPIO pins operate at 3.3 V and source only a few milliamps — far too weak to switch a 12 V RGB strip directly. Three IRLML6344TR N-channel MOSFETs (one per R/G/B channel) are required. The MP1584 buck converter takes the 12 V input and steps it down to 5 V for the XIAO's 5 V pad. See the <a href="#schematic">Wiring section</a> for the circuit overview.</div>
+      </div>
+    </section>
+
+    <!-- ── 3. SCHEMATIC ──────────────────────────────────────────────────── -->
+    <section class="section" id="schematic">
+      <div class="section-header">
+        <div class="section-icon green">
+          <span class="material-icons">schema</span>
+        </div>
+        <h2>Wiring / Schematic</h2>
+      </div>
+
+      <p>A single 12 V DC supply powers both the RGB strip and (via the MP1584 buck converter) the XIAO. GPIO1–GPIO3 drive the MOSFET gates for the Red, Green, and Blue channels respectively. An optional status LED on GPIO4 uses a 330 Ω current-limiting resistor to GND. The tactile button on GPIO5 uses the internal pull-up — pressing it pulls the pin LOW.</p>
+      <p>The RGB strip's common anode connects to 12 V; each colour cathode connects to the MOSFET drain. Gate resistors (100 Ω recommended) between the GPIO pins and MOSFET gates improve switching performance and protect against ringing.</p>
+
+      <div class="schematic-card">
+        <svg width="780" height="410" viewBox="0 0 780 410" xmlns="http://www.w3.org/2000/svg"
+             font-family="'Roboto Mono', monospace" font-size="11">
+
+          <!-- Background -->
+          <rect width="780" height="410" fill="#0d1117" rx="10"/>
+
+          <!-- Grid dots -->
+          <pattern id="grid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle cx="10" cy="10" r="0.8" fill="#1e2a3a"/>
+          </pattern>
+          <rect width="780" height="410" fill="url(#grid)" rx="10"/>
+
+          <!-- ── USB-C Power Supply ────────────────────────────────────── -->
+          <rect x="22" y="148" width="108" height="60" rx="8" fill="#0d1a0d" stroke="#4caf50" stroke-width="1.5"/>
+          <text x="76" y="170" text-anchor="middle" fill="#4caf50" font-weight="bold" font-size="12">USB-C PSU</text>
+          <text x="76" y="186" text-anchor="middle" fill="#666" font-size="10">5 V / 1 A min</text>
+          <text x="76" y="200" text-anchor="middle" fill="#555" font-size="9">MP1584 → 5 V</text>
+          <rect x="126" y="160" width="8" height="18" rx="3" fill="#4caf50" opacity="0.8"/>
+          <rect x="128" y="163" width="4" height="12" rx="1" fill="#0d1a0d"/>
+
+          <!-- ── XIAO ESP32-S3 ─────────────────────────────────────────── -->
+          <rect x="286" y="78" width="184" height="254" rx="10" fill="rgba(0,70,142,0.15)"/>
+          <rect x="282" y="74" width="184" height="254" rx="10" fill="#101828" stroke="#82b4ff" stroke-width="2"/>
+          <rect x="294" y="86" width="160" height="230" rx="6" fill="#0a1520" stroke="#1a2a3a" stroke-width="1"/>
+          <rect x="294" y="86" width="160" height="24" rx="6" fill="#0d2040"/>
+          <text x="374" y="103" text-anchor="middle" fill="#82b4ff" font-weight="bold" font-size="11">XIAO ESP32-S3</text>
+
+          <!-- Left pin header (7 pins) -->
+          <rect x="282" y="118" width="14" height="188" rx="3" fill="#1a2a1a" stroke="#3a3a1a" stroke-width="1"/>
+          <!-- Right pin header (7 pins) -->
+          <rect x="452" y="118" width="14" height="188" rx="3" fill="#1a2a1a" stroke="#3a3a1a" stroke-width="1"/>
+
+          <!-- USB-C port (top centre) -->
+          <rect x="356" y="66" width="36" height="12" rx="3" fill="#333" stroke="#888" stroke-width="1.2"/>
+          <rect x="360" y="68" width="28" height="8" rx="2" fill="#222"/>
+          <text x="374" y="62" text-anchor="middle" fill="#555" font-size="9">USB-C</text>
+
+          <!-- Pin badge: 5V (green) -->
+          <rect x="264" y="118" width="28" height="14" rx="3" fill="#0d2a0d" stroke="#4caf50" stroke-width="1.2"/>
+          <text x="278" y="129" text-anchor="middle" fill="#4caf50" font-size="9" font-weight="bold">5V</text>
+
+          <!-- Pin badge: GND (red) -->
+          <rect x="264" y="138" width="28" height="14" rx="3" fill="#2a0d0d" stroke="#ef5350" stroke-width="1.2"/>
+          <text x="278" y="149" text-anchor="middle" fill="#ef5350" font-size="9" font-weight="bold">GND</text>
+
+          <!-- Pin badge: D0/GPIO1 RED PWM (amber) -->
+          <rect x="264" y="158" width="28" height="14" rx="3" fill="#1a1200" stroke="#ffb74d" stroke-width="1.2"/>
+          <text x="278" y="169" text-anchor="middle" fill="#ffb74d" font-size="9" font-weight="bold">D0</text>
+
+          <!-- Pin badge: D1/GPIO2 GREEN PWM (amber) -->
+          <rect x="264" y="178" width="28" height="14" rx="3" fill="#1a1200" stroke="#ffb74d" stroke-width="1.2"/>
+          <text x="278" y="189" text-anchor="middle" fill="#ffb74d" font-size="9" font-weight="bold">D1</text>
+
+          <!-- Pin badge: D2/GPIO3 BLUE PWM (amber) -->
+          <rect x="264" y="198" width="28" height="14" rx="3" fill="#1a1200" stroke="#ffb74d" stroke-width="1.2"/>
+          <text x="278" y="209" text-anchor="middle" fill="#ffb74d" font-size="9" font-weight="bold">D2</text>
+
+          <!-- Pin badge: D3/GPIO4 STATUS LED (amber) -->
+          <rect x="264" y="218" width="28" height="14" rx="3" fill="#1a1200" stroke="#ffb74d" stroke-width="1.2"/>
+          <text x="278" y="229" text-anchor="middle" fill="#ffb74d" font-size="9" font-weight="bold">D3</text>
+
+          <!-- Pin badge: D4/GPIO5 BUTTON (purple) -->
+          <rect x="264" y="238" width="28" height="14" rx="3" fill="#1a0a28" stroke="#d6bee4" stroke-width="1.2"/>
+          <text x="278" y="249" text-anchor="middle" fill="#d6bee4" font-size="9" font-weight="bold">D4</text>
+
+          <!-- Pin function labels inside board -->
+          <text x="305" y="129" fill="#bbb" font-size="9">5 V power pad</text>
+          <text x="305" y="149" fill="#bbb" font-size="9">Ground</text>
+          <text x="305" y="169" fill="#ffb74d" font-size="9">D0 · Red PWM</text>
+          <text x="305" y="189" fill="#ffb74d" font-size="9">D1 · Green PWM</text>
+          <text x="305" y="209" fill="#ffb74d" font-size="9">D2 · Blue PWM</text>
+          <text x="305" y="229" fill="#ffb74d" font-size="9">D3 · Status LED</text>
+          <text x="305" y="249" fill="#d6bee4" font-size="9">D4 · Button in</text>
+
+          <!-- ESP32-S3 chip outline -->
+          <rect x="324" y="258" width="100" height="40" rx="4" fill="#0a0f1a" stroke="#1e3a5f" stroke-width="1.5"/>
+          <text x="374" y="276" text-anchor="middle" fill="#2a4a7a" font-size="10">ESP32-S3</text>
+          <text x="374" y="290" text-anchor="middle" fill="#1e3050" font-size="9">Xtensa LX7 dual-core</text>
+
+          <!-- PCB antenna -->
+          <text x="368" y="314" text-anchor="end" fill="#82b4ff" font-size="9">2.4 GHz</text>
+          <line x1="370" y1="310" x2="394" y2="310" stroke="#82b4ff" stroke-width="1.5"/>
+          <line x1="380" y1="310" x2="380" y2="297" stroke="#82b4ff" stroke-width="1.5"/>
+          <line x1="374" y1="303" x2="386" y2="303" stroke="#82b4ff" stroke-width="1.2"/>
+          <line x1="376" y1="297" x2="384" y2="297" stroke="#82b4ff" stroke-width="1"/>
+          <circle cx="380" cy="314" r="2" fill="#82b4ff"/>
+
+          <!-- WiFi arcs -->
+          <text x="374" y="334" text-anchor="middle" fill="#82b4ff" font-size="9">WiFi 2.4 GHz</text>
+          <path d="M350,342 Q374,334 398,342" stroke="#82b4ff" stroke-width="1" fill="none" opacity="0.7"/>
+          <path d="M356,348 Q374,341 392,348" stroke="#82b4ff" stroke-width="1" fill="none" opacity="0.7"/>
+          <path d="M362,354 Q374,348 386,354" stroke="#82b4ff" stroke-width="1" fill="none" opacity="0.7"/>
+          <circle cx="374" cy="357" r="2" fill="#82b4ff"/>
+          <text x="374" y="370" text-anchor="middle" fill="#444" font-size="8">→ MQTT broker / REST API</text>
+
+          <!-- ── Power wires PSU → XIAO ── -->
+          <line x1="134" y1="168" x2="261" y2="125" stroke="#4caf50" stroke-width="2" stroke-dasharray="7,4"/>
+          <line x1="134" y1="186" x2="261" y2="145" stroke="#ef5350" stroke-width="2" stroke-dasharray="7,4"/>
+          <text x="192" y="138" text-anchor="middle" fill="#4caf50" font-size="10" transform="rotate(-16,192,138)">5 V</text>
+          <text x="196" y="172" text-anchor="middle" fill="#ef5350" font-size="10" transform="rotate(-9,196,172)">GND</text>
+
+          <!-- ── RGB strip callout (right side) ─────────────────────────── -->
+          <rect x="490" y="56" width="178" height="22" rx="11" fill="#0d1a0d" stroke="#4caf50" stroke-width="1"/>
+          <text x="579" y="71" text-anchor="middle" fill="#4caf50" font-size="10" font-weight="bold">12 V RGB Strip (via MOSFETs)</text>
+
+          <!-- Three wires from right board edge to strip callout -->
+          <line x1="466" y1="165" x2="540" y2="165" stroke="#ef5350" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <line x1="466" y1="185" x2="540" y2="185" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <line x1="466" y1="205" x2="540" y2="205" stroke="#4488ff" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <line x1="540" y1="165" x2="540" y2="78" stroke="#ef5350" stroke-width="1" stroke-dasharray="5,3"/>
+          <line x1="540" y1="185" x2="550" y2="185" stroke="#4caf50" stroke-width="1" stroke-dasharray="5,3"/>
+          <line x1="540" y1="205" x2="550" y2="205" stroke="#4488ff" stroke-width="1" stroke-dasharray="5,3"/>
+          <line x1="540" y1="78" x2="490" y2="67" stroke="#ef5350" stroke-width="1"/>
+          <text x="500" y="160" fill="#ef5350" font-size="8">R</text>
+          <text x="500" y="180" fill="#4caf50" font-size="8">G</text>
+          <text x="500" y="200" fill="#4488ff" font-size="8">B</text>
+
+          <!-- ── Optional circuit callout — status LED ─────────────────── -->
+          <rect x="574" y="100" width="150" height="22" rx="11" fill="#2a1800" stroke="#ffb74d" stroke-width="1"/>
+          <text x="649" y="115" text-anchor="middle" fill="#ffb74d" font-size="10" font-weight="bold">OPTIONAL — status LED</text>
+
+          <!-- LED symbol -->
+          <line x1="622" y1="146" x2="622" y2="174" stroke="#ffb74d" stroke-width="2"/>
+          <polygon points="612,174 632,174 622,190" fill="#2a1800" stroke="#ffb74d" stroke-width="1.5"/>
+          <line x1="612" y1="190" x2="632" y2="190" stroke="#ffb74d" stroke-width="2"/>
+          <line x1="622" y1="190" x2="622" y2="212" stroke="#888" stroke-width="1.5"/>
+          <line x1="635" y1="178" x2="648" y2="168" stroke="#ffb74d" stroke-width="1.2" stroke-dasharray="2,2"/>
+          <line x1="638" y1="185" x2="654" y2="180" stroke="#ffb74d" stroke-width="1.2" stroke-dasharray="2,2"/>
+          <text x="622" y="140" text-anchor="middle" fill="#ffb74d" font-size="10">LED</text>
+          <text x="622" y="228" text-anchor="middle" fill="#888" font-size="9">any colour</text>
+
+          <!-- Resistor symbol -->
+          <line x1="622" y1="228" x2="622" y2="242" stroke="#888" stroke-width="1.5"/>
+          <rect x="610" y="242" width="24" height="44" rx="2" fill="#1a1400" stroke="#aaa" stroke-width="1.5"/>
+          <line x1="612" y1="254" x2="634" y2="254" stroke="#ff6b35" stroke-width="2.5"/>
+          <line x1="612" y1="262" x2="634" y2="262" stroke="#ff6b35" stroke-width="2.5"/>
+          <line x1="612" y1="270" x2="634" y2="270" stroke="#888" stroke-width="2.5"/>
+          <text x="648" y="258" fill="#aaa" font-size="10">330 Ω</text>
+          <text x="648" y="271" fill="#666" font-size="9">¼ W</text>
+          <line x1="622" y1="286" x2="622" y2="306" stroke="#888" stroke-width="1.5"/>
+
+          <!-- GND symbol -->
+          <line x1="590" y1="306" x2="660" y2="306" stroke="#888" stroke-width="1.5"/>
+          <line x1="612" y1="306" x2="632" y2="306" stroke="#888" stroke-width="2"/>
+          <line x1="615" y1="312" x2="629" y2="312" stroke="#888" stroke-width="1.5"/>
+          <line x1="619" y1="318" x2="625" y2="318" stroke="#888" stroke-width="1"/>
+          <text x="670" y="315" fill="#888" font-size="10">GND</text>
+
+          <!-- GPIO signal wire D3 → status LED callout -->
+          <line x1="294" y1="225" x2="572" y2="225" stroke="#ffb74d" stroke-width="1.5" stroke-dasharray="6,4"/>
+          <line x1="572" y1="225" x2="572" y2="146" stroke="#ffb74d" stroke-width="1.5"/>
+          <line x1="572" y1="146" x2="622" y2="146" stroke="#ffb74d" stroke-width="1.5"/>
+          <text x="420" y="219" text-anchor="middle" fill="#ffb74d" font-size="9">D3/GPIO4 (status LED)</text>
+
+          <!-- GND return wire -->
+          <line x1="294" y1="145" x2="542" y2="145" stroke="#ef5350" stroke-width="1" stroke-dasharray="5,4" opacity="0.5"/>
+          <line x1="542" y1="145" x2="542" y2="306" stroke="#ef5350" stroke-width="1" stroke-dasharray="5,4" opacity="0.5"/>
+          <line x1="542" y1="306" x2="590" y2="306" stroke="#ef5350" stroke-width="1" stroke-dasharray="5,4" opacity="0.5"/>
+
+          <!-- ── Legend ── -->
+          <rect x="22" y="296" width="230" height="98" rx="8" fill="#0a0f1a" stroke="#1e2a3a" stroke-width="1"/>
+          <text x="38" y="316" fill="#82b4ff" font-size="11" font-weight="bold">LEGEND</text>
+          <line x1="38" y1="330" x2="75" y2="330" stroke="#4caf50" stroke-width="2" stroke-dasharray="7,4"/>
+          <text x="82" y="334" fill="#888" font-size="10">5 V power</text>
+          <line x1="38" y1="345" x2="75" y2="345" stroke="#ef5350" stroke-width="2" stroke-dasharray="7,4"/>
+          <text x="82" y="349" fill="#888" font-size="10">Ground</text>
+          <line x1="38" y1="360" x2="75" y2="360" stroke="#ffb74d" stroke-width="1.5" stroke-dasharray="6,4"/>
+          <text x="82" y="364" fill="#888" font-size="10">Status LED (D3/GPIO4)</text>
+          <line x1="38" y1="375" x2="52" y2="375" stroke="#82b4ff" stroke-width="1.5"/>
+          <path d="M52,375 Q58,369 64,375 Q70,381 76,375" stroke="#82b4ff" stroke-width="1.5" fill="none"/>
+          <text x="82" y="379" fill="#888" font-size="10">WiFi 2.4 GHz</text>
+          <line x1="38" y1="390" x2="75" y2="390" stroke="#4caf50" stroke-width="1.5" stroke-dasharray="5,3"/>
+          <text x="82" y="394" fill="#888" font-size="10">RGB channels (R/G/B)</text>
+
+        </svg>
+      </div>
+
+      <p style="font-size:0.82rem; color: var(--md-outline); margin-top: 0.5rem;">Simplified schematic — not to scale. Gate resistors (100 Ω recommended) between GPIO pins and MOSFET gates omitted for clarity. Full BOM and netlist in <code>docs/Hardware/</code>.</p>
+    </section>
+
+    <!-- ── 3b. PINOUT ────────────────────────────────────────────────────── -->
+    <section class="section" id="pinout">
+      <div class="section-header">
+        <div class="section-icon green">
+          <span class="material-icons">developer_board</span>
+        </div>
+        <h2>Pins Used</h2>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Pin</th>
+              <th>Function</th>
+              <th>Direction</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>GPIO1 / D0</td>
+              <td>Red PWM</td>
+              <td>Output</td>
+              <td>LEDC channel 0 · 1 kHz · 8-bit · drives Red MOSFET gate</td>
+            </tr>
+            <tr>
+              <td>GPIO2 / D1</td>
+              <td>Green PWM</td>
+              <td>Output</td>
+              <td>LEDC channel 1 · 1 kHz · 8-bit · drives Green MOSFET gate</td>
+            </tr>
+            <tr>
+              <td>GPIO3 / D2</td>
+              <td>Blue PWM</td>
+              <td>Output</td>
+              <td>LEDC channel 2 · 1 kHz · 8-bit · drives Blue MOSFET gate</td>
+            </tr>
+            <tr>
+              <td>GPIO4 / D3</td>
+              <td>Status LED</td>
+              <td>Output</td>
+              <td>Active HIGH · 330 Ω to GND · blinks on boot, WiFi connecting, AP mode, and hold-to-reset feedback</td>
+            </tr>
+            <tr>
+              <td>GPIO5 / D4</td>
+              <td>Button</td>
+              <td>Input</td>
+              <td>INPUT_PULLUP · active LOW (pressed = LOW) · hold 5 s = factory reset with credential wipe</td>
+            </tr>
+            <tr>
+              <td>5V pad</td>
+              <td>Power in</td>
+              <td>Input</td>
+              <td>From MP1584 buck converter output (12 V → 5 V) · do not use USB-C as primary power when strip is running</td>
+            </tr>
+            <tr>
+              <td>GND</td>
+              <td>Common ground</td>
+              <td>—</td>
+              <td>Shared with MOSFET sources, buck converter GND, and LED strip GND</td>
+            </tr>
+            <tr>
+              <td><em>(internal)</em></td>
+              <td>WiFi STA / AP</td>
+              <td>I/O</td>
+              <td>2.4 GHz · STA mode for normal operation · AP mode (<code>10.0.0.1</code>) for initial WiFi setup</td>
+            </tr>
+            <tr>
+              <td><em>(internal)</em></td>
+              <td>UART0 (Serial)</td>
+              <td>I/O</td>
+              <td>TX GPIO43 / RX GPIO44 · 115200 baud · debug output on USB-C</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── 4. FIRMWARE ───────────────────────────────────────────────────── -->
+    <section class="section" id="firmware">
+      <div class="section-header">
+        <div class="section-icon purple">
+          <span class="material-icons">code</span>
+        </div>
+        <h2>Firmware</h2>
+      </div>
+
+      <p>The firmware is built with PlatformIO targeting the Arduino framework on the Seeed XIAO ESP32-S3. Three PlatformIO environments are defined: <code>xiao_esp32s3</code> for USB flashing, <code>xiao_esp32s3_ota</code> for over-the-air updates via ArduinoOTA (password: <code>password</code>), and <code>native</code> for running C++ unit tests on the host without a device. The web UI assets in <code>data/</code> are uploaded separately to LittleFS using the <code>uploadfs</code> target.</p>
+
+      <p>State is held in three globals defined in <code>main.cpp</code> and <code>extern</code>'d into <code>webserver.cpp</code> and <code>mqtt.cpp</code>: <code>ledOn</code>, <code>ledColor</code> (a <code>#rrggbb</code> hex string), and <code>cycleMode</code>. The <code>state.h</code> header provides three <code>inline</code> helpers — <code>stateToJson()</code>, <code>rgbToHex()</code>, and <code>parseMqttCommand()</code> — that are guarded by <code>#ifndef ARDUINO</code> so they compile on the native platform for unit tests using Unity via PlatformIO.</p>
+
+      <h3>First-Time Setup</h3>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h3>Edit MQTT configuration</h3>
+            <p>Open <code>MorrayServer/include/config.h</code> and set your MQTT broker IP address and credentials before flashing.</p>
+            <div class="code-block">
+              <div class="code-header"><span>cpp</span><span class="material-icons">content_copy</span></div>
+              <pre><code>#define MQTT_HOST     "192.168.1.100"   // your broker IP
+#define MQTT_PORT     1883
+#define MQTT_USER     "mqtt_user"
+#define MQTT_PASSWORD "mqtt_pass"</code></pre>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h3>Build and flash firmware via USB</h3>
+            <p>Connect the XIAO via USB-C. On Windows, <code>pio</code> is not on PATH — invoke the full executable path.</p>
+            <div class="code-block">
+              <div class="code-header"><span>powershell</span><span class="material-icons">content_copy</span></div>
+              <pre><code>cd MorrayServer
+& "$env:USERPROFILE\.platformio\penv\Scripts\pio.exe" run -e xiao_esp32s3 -t upload</code></pre>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h3>Upload web UI to LittleFS</h3>
+            <p>The web UI files in <code>data/</code> are a separate upload target. Run this after every change to HTML/CSS/JS files.</p>
+            <div class="code-block">
+              <div class="code-header"><span>powershell</span><span class="material-icons">content_copy</span></div>
+              <pre><code>& "$env:USERPROFILE\.platformio\penv\Scripts\pio.exe" run -e xiao_esp32s3 -t uploadfs</code></pre>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h3>Configure WiFi via captive portal</h3>
+            <p>On first boot (no saved credentials), the device starts AP <code>MorrayGlow-XXXXXX</code>. Connect to it and visit <code>http://10.0.0.1</code> to enter your WiFi credentials. The device restarts into station mode.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <h3>OTA updates (after WiFi is configured)</h3>
+            <p>Once the device is on your network, flash wirelessly using the OTA environment. The device hostname is printed to serial on boot.</p>
+            <div class="code-block">
+              <div class="code-header"><span>powershell</span><span class="material-icons">content_copy</span></div>
+              <pre><code># Flash firmware over WiFi
+& "$env:USERPROFILE\.platformio\penv\Scripts\pio.exe" run -e xiao_esp32s3_ota -t upload --upload-port morrayglow-a1b2c3.local
+
+# Flash filesystem over WiFi
+& "$env:USERPROFILE\.platformio\penv\Scripts\pio.exe" run -e xiao_esp32s3_ota -t uploadfs --upload-port morrayglow-a1b2c3.local</code></pre>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">6</div>
+          <div class="step-body">
+            <h3>Run native unit tests (no device needed)</h3>
+            <p>Unit tests for <code>state.h</code> logic (JSON serialisation, hex conversion, MQTT command parsing) run on the host via the <code>native</code> environment using Unity.</p>
+            <div class="code-block">
+              <div class="code-header"><span>powershell</span><span class="material-icons">content_copy</span></div>
+              <pre><code>& "$env:USERPROFILE\.platformio\penv\Scripts\pio.exe" test -e native</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Client Dev Server</h3>
+      <p>The <code>MorrayClient/test-server/</code> Node.js mock server mirrors the firmware's REST and WebSocket API exactly. Use it to develop the web UI without a physical device.</p>
+      <div class="code-block">
+        <div class="code-header"><span>bash</span><span class="material-icons">content_copy</span></div>
+        <pre><code>cd MorrayClient/test-server
+npm install   # first time only
+npm start     # → http://localhost:3000</code></pre>
+      </div>
+
+      <div class="alert warning">
+        <span class="material-icons">warning</span>
+        <div class="alert-body"><strong>OTA requires Windows Firewall rules.</strong> ArduinoOTA requires the ESP32 to connect back to the host on an ephemeral port. Windows Firewall must allow inbound TCP connections for <code>%USERPROFILE%\.platformio\penv\Scripts\python.exe</code>. IoT network isolation (common on mesh routers) will block the OTA callback — move the device to the main network or use USB flashing.</div>
+      </div>
+    </section>
+
+    <!-- ── 5. API REFERENCE ──────────────────────────────────────────────── -->
+    <section class="section" id="api">
+      <div class="section-header">
+        <div class="section-icon amber">
+          <span class="material-icons">api</span>
+        </div>
+        <h2>API Reference</h2>
+      </div>
+
+      <h3>REST Endpoints</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Path</th><th>Request Body</th><th>Response</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>GET</td>
+              <td>/api/state</td>
+              <td>—</td>
+              <td><code>{"on":bool,"color":"#rrggbb","cycle":bool}</code></td>
+            </tr>
+            <tr>
+              <td>POST</td>
+              <td>/api/power</td>
+              <td><code>{"on":bool}</code></td>
+              <td>State JSON (same as above)</td>
+            </tr>
+            <tr>
+              <td>POST</td>
+              <td>/api/color</td>
+              <td><code>{"color":"#rrggbb"}</code></td>
+              <td>State JSON · also sets <code>cycle=false</code></td>
+            </tr>
+            <tr>
+              <td>POST</td>
+              <td>/api/mode</td>
+              <td><code>{"cycle":bool}</code></td>
+              <td>State JSON</td>
+            </tr>
+            <tr>
+              <td>GET</td>
+              <td>/api/devices</td>
+              <td>—</td>
+              <td><code>{"devices":[{"id","ip","url"},...]}</code> — mDNS discovery (~2 s, station mode only)</td>
+            </tr>
+            <tr>
+              <td>GET</td>
+              <td>/api/deviceinfo</td>
+              <td>—</td>
+              <td><code>{"id":"morrayglow-XXXXXX","url":"http://..."}</code> — available in both STA and AP modes</td>
+            </tr>
+            <tr>
+              <td>GET</td>
+              <td>/api/networkdata</td>
+              <td>—</td>
+              <td><code>{"scanning":bool,"networks":[{"ssid","rssi","secure"},...]}</code> — async scan, deduplicated by SSID</td>
+            </tr>
+            <tr>
+              <td>POST</td>
+              <td>/api/networkset</td>
+              <td><code>{"ssid":"...","password":"..."}</code></td>
+              <td><code>{"ok":true}</code> then device restarts into station mode</td>
+            </tr>
+            <tr>
+              <td>WS</td>
+              <td>/ws</td>
+              <td>—</td>
+              <td>Server pushes state JSON on every state change; sends current state on new connection</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>MQTT Topics</h3>
+      <p>All topics use the runtime device ID derived from the last 3 bytes of the MAC address. Example device ID: <code>morrayglow-2cb120</code>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Direction</th><th>Topic</th><th>Retained</th><th>Purpose</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Subscribe</td>
+              <td>&lt;device-id&gt;/command</td>
+              <td>—</td>
+              <td>Receives commands from Home Assistant or any MQTT client</td>
+            </tr>
+            <tr>
+              <td>Publish</td>
+              <td>&lt;device-id&gt;/state</td>
+              <td>Yes</td>
+              <td>Current device state; also used as LWT (offline = <code>{"on":false}</code>)</td>
+            </tr>
+            <tr>
+              <td>Publish</td>
+              <td>homeassistant/light/&lt;device-id&gt;/config</td>
+              <td>Yes</td>
+              <td>HA auto-discovery payload; published on every broker reconnect</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>MQTT Payload Format</h3>
+      <p>The MQTT command payload uses the Home Assistant JSON light schema, which differs from the REST API format:</p>
+      <div class="code-block">
+        <div class="code-header"><span>json — MQTT command (subscribe)</span><span class="material-icons">content_copy</span></div>
+        <pre><code>// Subscribe: morrayglow-2cb120/command
+{
+  "state": "ON",
+  "color": { "r": 255, "g": 0, "b": 0 },
+  "cycle": false
+}</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span>json — MQTT state (publish)</span><span class="material-icons">content_copy</span></div>
+        <pre><code>// Publish: morrayglow-2cb120/state
+{
+  "on": true,
+  "color": "#ff0000",
+  "cycle": false
+}</code></pre>
+      </div>
+
+      <div class="alert info">
+        <span class="material-icons">info</span>
+        <div class="alert-body"><strong>Schema difference between REST and MQTT.</strong> The REST API uses <code>{"on":bool}</code> and <code>{"color":"#rrggbb"}</code>. The MQTT command topic uses the HA JSON light schema: <code>{"state":"ON"}</code> (string) and <code>{"color":{"r":255,"g":0,"b":0}}</code> (RGB object). Parsing is handled by <code>parseMqttCommand()</code> in <code>state.h</code>.</div>
+      </div>
+    </section>
+
+    <!-- ── 6. PROJECT STRUCTURE ──────────────────────────────────────────── -->
+    <section class="section" id="structure">
+      <div class="section-header">
+        <div class="section-icon purple">
+          <span class="material-icons">folder</span>
+        </div>
+        <h2>Project Structure</h2>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span>directory tree</span><span class="material-icons">content_copy</span></div>
+        <pre><code>MorayGlow/
+├── MorrayServer/                     # ESP32-S3 firmware (C++, PlatformIO)
+│   ├── platformio.ini                # envs: xiao_esp32s3, xiao_esp32s3_ota, native
+│   ├── src/
+│   │   ├── main.cpp                  # setup/loop, LEDC PWM, button, 8-colour cycle
+│   │   ├── webserver.cpp             # ESPAsyncWebServer, WebSocket, all REST endpoints
+│   │   ├── mqtt.cpp                  # PubSubClient, HA auto-discovery, MQTT callback
+│   │   └── device.cpp                # Device static class (MAC-based ID, mDNS query)
+│   ├── include/
+│   │   ├── config.h                  # MQTT host/port/credentials — EDIT before flashing
+│   │   ├── state.h                   # Header-only: stateToJson, rgbToHex, parseMqttCommand
+│   │   ├── device.h                  # Device static class declaration
+│   │   ├── webserver.h               # broadcastState, webserverSetup, webserverLoop
+│   │   ├── mqtt.h                    # mqttSetup, mqttLoop, mqttPublishState
+│   │   └── IguanaOTA.h               # OTA update wrapper (from IguanaLib)
+│   ├── test/
+│   │   └── test_state/main.cpp       # Unity unit tests for state.h (native env)
+│   └── data/                         # LittleFS web UI — upload via uploadfs target
+│       ├── index.html                # Main control UI: power, colour picker, mode toggle
+│       ├── setup.html                # WiFi captive portal (served in AP mode)
+│       ├── devices.html              # Multi-device mDNS discovery browser
+│       ├── css/style.css             # Shared stylesheet for all UI pages
+│       └── js/
+│           ├── app.js                # Main UI logic (WebSocket, REST calls, colour picker)
+│           └── morray.js             # Shared UMD util: buildWsUrl, isValidHexColor
+│
+├── MorrayClient/                     # Web client testing and dev tools
+│   ├── package.json                  # Jest test runner for client-side JS
+│   ├── js/morray.js                  # Shared util (same as data/js/morray.js)
+│   └── test-server/                  # Node.js dev mock server
+│       ├── server.js                 # Express + ws — mirrors firmware REST/WebSocket API exactly
+│       ├── logic.js                  # Server-side state validation (mirrors state.h in JS)
+│       └── package.json              # express ^4, ws ^8, jest ^29
+│
+└── CLAUDE.md                         # Claude Code instructions for this repository</code></pre>
+      </div>
+
+      <h3>Key Architecture Notes</h3>
+      <ul>
+        <li><code>state.h</code> is header-only with <code>inline</code> functions and <code>#ifndef ARDUINO</code> guards so it compiles on both the ESP32 and the native host (for unit tests).</li>
+        <li>The three globals (<code>ledOn</code>, <code>ledColor</code>, <code>cycleMode</code>) are defined once in <code>main.cpp</code> and <code>extern</code>'d into <code>webserver.cpp</code> and <code>mqtt.cpp</code> — no RTOS synchronisation is needed because ESPAsyncWebServer callbacks run in the same task context.</li>
+        <li>WiFi credentials are persisted to EEPROM using the <code>WiFiConfig</code> struct from IguanaLib. The struct is zero-filled on factory reset, causing <code>isValid()</code> to return false on the next boot and triggering AP mode.</li>
+        <li>The WiFi scan is always asynchronous (<code>WiFi.scanNetworks(true)</code>). The result is cached and served from the next <code>/api/networkdata</code> request; a fresh scan is kicked off immediately after each result is consumed.</li>
+      </ul>
+    </section>
+
+    <!-- ── 7. REFERENCES ─────────────────────────────────────────────────── -->
+    <section class="section" id="references">
+      <div class="section-header">
+        <div class="section-icon">
+          <span class="material-icons">link</span>
+        </div>
+        <h2>Documentation &amp; References</h2>
+      </div>
+
+      <div class="ref-grid">
+
+        <a class="ref-card" href="https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/" target="_blank" rel="noopener">
+          <div class="ref-icon red">
+            <span class="material-icons">developer_board</span>
+          </div>
+          <div>
+            <span class="ref-title">Seeed XIAO ESP32-S3</span>
+            <span class="ref-desc">Official getting-started guide, pinout diagram, and hardware specifications for the target MCU board.</span>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://docs.platformio.org/en/latest/" target="_blank" rel="noopener">
+          <div class="ref-icon purple">
+            <span class="material-icons">build</span>
+          </div>
+          <div>
+            <span class="ref-title">PlatformIO</span>
+            <span class="ref-desc">Build system and IDE used for all firmware compilation, flashing (USB + OTA), LittleFS upload, and native unit tests.</span>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://github.com/espressif/arduino-esp32" target="_blank" rel="noopener">
+          <div class="ref-icon">
+            <span class="material-icons">memory</span>
+          </div>
+          <div>
+            <span class="ref-title">Arduino ESP32 Core</span>
+            <span class="ref-desc">Provides WiFi, LEDC PWM, ESPmDNS, EEPROM, LittleFS, ArduinoOTA, and Serial APIs used throughout the firmware.</span>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://github.com/esphome/ESPAsyncWebServer" target="_blank" rel="noopener">
+          <div class="ref-icon">
+            <span class="material-icons">http</span>
+          </div>
+          <div>
+            <span class="ref-title">ESPAsyncWebServer</span>
+            <span class="ref-desc">Async HTTP server (esphome fork) used for all REST endpoints and WebSocket push — POST body arrives in the <code>onBody</code> lambda.</span>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://arduinojson.org/" target="_blank" rel="noopener">
+          <div class="ref-icon">
+            <span class="material-icons">data_object</span>
+          </div>
+          <div>
+            <span class="ref-title">ArduinoJson v7</span>
+            <span class="ref-desc">JSON serialisation and deserialisation. v7 uses dynamic <code>JsonDocument</code> (no capacity argument). Used in state.h, webserver.cpp, and mqtt.cpp.</span>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://pubsubclient.knolleary.net/" target="_blank" rel="noopener">
+          <div class="ref-icon amber">
+            <span class="material-icons">sensors</span>
+          </div>
+          <div>
+            <span class="ref-title">PubSubClient</span>
+            <span class="ref-desc">MQTT client library. Used with <code>setBufferSize(512)</code> — the default 256-byte buffer is too small for Home Assistant auto-discovery payloads.</span>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://www.home-assistant.io/integrations/mqtt/" target="_blank" rel="noopener">
+          <div class="ref-icon green">
+            <span class="material-icons">home</span>
+          </div>
+          <div>
+            <span class="ref-title">Home Assistant MQTT</span>
+            <span class="ref-desc">Integration used for auto-discovery. Device publishes config to <code>homeassistant/light/&lt;id&gt;/config</code> on every broker reconnect.</span>
+          </div>
+        </a>
+
+        <a class="ref-card" href="https://github.com/bblanchon/ArduinoJson" target="_blank" rel="noopener">
+          <div class="ref-icon purple">
+            <span class="material-icons">science</span>
+          </div>
+          <div>
+            <span class="ref-title">ArduinoJson (GitHub)</span>
+            <span class="ref-desc">Source repository for ArduinoJson — useful for v7 migration notes, changelog, and issue tracker.</span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+  </div><!-- /.content -->
+</div><!-- /.layout -->
+
+<footer>
+  <span class="material-icons">lightbulb</span>
+  MorayGlow — WiFi RGB LED strip controller · Seeed XIAO ESP32-S3 · PlatformIO / Arduino
+</footer>
+
+<script>
+  // Scroll spy
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.nav-item');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navItems.forEach(n => n.classList.remove('active'));
+        const active = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => obs.observe(s));
+
+  // Copy buttons
+  document.querySelectorAll('.code-header .material-icons').forEach(icon => {
+    icon.title = 'Copy';
+    icon.addEventListener('click', () => {
+      const code = icon.closest('.code-block').querySelector('pre').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        icon.textContent = 'check';
+        setTimeout(() => icon.textContent = 'content_copy', 1500);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
