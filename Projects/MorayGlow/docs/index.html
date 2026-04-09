@@ -436,6 +436,10 @@ footer .material-icons { font-size: 16px; }
     <div class="nav-pill"><span class="material-icons">developer_board</span></div>
     <span>Pins</span>
   </a>
+  <a href="#pcb" class="nav-item">
+    <div class="nav-pill"><span class="material-icons">view_in_ar</span></div>
+    <span>3D PCB</span>
+  </a>
   <a href="#firmware" class="nav-item">
     <div class="nav-pill"><span class="material-icons">code</span></div>
     <span>FW</span>
@@ -853,6 +857,22 @@ footer .material-icons { font-size: 16px; }
           </tbody>
         </table>
       </div>
+    </section>
+
+    <!-- ── 3D PCB viewer ─────────────────────────────────────────────── -->
+    <section class="section" id="pcb">
+      <div class="section-header">
+        <div class="section-icon purple">
+          <span class="material-icons">view_in_ar</span>
+        </div>
+        <h2>3D PCB</h2>
+      </div>
+      <iframe
+        src="pcb-viewer.html"
+        style="width:100%; height:480px; border:none; border-radius:12px; display:block;"
+        title="MorayGlow 3D PCB viewer"
+        loading="lazy"
+      ></iframe>
     </section>
 
     <!-- ── Firmware ──────────────────────────────────────────────────── -->
