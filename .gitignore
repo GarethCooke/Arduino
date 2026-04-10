@@ -407,3 +407,6 @@ FodyWeavers.xsd
 **/__vm/**
 !**/__vm/Configuration.*
 
+# KiCad lock files
+*.lck
+
